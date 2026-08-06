@@ -118,8 +118,8 @@
                     type="button"
                     data-menu="stats"
             >
-                <span class="navigationIcon">📊</span>
-                <span class="navigationText">STATS</span>
+                <span class="navigationIcon">☰</span>
+                <span class="navigationText">MORE</span>
             </button>
 
         </nav>
@@ -582,6 +582,120 @@
     </div>
 
 </div>
+
+
+<!-- ACHIEVEMENT UNLOCKED POPUP -->
+<div
+        class="achievementToast"
+        id="achievementToast"
+        aria-live="polite"
+        aria-atomic="true"
+>
+    <div class="achievementToastIcon">
+        🏆
+    </div>
+
+    <div class="achievementToastInformation">
+
+        <span>
+            ACHIEVEMENT UNLOCKED
+        </span>
+
+        <strong id="achievementToastTitle">
+            FIRST CRACK
+        </strong>
+
+        <p id="achievementToastDescription">
+            Tap the energy can for the first time.
+        </p>
+
+    </div>
+</div>
+<!-- SAVE SLOT SELECTION SCREEN -->
+<div
+        class="saveSlotOverlay open"
+        id="saveSlotOverlay"
+        aria-hidden="false"
+>
+    <section
+            class="saveSlotPanel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="saveSlotTitle"
+    >
+        <div class="saveSlotLogo">
+            ⚡
+        </div>
+
+        <h1 id="saveSlotTitle">
+            ENERGY CLICKER
+        </h1>
+
+        <p class="saveSlotSubtitle">
+            SELECT A SAVE SLOT
+        </p>
+
+        <div
+                class="saveSlotList"
+                id="saveSlotList"
+        ></div>
+    </section>
+</div>
+
+<!-- OFFLINE PRODUCTION REWARD -->
+<div
+        class="offlineRewardOverlay"
+        id="offlineRewardOverlay"
+        aria-hidden="true"
+>
+    <section
+            class="offlineRewardPanel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="offlineRewardTitle"
+    >
+        <div class="offlineRewardIcon">
+            ⚡
+        </div>
+
+        <h2 id="offlineRewardTitle">
+            WELCOME BACK!
+        </h2>
+
+        <p class="offlineRewardMessage">
+            Your production continued while you were away.
+        </p>
+
+        <div class="offlineRewardDetails">
+
+            <div class="offlineRewardRow">
+                <span>TIME AWAY</span>
+
+                <strong id="offlineTimeAway">
+                    0s
+                </strong>
+            </div>
+
+            <div class="offlineRewardRow">
+                <span>ENERGY EARNED</span>
+
+                <strong id="offlineEnergyEarned">
+                    0
+                </strong>
+            </div>
+
+        </div>
+
+        <button
+                class="offlineContinueButton"
+                id="offlineContinueButton"
+                type="button"
+        >
+            CONTINUE
+        </button>
+    </section>
+</div>
+
 <!-- TEMPORARY DEVELOPER TEST BUTTON -->
 <button
         class="devEnergyButton"

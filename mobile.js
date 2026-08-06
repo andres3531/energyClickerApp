@@ -185,6 +185,234 @@ const mobileOwnedColors =
 let mobileEquippedColorIndex = null;
 
 // -------------------------------------------------
+// PLAYER STATISTICS STATE
+// -------------------------------------------------
+
+let mobileTotalTaps = 0;
+let mobileLifetimeEnergy = 0;
+
+let mobileLuckyShotsActivated = 0;
+let mobileKineticActivations = 0;
+
+let mobileSecondsPlayed = 0;
+
+// -------------------------------------------------
+// OFFLINE PRODUCTION STATE
+// -------------------------------------------------
+
+const MINIMUM_OFFLINE_SECONDS = 10;
+
+/*
+    Players can currently earn a maximum of
+    eight hours of offline production.
+
+    We can rebalance this later.
+*/
+const MAXIMUM_OFFLINE_SECONDS =
+    8 * 60 * 60;
+
+const offlineRewardOverlay =
+    document.getElementById(
+        "offlineRewardOverlay"
+    );
+
+const offlineTimeAwayDisplay =
+    document.getElementById(
+        "offlineTimeAway"
+    );
+
+const offlineEnergyEarnedDisplay =
+    document.getElementById(
+        "offlineEnergyEarned"
+    );
+
+const offlineContinueButton =
+    document.getElementById(
+        "offlineContinueButton"
+    );
+
+// -------------------------------------------------
+// SAVE MANAGEMENT STATE
+// -------------------------------------------------
+
+let isResettingGame = false;
+let manualSaveMessageTimer = null;
+
+// -------------------------------------------------
+// GLOBAL GAME SETTINGS
+// -------------------------------------------------
+
+const GAME_SETTINGS_KEY =
+    "energyClickerSettings";
+
+const DEFAULT_GAME_SETTINGS = {
+    soundEffects: true,
+    haptics: true,
+    reducedMotion: false
+};
+
+/*
+    Settings are global.
+
+    They apply to every save slot instead of being
+    stored separately inside each player's save.
+*/
+let gameSettings = {
+    ...DEFAULT_GAME_SETTINGS
+};
+
+let gameAudioContext = null;
+
+
+// -------------------------------------------------
+// ACHIEVEMENT DEFINITIONS
+// -------------------------------------------------
+
+const PLAYER_ACHIEVEMENTS = [
+    {
+        id: "firstTap",
+        icon: "👆",
+        name: "FIRST CRACK",
+        description: "Tap the energy can for the first time.",
+        target: 1,
+        getProgress: () => mobileTotalTaps
+    },
+
+    {
+        id: "tap100",
+        icon: "⚡",
+        name: "GETTING STARTED",
+        description: "Tap the energy can 100 times.",
+        target: 100,
+        getProgress: () => mobileTotalTaps
+    },
+
+    {
+        id: "tap1000",
+        icon: "🔥",
+        name: "TAP MACHINE",
+        description: "Tap the energy can 1,000 times.",
+        target: 1000,
+        getProgress: () => mobileTotalTaps
+    },
+
+    {
+        id: "energy10000",
+        icon: "🥤",
+        name: "ENERGY STOCKPILE",
+        description: "Produce 10,000 lifetime energy.",
+        target: 10000,
+        getProgress: () => mobileLifetimeEnergy
+    },
+
+    {
+        id: "energyMillion",
+        icon: "💰",
+        name: "ENERGY EMPIRE",
+        description: "Produce 1,000,000 lifetime energy.",
+        target: 1000000,
+        getProgress: () => mobileLifetimeEnergy
+    },
+
+    {
+        id: "canLevel3",
+        icon: "📈",
+        name: "CAN COLLECTOR",
+        description: "Reach Drink Power can level 3.",
+        target: 3,
+        getProgress: () => mobileDrinkUpgradeIndex
+    },
+
+    {
+        id: "automaticProduction",
+        icon: "🏭",
+        name: "AUTOMATION BEGINS",
+        description: "Unlock automatic energy production.",
+        target: 1,
+        getProgress: () => mobileEnergyPerSecond
+    },
+
+    {
+        id: "production50",
+        icon: "🚚",
+        name: "PRODUCTION LINE",
+        description: "Reach 50 energy produced per second.",
+        target: 50,
+        getProgress: () => mobileEnergyPerSecond
+    },
+
+    {
+        id: "firstLuckyShot",
+        icon: "🍀",
+        name: "LUCKY BREAK",
+        description: "Activate Lucky Shot for the first time.",
+        target: 1,
+        getProgress: () => mobileLuckyShotsActivated
+    },
+
+    {
+        id: "firstKinetic",
+        icon: "🌩️",
+        name: "OVERFLOWING",
+        description: "Activate Kinetic Overflow for the first time.",
+        target: 1,
+        getProgress: () => mobileKineticActivations
+    },
+
+    {
+        id: "firstSkin",
+        icon: "🎭",
+        name: "FRESH LOOK",
+        description: "Purchase your first can skin.",
+        target: 1,
+        getProgress: () =>
+            mobileOwnedSkins.filter(Boolean).length
+    },
+
+    {
+        id: "firstColor",
+        icon: "🎨",
+        name: "SHOW YOUR COLORS",
+        description: "Purchase your first score color.",
+        target: 1,
+        getProgress: () =>
+            mobileOwnedColors.filter(Boolean).length
+    }
+];
+
+// -------------------------------------------------
+// PERMANENT ACHIEVEMENT STATE
+// -------------------------------------------------
+
+/*
+    These IDs are saved separately for each slot.
+
+    Once an achievement ID enters this array,
+    it remains unlocked even if a future Rebirth
+    resets the stat that originally unlocked it.
+*/
+let mobileUnlockedAchievementIds = [];
+
+let achievementNotificationQueue = [];
+let achievementNotificationActive = false;
+let achievementNotificationTimer = null;
+
+const achievementToast =
+    document.getElementById(
+        "achievementToast"
+    );
+
+const achievementToastTitle =
+    document.getElementById(
+        "achievementToastTitle"
+    );
+
+const achievementToastDescription =
+    document.getElementById(
+        "achievementToastDescription"
+    );
+
+// -------------------------------------------------
 // MENU TITLES
 // -------------------------------------------------
 
@@ -192,7 +420,7 @@ const menuTitles = {
     upgrades: "UPGRADES SHOP",
     skins: "SKINS SHOP",
     colors: "COLORS SHOP",
-    stats: "STATS"
+    stats: "PLAYER HUB"
 };
 
 
@@ -278,26 +506,14 @@ function updateShopBalance() {
     const formattedEnergy =
         formatGameNumber(mobileEnergy);
 
-    /*
-        Keep the home score and shop balance
-        synchronized at all times.
-    */
     mobileScoreDisplay.textContent =
         formattedEnergy;
 
     shopBalanceAmount.textContent =
         formattedEnergy;
 
-    /*
-        Make sure the selected score color remains
-        applied whenever the score is updated.
-    */
     updateScoreColor();
 
-    /*
-        Display the temporarily multiplied tap power
-        while Kinetic Overflow is active.
-    */
     mobilePerTapDisplay.textContent =
         formatGameNumber(
             getCurrentTapPower()
@@ -313,10 +529,6 @@ function updateShopBalance() {
         );
     }
 
-    /*
-        Hide automatic production until the player
-        owns at least one automatic upgrade.
-    */
     if (mobileEnergyPerSecond > 0) {
         mobilePerSecondRow.classList.remove(
             "hidden"
@@ -340,6 +552,14 @@ function updateShopBalance() {
     updatePreWorkoutCard();
     updateLuckyShotCard();
     updateKineticOverflowCard();
+
+    updateStatsDisplay();
+
+    /*
+        Check achievements after every meaningful
+        score or progression update.
+    */
+    checkForNewAchievements();
 }
 
 // -------------------------------------------------
@@ -1248,14 +1468,13 @@ function tryLuckyShot() {
     const randomNumber =
         Math.random();
 
-    if (randomNumber >= mobileLuckyShotChance) {
+    if (
+        randomNumber >=
+        mobileLuckyShotChance
+    ) {
         return;
     }
 
-    /*
-        The reward is 20% of the player's current
-        energy, with a minimum reward of 1.
-    */
     const luckyShotBonus =
         Math.max(
             1,
@@ -1267,6 +1486,11 @@ function tryLuckyShot() {
 
     mobileEnergy +=
         luckyShotBonus;
+
+    mobileLifetimeEnergy +=
+        luckyShotBonus;
+
+    mobileLuckyShotsActivated++;
 
     showLuckyShotMessage(
         luckyShotBonus
@@ -1552,6 +1776,8 @@ function startKineticOverflow() {
 
     mobileKineticTimeLeft =
         mobileKineticDuration;
+
+    mobileKineticActivations++;
 
     updateKineticStatus();
     updateShopBalance();
@@ -2173,6 +2399,2280 @@ function attachColorButtons() {
 }
 
 // -------------------------------------------------
+// FORMAT PLAY TIME
+// -------------------------------------------------
+
+function formatGameTime(totalSeconds) {
+    const hours =
+        Math.floor(totalSeconds / 3600);
+
+    const minutes =
+        Math.floor(
+            (totalSeconds % 3600) / 60
+        );
+
+    const seconds =
+        totalSeconds % 60;
+
+    if (hours > 0) {
+        return `${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    if (minutes > 0) {
+        return `${minutes}m ${seconds}s`;
+    }
+
+    return `${seconds}s`;
+}
+
+
+// -------------------------------------------------
+// FORMAT CHANCE PERCENTAGES
+// -------------------------------------------------
+
+function formatChancePercent(chance) {
+    const percentage =
+        chance * 100;
+
+    return `${Number(
+        percentage.toFixed(2)
+    )}%`;
+}
+
+
+// -------------------------------------------------
+// CREATE THE STATS SCREEN
+// -------------------------------------------------
+
+function createStatsShopContent() {
+    return `
+        <section class="statsScreen">
+
+            <div class="statsSection">
+
+                <h3 class="statsSectionTitle">
+                    PRODUCTION
+                </h3>
+
+                <div class="statsGrid">
+
+                    <article class="statCard">
+                        <span class="statIcon">🥤</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                CURRENT ENERGY
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statCurrentEnergy"
+                            >
+                                0
+                            </strong>
+                        </div>
+                    </article>
+
+                    <article class="statCard">
+                        <span class="statIcon">⚡</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                LIFETIME ENERGY
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statLifetimeEnergy"
+                            >
+                                0
+                            </strong>
+                        </div>
+                    </article>
+
+                    <article class="statCard">
+                        <span class="statIcon">👆</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                TOTAL TAPS
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statTotalTaps"
+                            >
+                                0
+                            </strong>
+                        </div>
+                    </article>
+
+                    <article class="statCard">
+                        <span class="statIcon">💥</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                ENERGY PER TAP
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statPerTap"
+                            >
+                                1
+                            </strong>
+                        </div>
+                    </article>
+
+                    <article class="statCard">
+                        <span class="statIcon">🏭</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                ENERGY PER SECOND
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statPerSecond"
+                            >
+                                0
+                            </strong>
+                        </div>
+                    </article>
+
+                    <article class="statCard">
+                        <span class="statIcon">📈</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                CAN LEVEL
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statCanLevel"
+                            >
+                                0
+                            </strong>
+                        </div>
+                    </article>
+
+                </div>
+
+            </div>
+
+
+            <div class="statsSection">
+
+                <h3 class="statsSectionTitle">
+                    SPECIAL EVENTS
+                </h3>
+
+                <div class="statsGrid">
+
+                    <article class="statCard">
+                        <span class="statIcon">🍀</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                LUCKY SHOT CHANCE
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statLuckyChance"
+                            >
+                                0%
+                            </strong>
+                        </div>
+                    </article>
+
+                    <article class="statCard">
+                        <span class="statIcon">🎯</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                LUCKY SHOTS
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statLuckyActivations"
+                            >
+                                0
+                            </strong>
+                        </div>
+                    </article>
+
+                    <article class="statCard">
+                        <span class="statIcon">🌩️</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                KINETIC CHANCE
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statKineticChance"
+                            >
+                                0%
+                            </strong>
+                        </div>
+                    </article>
+
+                    <article class="statCard">
+                        <span class="statIcon">🔥</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                KINETIC POWER
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statKineticMultiplier"
+                            >
+                                ×1
+                            </strong>
+                        </div>
+                    </article>
+
+                    <article class="statCard">
+                        <span class="statIcon">💫</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                KINETIC ACTIVATIONS
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statKineticActivations"
+                            >
+                                0
+                            </strong>
+                        </div>
+                    </article>
+
+                </div>
+
+            </div>
+
+
+            <div class="statsSection">
+
+                <h3 class="statsSectionTitle">
+                    COLLECTION
+                </h3>
+
+                <div class="statsGrid">
+
+                    <article class="statCard">
+                        <span class="statIcon">🎭</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                SKINS OWNED
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statSkinsOwned"
+                            >
+                                0
+                            </strong>
+                        </div>
+                    </article>
+
+                    <article class="statCard">
+                        <span class="statIcon">🎨</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                COLORS OWNED
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statColorsOwned"
+                            >
+                                0
+                            </strong>
+                        </div>
+                    </article>
+
+                    <article class="statCard">
+                        <span class="statIcon">⏱️</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                TIME PLAYED
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statTimePlayed"
+                            >
+                                0s
+                            </strong>
+                        </div>
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+    `;
+}
+
+
+// -------------------------------------------------
+// DISPLAY THE STATS SCREEN
+// -------------------------------------------------
+
+function renderStatsShop() {
+    /*
+        Main player statistics.
+    */
+    shopList.innerHTML =
+        createStatsShopContent();
+
+    /*
+        Achievement access.
+    */
+    shopList.insertAdjacentHTML(
+        "beforeend",
+        createAchievementsAccessContent()
+    );
+
+    /*
+        Save and slot controls.
+    */
+    shopList.insertAdjacentHTML(
+        "beforeend",
+        createSaveManagementContent()
+    );
+
+    /*
+        Global settings.
+    */
+    shopList.insertAdjacentHTML(
+        "beforeend",
+        createSettingsAccessContent()
+    );
+
+    updateStatsDisplay();
+
+    attachAchievementsAccessButton();
+    attachSaveManagementButtons();
+    attachSettingsAccessButton();
+}
+
+
+// -------------------------------------------------
+// UPDATE ONE STAT ELEMENT
+// -------------------------------------------------
+
+function setStatValue(elementId, value) {
+    const statElement =
+        document.getElementById(elementId);
+
+    if (!statElement) {
+        return;
+    }
+
+    statElement.textContent =
+        value;
+}
+
+
+// -------------------------------------------------
+// UPDATE ALL VISIBLE STATISTICS
+// -------------------------------------------------
+
+function updateStatsDisplay() {
+    const skinsOwned =
+        mobileOwnedSkins.filter(Boolean).length;
+
+    const colorsOwned =
+        mobileOwnedColors.filter(Boolean).length;
+
+    setStatValue(
+        "statCurrentEnergy",
+        formatGameNumber(mobileEnergy)
+    );
+
+    setStatValue(
+        "statLifetimeEnergy",
+        formatGameNumber(mobileLifetimeEnergy)
+    );
+
+    setStatValue(
+        "statTotalTaps",
+        formatGameNumber(mobileTotalTaps)
+    );
+
+    setStatValue(
+        "statPerTap",
+        formatGameNumber(
+            getCurrentTapPower()
+        )
+    );
+
+    setStatValue(
+        "statPerSecond",
+        formatGameNumber(
+            mobileEnergyPerSecond
+        )
+    );
+
+    setStatValue(
+        "statCanLevel",
+        mobileDrinkUpgradeIndex
+    );
+
+    setStatValue(
+        "statLuckyChance",
+        formatChancePercent(
+            mobileLuckyShotChance
+        )
+    );
+
+    setStatValue(
+        "statLuckyActivations",
+        formatGameNumber(
+            mobileLuckyShotsActivated
+        )
+    );
+
+    setStatValue(
+        "statKineticChance",
+        formatChancePercent(
+            mobileKineticChance
+        )
+    );
+
+    setStatValue(
+        "statKineticMultiplier",
+        `×${mobileKineticMultiplier}`
+    );
+
+    setStatValue(
+        "statKineticActivations",
+        formatGameNumber(
+            mobileKineticActivations
+        )
+    );
+
+    setStatValue(
+        "statSkinsOwned",
+        `${skinsOwned}/${COSMETIC_UPGRADES.length}`
+    );
+
+    setStatValue(
+        "statColorsOwned",
+        `${colorsOwned}/${CHANGECOLOR_UPGRADES.length}`
+    );
+
+    setStatValue(
+        "statTimePlayed",
+        formatGameTime(
+            mobileSecondsPlayed
+        )
+    );
+}
+
+// -------------------------------------------------
+// SAVE SLOT SCREEN ELEMENTS
+// -------------------------------------------------
+
+const saveSlotOverlay =
+    document.getElementById(
+        "saveSlotOverlay"
+    );
+
+const saveSlotList =
+    document.getElementById(
+        "saveSlotList"
+    );
+
+
+// -------------------------------------------------
+// READ ONE SAVE SLOT
+// -------------------------------------------------
+
+function readSaveSlot(slotNumber) {
+    const slotKey =
+        `energyClickerSaveSlot${slotNumber}`;
+
+    try {
+        const savedText =
+            localStorage.getItem(slotKey);
+
+        if (!savedText) {
+            return null;
+        }
+
+        const savedData =
+            JSON.parse(savedText);
+
+        if (
+            !savedData ||
+            typeof savedData !== "object"
+        ) {
+            return null;
+        }
+
+        return savedData;
+    } catch (error) {
+        console.error(
+            `Could not read save slot ${slotNumber}:`,
+            error
+        );
+
+        return null;
+    }
+}
+
+
+// -------------------------------------------------
+// CREATE ONE SAVE SLOT CARD
+// -------------------------------------------------
+
+function createSaveSlotCard(slotNumber) {
+    const savedData =
+        readSaveSlot(slotNumber);
+
+    /*
+        Empty slot.
+    */
+    if (!savedData) {
+        return `
+            <article class="saveSlotCard empty">
+
+                <div class="saveSlotCardHeader">
+
+                    <h2>
+                        SLOT ${slotNumber}
+                    </h2>
+
+                    <span class="saveSlotBadge">
+                        EMPTY
+                    </span>
+
+                </div>
+
+                <p class="emptySlotMessage">
+                    Start a brand-new energy empire.
+                </p>
+
+                <button
+                    class="saveSlotButton"
+                    type="button"
+                    data-save-slot="${slotNumber}"
+                >
+                    NEW GAME
+                </button>
+
+            </article>
+        `;
+    }
+
+    const savedEnergy =
+        Number.isFinite(savedData.energy)
+            ? savedData.energy
+            : 0;
+
+    const savedCanLevel =
+        Number.isFinite(
+            savedData.drinkUpgradeIndex
+        )
+            ? Math.max(
+                0,
+                Math.floor(
+                    savedData.drinkUpgradeIndex
+                )
+            )
+            : 0;
+
+    const savedPlayTime =
+        Number.isFinite(
+            savedData.secondsPlayed
+        )
+            ? Math.max(
+                0,
+                Math.floor(
+                    savedData.secondsPlayed
+                )
+            )
+            : 0;
+
+    return `
+        <article class="saveSlotCard used">
+
+            <div class="saveSlotCardHeader">
+
+                <h2>
+                    SLOT ${slotNumber}
+                </h2>
+
+                <span class="saveSlotBadge">
+                    SAVED
+                </span>
+
+            </div>
+
+            <div class="saveSlotSummary">
+
+                <div class="saveSlotSummaryRow">
+
+                    <span>
+                        ENERGY
+                    </span>
+
+                    <strong>
+                        ${formatGameNumber(savedEnergy)}
+                    </strong>
+
+                </div>
+
+                <div class="saveSlotSummaryRow">
+
+                    <span>
+                        CAN LEVEL
+                    </span>
+
+                    <strong>
+                        ${savedCanLevel}
+                    </strong>
+
+                </div>
+
+                <div class="saveSlotSummaryRow">
+
+                    <span>
+                        PLAY TIME
+                    </span>
+
+                    <strong>
+                        ${formatGameTime(savedPlayTime)}
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <button
+                class="saveSlotButton"
+                type="button"
+                data-save-slot="${slotNumber}"
+            >
+                CONTINUE
+            </button>
+
+        </article>
+    `;
+}
+
+
+// -------------------------------------------------
+// DISPLAY ALL SAVE SLOTS
+// -------------------------------------------------
+
+function renderSaveSlotScreen() {
+    saveSlotList.innerHTML = [
+        createSaveSlotCard(1),
+        createSaveSlotCard(2),
+        createSaveSlotCard(3)
+    ].join("");
+
+    attachSaveSlotButtons();
+
+    saveSlotOverlay.classList.add(
+        "open"
+    );
+
+    saveSlotOverlay.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+}
+
+
+// -------------------------------------------------
+// CONNECT SAVE SLOT BUTTONS
+// -------------------------------------------------
+
+function attachSaveSlotButtons() {
+    const slotButtons =
+        saveSlotList.querySelectorAll(
+            ".saveSlotButton"
+        );
+
+    slotButtons.forEach((button) => {
+        button.addEventListener(
+            "click",
+            () => {
+                const selectedSlot =
+                    Number(
+                        button.dataset.saveSlot
+                    );
+
+                selectSaveSlot(
+                    selectedSlot
+                );
+            }
+        );
+    });
+}
+
+// -------------------------------------------------
+// RESET THE IN-MEMORY GAME STATE
+// -------------------------------------------------
+
+function resetRuntimeStateToNewGame() {
+    mobileEnergy = 0;
+    mobileEnergyPerTap = 1;
+    mobileEnergyPerSecond = 0;
+
+    mobileDrinkUpgradeIndex = 0;
+    mobileFactoryUpgradeIndex = 0;
+    mobileDeliveryUpgradeIndex = 0;
+    mobilePreWorkoutUpgradeIndex = 0;
+    mobileLuckyShotUpgradeIndex = 0;
+    mobileKineticUpgradeIndex = 0;
+
+    mobileLuckyShotChance = 0;
+
+    mobileKineticChance = 0;
+    mobileKineticMultiplier = 1;
+    mobileKineticDuration = 0;
+
+    mobileKineticActive = false;
+    mobileKineticTimeLeft = 0;
+
+    if (kineticCountdownInterval) {
+        clearInterval(
+            kineticCountdownInterval
+        );
+
+        kineticCountdownInterval = null;
+    }
+
+    kineticStatus.textContent = "";
+
+    kineticStatus.classList.remove(
+        "active"
+    );
+
+    mobilePerTapRow.classList.remove(
+        "kineticBoosted"
+    );
+
+    if (luckyShotMessageTimer) {
+        clearTimeout(
+            luckyShotMessageTimer
+        );
+
+        luckyShotMessageTimer = null;
+    }
+
+    mobileGameMessage.textContent = "";
+
+    mobileGameMessage.classList.remove(
+        "luckyShotActive"
+    );
+
+    mobileOwnedSkins.fill(false);
+    mobileOwnedColors.fill(false);
+
+    mobileEquippedSkinIndex = null;
+    mobileEquippedColorIndex = null;
+
+    equippedSkinImage = null;
+
+    mobileTotalTaps = 0;
+    mobileLifetimeEnergy = 0;
+
+    mobileLuckyShotsActivated = 0;
+    mobileKineticActivations = 0;
+
+    mobileSecondsPlayed = 0;
+
+    /*
+        Achievement progress belongs to each slot.
+    */
+    mobileUnlockedAchievementIds = [];
+
+    achievementNotificationQueue = [];
+    achievementNotificationActive = false;
+
+    if (achievementNotificationTimer) {
+        clearTimeout(
+            achievementNotificationTimer
+        );
+
+        achievementNotificationTimer = null;
+    }
+
+    achievementToast.classList.remove(
+        "visible"
+    );
+
+    if (manualSaveMessageTimer) {
+        clearTimeout(
+            manualSaveMessageTimer
+        );
+
+        manualSaveMessageTimer = null;
+    }
+}
+
+
+// -------------------------------------------------
+// RETURN TO THE SAVE SLOT SCREEN
+// -------------------------------------------------
+
+function returnToSaveSlots() {
+    /*
+        Preserve the current slot before leaving it.
+    */
+    saveGame();
+
+    /*
+        Close any open game panels.
+    */
+    closeMenu();
+    closeOfflineReward();
+
+    /*
+        Stop gameplay and remove the active slot.
+    */
+    hasSelectedSaveSlot = false;
+    activeSaveSlot = null;
+
+    /*
+        Clear the previous slot from memory so an
+        empty slot cannot inherit its values.
+    */
+    resetRuntimeStateToNewGame();
+
+    /*
+        Rebuild the slot cards using the latest
+        saved information.
+    */
+    renderSaveSlotScreen();
+}
+
+// -------------------------------------------------
+// SELECT AND LOAD A SAVE SLOT
+// -------------------------------------------------
+
+function selectSaveSlot(slotNumber) {
+    if (
+        !Number.isInteger(slotNumber) ||
+        slotNumber < 1 ||
+        slotNumber > 3
+    ) {
+        return;
+    }
+
+    /*
+        Always start from a completely clean
+        in-memory state before loading a slot.
+    */
+    resetRuntimeStateToNewGame();
+
+    activeSaveSlot =
+        slotNumber;
+
+    hasSelectedSaveSlot =
+        true;
+
+    saveSlotOverlay.classList.remove(
+        "open"
+    );
+
+    saveSlotOverlay.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+    /*
+        Existing slots restore their data.
+
+        Empty slots keep the clean starting values
+        created above.
+    */
+    loadGame();
+
+    /*
+        Reconnect any upgrade cards currently
+        present and draw the selected slot.
+    */
+    attachTestBuyButtons();
+    updateShopBalance();
+
+    /*
+        Immediately create a save when the player
+        selects an empty slot.
+    */
+    saveGame();
+}
+
+// -------------------------------------------------
+// CREATE SAVE MANAGEMENT CONTENT
+// -------------------------------------------------
+
+function createSaveManagementContent() {
+    const autoSaveSeconds =
+        Math.floor(
+            AUTO_SAVE_INTERVAL_MS / 1000
+        );
+
+    return `
+        <div class="statsSection saveManagementSection">
+
+            <h3 class="statsSectionTitle">
+                SAVE MANAGEMENT
+            </h3>
+
+            <article class="saveManagementCard">
+
+                <div class="saveInformationRow">
+
+                    <span>
+                        CURRENT SAVE
+                    </span>
+
+                    <strong>
+                        SLOT ${activeSaveSlot}
+                    </strong>
+
+                </div>
+
+                <div class="saveInformationRow">
+
+                    <span>
+                        AUTO SAVE
+                    </span>
+
+                    <strong>
+                        EVERY ${autoSaveSeconds} SECONDS
+                    </strong>
+
+                </div>
+
+                <p
+                    class="manualSaveStatus"
+                    id="manualSaveStatus"
+                >
+                    Your progress saves automatically.
+                </p>
+
+                <div class="saveManagementButtons">
+
+                    <button
+                        class="saveNowButton"
+                        id="manualSaveButton"
+                        type="button"
+                    >
+                        SAVE NOW
+                    </button>
+
+                    <button
+                        class="changeSlotButton"
+                        id="changeSlotButton"
+                        type="button"
+                    >
+                        CHANGE SLOT
+                    </button>
+
+                    <button
+                        class="resetGameButton fullWidthSaveButton"
+                        id="resetGameButton"
+                        type="button"
+                    >
+                        RESET GAME
+                    </button>
+
+                </div>
+
+            </article>
+
+        </div>
+    `;
+}
+
+
+// -------------------------------------------------
+// CONNECT SAVE MANAGEMENT BUTTONS
+// -------------------------------------------------
+function attachSaveManagementButtons() {
+    const manualSaveButton =
+        document.getElementById(
+            "manualSaveButton"
+        );
+
+    const changeSlotButton =
+        document.getElementById(
+            "changeSlotButton"
+        );
+
+    const resetGameButton =
+        document.getElementById(
+            "resetGameButton"
+        );
+
+    if (manualSaveButton) {
+        manualSaveButton.addEventListener(
+            "click",
+            manuallySaveGame
+        );
+    }
+
+    if (changeSlotButton) {
+        changeSlotButton.addEventListener(
+            "click",
+            returnToSaveSlots
+        );
+    }
+
+    if (resetGameButton) {
+        resetGameButton.addEventListener(
+            "click",
+            renderResetGameConfirmation
+        );
+    }
+}
+
+
+// -------------------------------------------------
+// MANUALLY SAVE THE GAME
+// -------------------------------------------------
+
+function manuallySaveGame() {
+    const manualSaveButton =
+        document.getElementById(
+            "manualSaveButton"
+        );
+
+    const manualSaveStatus =
+        document.getElementById(
+            "manualSaveStatus"
+        );
+
+    const saveSucceeded =
+        saveGame();
+
+    if (!manualSaveStatus) {
+        return;
+    }
+
+    if (manualSaveMessageTimer) {
+        clearTimeout(
+            manualSaveMessageTimer
+        );
+    }
+
+    manualSaveStatus.classList.remove(
+        "saveSucceeded",
+        "saveFailed"
+    );
+
+    if (saveSucceeded) {
+        manualSaveStatus.textContent =
+            "PROGRESS SAVED!";
+
+        manualSaveStatus.classList.add(
+            "saveSucceeded"
+        );
+
+        if (manualSaveButton) {
+            manualSaveButton.textContent =
+                "SAVED!";
+        }
+    } else {
+        manualSaveStatus.textContent =
+            "SAVE FAILED";
+
+        manualSaveStatus.classList.add(
+            "saveFailed"
+        );
+    }
+
+    manualSaveMessageTimer =
+        setTimeout(() => {
+            manualSaveStatus.textContent =
+                "Your progress saves automatically.";
+
+            manualSaveStatus.classList.remove(
+                "saveSucceeded",
+                "saveFailed"
+            );
+
+            if (manualSaveButton) {
+                manualSaveButton.textContent =
+                    "SAVE NOW";
+            }
+        }, 1800);
+}
+
+
+// -------------------------------------------------
+// DISPLAY RESET CONFIRMATION
+// -------------------------------------------------
+
+function renderResetGameConfirmation() {
+    shopTitle.textContent =
+        "RESET GAME";
+
+    shopList.innerHTML = `
+        <section class="resetGameConfirmation">
+
+            <div class="resetWarningIcon">
+                ⚠️
+            </div>
+
+            <h3>
+                DELETE SLOT ${activeSaveSlot}?
+            </h3>
+
+            <p>
+                This permanently deletes your energy,
+                upgrades, skins, colors, statistics,
+                and offline progress.
+            </p>
+
+            <strong class="resetCannotUndo">
+                THIS CANNOT BE UNDONE
+            </strong>
+
+            <div class="resetConfirmationButtons">
+
+                <button
+                    class="cancelResetButton"
+                    id="cancelResetButton"
+                    type="button"
+                >
+                    CANCEL
+                </button>
+
+                <button
+                    class="confirmResetButton"
+                    id="confirmResetButton"
+                    type="button"
+                >
+                    DELETE SAVE
+                </button>
+
+            </div>
+
+        </section>
+    `;
+
+    const cancelResetButton =
+        document.getElementById(
+            "cancelResetButton"
+        );
+
+    const confirmResetButton =
+        document.getElementById(
+            "confirmResetButton"
+        );
+
+    cancelResetButton.addEventListener(
+        "click",
+        () => {
+            shopTitle.textContent =
+                menuTitles.stats;
+
+            renderStatsShop();
+        }
+    );
+
+    confirmResetButton.addEventListener(
+        "click",
+        resetCurrentSave
+    );
+}
+
+
+// -------------------------------------------------
+// DELETE THE CURRENT SAVE
+// -------------------------------------------------
+
+function resetCurrentSave() {
+    /*
+        Stops auto-save, visibilitychange, and
+        pagehide from restoring the deleted save.
+    */
+    isResettingGame = true;
+
+    try {
+        localStorage.removeItem(
+            getSaveKey()
+        );
+    } catch (error) {
+        console.error(
+            "Energy Clicker could not delete the save:",
+            error
+        );
+
+        isResettingGame = false;
+        return;
+    }
+
+    /*
+        Reloading starts Slot 1 as a completely
+        new game.
+    */
+    window.location.reload();
+}
+
+// -------------------------------------------------
+// LOAD GLOBAL GAME SETTINGS
+// -------------------------------------------------
+
+function loadGameSettings() {
+    let savedSettingsText;
+
+    try {
+        savedSettingsText =
+            localStorage.getItem(
+                GAME_SETTINGS_KEY
+            );
+    } catch (error) {
+        console.error(
+            "Could not access game settings:",
+            error
+        );
+
+        applyGameSettings();
+        return;
+    }
+
+    if (!savedSettingsText) {
+        applyGameSettings();
+        return;
+    }
+
+    try {
+        const savedSettings =
+            JSON.parse(
+                savedSettingsText
+            );
+
+        if (
+            !savedSettings ||
+            typeof savedSettings !== "object"
+        ) {
+            applyGameSettings();
+            return;
+        }
+
+        gameSettings.soundEffects =
+            savedSettings.soundEffects !== false;
+
+        gameSettings.haptics =
+            savedSettings.haptics !== false;
+
+        gameSettings.reducedMotion =
+            savedSettings.reducedMotion === true;
+    } catch (error) {
+        console.error(
+            "Saved settings were invalid:",
+            error
+        );
+    }
+
+    applyGameSettings();
+}
+
+
+// -------------------------------------------------
+// SAVE GLOBAL GAME SETTINGS
+// -------------------------------------------------
+
+function saveGameSettings() {
+    try {
+        localStorage.setItem(
+            GAME_SETTINGS_KEY,
+            JSON.stringify(
+                gameSettings
+            )
+        );
+
+        return true;
+    } catch (error) {
+        console.error(
+            "Could not save game settings:",
+            error
+        );
+
+        return false;
+    }
+}
+
+
+// -------------------------------------------------
+// APPLY GLOBAL GAME SETTINGS
+// -------------------------------------------------
+
+function applyGameSettings() {
+    document.body.classList.toggle(
+        "reducedMotion",
+        gameSettings.reducedMotion
+    );
+}
+
+// -------------------------------------------------
+// CHECK WHETHER AN ACHIEVEMENT IS UNLOCKED
+// -------------------------------------------------
+
+function isAchievementUnlocked(
+    achievementId
+) {
+    return mobileUnlockedAchievementIds.includes(
+        achievementId
+    );
+}
+
+
+// -------------------------------------------------
+// VALIDATE SAVED ACHIEVEMENT IDS
+// -------------------------------------------------
+
+function getValidAchievementIds(
+    savedAchievementIds
+) {
+    if (
+        !Array.isArray(
+            savedAchievementIds
+        )
+    ) {
+        return [];
+    }
+
+    const validIds =
+        new Set(
+            PLAYER_ACHIEVEMENTS.map(
+                (achievement) =>
+                    achievement.id
+            )
+        );
+
+    return [
+        ...new Set(
+            savedAchievementIds.filter(
+                (achievementId) =>
+                    validIds.has(
+                        achievementId
+                    )
+            )
+        )
+    ];
+}
+
+
+// -------------------------------------------------
+// MIGRATE OLDER SAVES SILENTLY
+// -------------------------------------------------
+
+function unlockCurrentAchievementsSilently() {
+    PLAYER_ACHIEVEMENTS.forEach(
+        (achievement) => {
+            const progress =
+                getAchievementProgress(
+                    achievement
+                );
+
+            if (
+                progress.completed &&
+                !isAchievementUnlocked(
+                    achievement.id
+                )
+            ) {
+                mobileUnlockedAchievementIds.push(
+                    achievement.id
+                );
+            }
+        }
+    );
+}
+
+
+// -------------------------------------------------
+// CHECK FOR NEW ACHIEVEMENTS
+// -------------------------------------------------
+
+function checkForNewAchievements() {
+    if (!hasSelectedSaveSlot) {
+        return;
+    }
+
+    const newlyUnlockedAchievements = [];
+
+    PLAYER_ACHIEVEMENTS.forEach(
+        (achievement) => {
+            if (
+                isAchievementUnlocked(
+                    achievement.id
+                )
+            ) {
+                return;
+            }
+
+            const progress =
+                getAchievementProgress(
+                    achievement
+                );
+
+            if (!progress.completed) {
+                return;
+            }
+
+            mobileUnlockedAchievementIds.push(
+                achievement.id
+            );
+
+            newlyUnlockedAchievements.push(
+                achievement
+            );
+        }
+    );
+
+    if (
+        newlyUnlockedAchievements.length === 0
+    ) {
+        return;
+    }
+
+    /*
+        Save immediately so a newly unlocked
+        achievement cannot be lost.
+    */
+    saveGame();
+
+    newlyUnlockedAchievements.forEach(
+        (achievement) => {
+            achievementNotificationQueue.push(
+                achievement
+            );
+        }
+    );
+
+    /*
+        Refresh the achievement list if it is
+        currently being viewed.
+    */
+    if (
+        shopTitle.textContent ===
+        "ACHIEVEMENTS"
+    ) {
+        renderAchievementsMenu();
+    }
+
+    showNextAchievementNotification();
+}
+
+
+// -------------------------------------------------
+// SHOW THE NEXT ACHIEVEMENT POPUP
+// -------------------------------------------------
+
+function showNextAchievementNotification() {
+    if (
+        achievementNotificationActive ||
+        achievementNotificationQueue.length === 0
+    ) {
+        return;
+    }
+
+    const achievement =
+        achievementNotificationQueue.shift();
+
+    achievementNotificationActive = true;
+
+    achievementToastTitle.textContent =
+        achievement.name;
+
+    achievementToastDescription.textContent =
+        achievement.description;
+
+    achievementToast.classList.remove(
+        "visible"
+    );
+
+    void achievementToast.offsetWidth;
+
+    achievementToast.classList.add(
+        "visible"
+    );
+
+    achievementNotificationTimer =
+        setTimeout(() => {
+            achievementToast.classList.remove(
+                "visible"
+            );
+
+            achievementNotificationTimer =
+                setTimeout(() => {
+                    achievementNotificationActive =
+                        false;
+
+                    showNextAchievementNotification();
+                }, 350);
+        }, 2500);
+}
+
+// -------------------------------------------------
+// GET ACHIEVEMENT PROGRESS
+// -------------------------------------------------
+
+function getAchievementProgress(
+    achievement
+) {
+    const currentProgress =
+        Math.max(
+            0,
+            Number(
+                achievement.getProgress()
+            ) || 0
+        );
+
+    const target =
+        Math.max(
+            1,
+            achievement.target
+        );
+
+    const completed =
+        currentProgress >= target;
+
+    const percentage =
+        Math.min(
+            100,
+            (currentProgress / target) * 100
+        );
+
+    return {
+        currentProgress,
+        target,
+        completed,
+        percentage
+    };
+}
+
+
+// -------------------------------------------------
+// COUNT COMPLETED ACHIEVEMENTS
+// -------------------------------------------------
+
+function getCompletedAchievementCount() {
+    return PLAYER_ACHIEVEMENTS.filter(
+        (achievement) => {
+            return isAchievementUnlocked(
+                achievement.id
+            );
+        }
+    ).length;
+}
+
+
+// -------------------------------------------------
+// CREATE ACHIEVEMENTS ACCESS CARD
+// -------------------------------------------------
+
+function createAchievementsAccessContent() {
+    const completedCount =
+        getCompletedAchievementCount();
+
+    return `
+        <div class="statsSection achievementsAccessSection">
+
+            <h3 class="statsSectionTitle">
+                ACHIEVEMENTS
+            </h3>
+
+            <article class="achievementsAccessCard">
+
+                <div class="achievementsAccessInformation">
+
+                    <span class="achievementsAccessIcon">
+                        🏆
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            ACHIEVEMENTS
+                        </strong>
+
+                        <p>
+                            ${completedCount} of
+                            ${PLAYER_ACHIEVEMENTS.length}
+                            completed
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <button
+                    class="openAchievementsButton"
+                    id="openAchievementsButton"
+                    type="button"
+                >
+                    VIEW ACHIEVEMENTS
+                </button>
+
+            </article>
+
+        </div>
+    `;
+}
+
+
+// -------------------------------------------------
+// CONNECT ACHIEVEMENTS ACCESS BUTTON
+// -------------------------------------------------
+
+function attachAchievementsAccessButton() {
+    const openAchievementsButton =
+        document.getElementById(
+            "openAchievementsButton"
+        );
+
+    if (!openAchievementsButton) {
+        return;
+    }
+
+    openAchievementsButton.addEventListener(
+        "click",
+        renderAchievementsMenu
+    );
+}
+
+
+// -------------------------------------------------
+// CREATE THE ACHIEVEMENTS SCREEN
+// -------------------------------------------------
+
+function createAchievementsContent() {
+    const completedCount =
+        getCompletedAchievementCount();
+
+    const achievementCards =
+        PLAYER_ACHIEVEMENTS.map(
+            (achievement) => {
+                const progress =
+                    getAchievementProgress(
+                        achievement
+                    );
+
+                const achievementUnlocked =
+                    isAchievementUnlocked(
+                        achievement.id
+                    );
+
+                /*
+                    Permanently unlocked achievements
+                    always display a completed bar.
+                */
+                const displayedProgress =
+                    achievementUnlocked
+                        ? progress.target
+                        : Math.min(
+                            progress.currentProgress,
+                            progress.target
+                        );
+
+                const displayedPercentage =
+                    achievementUnlocked
+                        ? 100
+                        : progress.percentage;
+
+                return `
+                    <article
+                        class="achievementCard
+                        ${
+                    achievementUnlocked
+                        ? "completed"
+                        : "locked"
+                }"
+                    >
+
+                        <div class="achievementIcon">
+                            ${
+                    achievementUnlocked
+                        ? achievement.icon
+                        : "🔒"
+                }
+                        </div>
+
+                        <div class="achievementInformation">
+
+                            <div class="achievementHeader">
+
+                                <h3>
+                                    ${achievement.name}
+                                </h3>
+
+                                <span class="achievementStatus">
+                                    ${
+                    achievementUnlocked
+                        ? "UNLOCKED"
+                        : "LOCKED"
+                }
+                                </span>
+
+                            </div>
+
+                            <p>
+                                ${achievement.description}
+                            </p>
+
+                            <div class="achievementProgressText">
+
+                                <span>
+                                    PROGRESS
+                                </span>
+
+                                <strong>
+                                    ${formatGameNumber(displayedProgress)}
+                                    /
+                                    ${formatGameNumber(progress.target)}
+                                </strong>
+
+                            </div>
+
+                            <div class="achievementProgressBar">
+
+                                <div
+                                    class="achievementProgressFill"
+                                    style="width: ${displayedPercentage}%"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+                `;
+            }
+        ).join("");
+
+    return `
+        <section class="achievementsScreen">
+
+            <article class="achievementsSummary">
+
+                <span class="achievementsSummaryIcon">
+                    🏆
+                </span>
+
+                <div>
+
+                    <span>
+                        COMPLETED
+                    </span>
+
+                    <strong>
+                        ${completedCount}
+                        /
+                        ${PLAYER_ACHIEVEMENTS.length}
+                    </strong>
+
+                </div>
+
+            </article>
+
+            <div class="achievementsList">
+                ${achievementCards}
+            </div>
+
+            <button
+                class="backToHubButton"
+                id="backToHubButton"
+                type="button"
+            >
+                BACK TO PLAYER HUB
+            </button>
+
+        </section>
+    `;
+}
+
+
+// -------------------------------------------------
+// DISPLAY THE ACHIEVEMENTS SCREEN
+// -------------------------------------------------
+
+function renderAchievementsMenu() {
+    shopTitle.textContent =
+        "ACHIEVEMENTS";
+
+    shopList.innerHTML =
+        createAchievementsContent();
+
+    attachAchievementsButtons();
+}
+
+
+// -------------------------------------------------
+// CONNECT ACHIEVEMENTS SCREEN BUTTONS
+// -------------------------------------------------
+
+function attachAchievementsButtons() {
+    const backToHubButton =
+        document.getElementById(
+            "backToHubButton"
+        );
+
+    if (!backToHubButton) {
+        return;
+    }
+
+    backToHubButton.addEventListener(
+        "click",
+        () => {
+            shopTitle.textContent =
+                menuTitles.stats;
+
+            renderStatsShop();
+        }
+    );
+}
+
+// -------------------------------------------------
+// GET OR CREATE THE AUDIO CONTEXT
+// -------------------------------------------------
+
+function getGameAudioContext() {
+    if (!gameSettings.soundEffects) {
+        return null;
+    }
+
+    const AudioContextClass =
+        window.AudioContext ||
+        window.webkitAudioContext;
+
+    if (!AudioContextClass) {
+        return null;
+    }
+
+    if (!gameAudioContext) {
+        gameAudioContext =
+            new AudioContextClass();
+    }
+
+    if (
+        gameAudioContext.state ===
+        "suspended"
+    ) {
+        gameAudioContext
+            .resume()
+            .catch(() => {
+                /*
+                    Some browsers prevent audio
+                    until another user interaction.
+                */
+            });
+    }
+
+    return gameAudioContext;
+}
+
+
+// -------------------------------------------------
+// PLAY THE TEMPORARY TAP SOUND
+// -------------------------------------------------
+
+function playTapSound() {
+    const audioContext =
+        getGameAudioContext();
+
+    if (!audioContext) {
+        return;
+    }
+
+    const currentTime =
+        audioContext.currentTime;
+
+    const oscillator =
+        audioContext.createOscillator();
+
+    const volume =
+        audioContext.createGain();
+
+    oscillator.type =
+        "sine";
+
+    oscillator.frequency.setValueAtTime(
+        240,
+        currentTime
+    );
+
+    oscillator.frequency.exponentialRampToValueAtTime(
+        470,
+        currentTime + 0.055
+    );
+
+    volume.gain.setValueAtTime(
+        0.045,
+        currentTime
+    );
+
+    volume.gain.exponentialRampToValueAtTime(
+        0.001,
+        currentTime + 0.075
+    );
+
+    oscillator.connect(
+        volume
+    );
+
+    volume.connect(
+        audioContext.destination
+    );
+
+    oscillator.start(
+        currentTime
+    );
+
+    oscillator.stop(
+        currentTime + 0.08
+    );
+}
+
+
+// -------------------------------------------------
+// TRIGGER A LIGHT TAP VIBRATION
+// -------------------------------------------------
+
+function triggerTapHaptic() {
+    if (!gameSettings.haptics) {
+        return;
+    }
+
+    if (
+        typeof navigator.vibrate !==
+        "function"
+    ) {
+        return;
+    }
+
+    navigator.vibrate(12);
+}
+
+
+// -------------------------------------------------
+// CREATE THE SETTINGS ACCESS SECTION
+// -------------------------------------------------
+
+function createSettingsAccessContent() {
+    return `
+        <div class="statsSection settingsAccessSection">
+
+            <h3 class="statsSectionTitle">
+                SETTINGS
+            </h3>
+
+            <article class="settingsAccessCard">
+
+                <div class="settingsAccessInformation">
+
+                    <span class="settingsAccessIcon">
+                        ⚙️
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            GAME SETTINGS
+                        </strong>
+
+                        <p>
+                            Sound, haptics, animation,
+                            and future visual options.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <button
+                    class="openSettingsButton"
+                    id="openSettingsButton"
+                    type="button"
+                >
+                    OPEN SETTINGS
+                </button>
+
+            </article>
+
+        </div>
+    `;
+}
+
+
+// -------------------------------------------------
+// CONNECT THE SETTINGS ACCESS BUTTON
+// -------------------------------------------------
+
+function attachSettingsAccessButton() {
+    const openSettingsButton =
+        document.getElementById(
+            "openSettingsButton"
+        );
+
+    if (!openSettingsButton) {
+        return;
+    }
+
+    openSettingsButton.addEventListener(
+        "click",
+        renderSettingsMenu
+    );
+}
+
+
+// -------------------------------------------------
+// CREATE ONE SETTINGS TOGGLE
+// -------------------------------------------------
+
+function createSettingsToggle(
+    settingName,
+    label,
+    description,
+    icon
+) {
+    const settingEnabled =
+        gameSettings[settingName];
+
+    return `
+        <article class="settingRow">
+
+            <span class="settingIcon">
+                ${icon}
+            </span>
+
+            <div class="settingInformation">
+
+                <strong>
+                    ${label}
+                </strong>
+
+                <p>
+                    ${description}
+                </p>
+
+            </div>
+
+            <button
+                class="settingsToggleButton
+                ${settingEnabled ? "enabled" : ""}"
+                type="button"
+                data-setting="${settingName}"
+                aria-pressed="${settingEnabled}"
+            >
+                ${settingEnabled ? "ON" : "OFF"}
+            </button>
+
+        </article>
+    `;
+}
+
+
+// -------------------------------------------------
+// CREATE THE SETTINGS SCREEN
+// -------------------------------------------------
+
+function createSettingsContent() {
+    return `
+        <section class="settingsScreen">
+
+            <div class="settingsIntroduction">
+
+                <span>
+                    ⚙️
+                </span>
+
+                <h3>
+                    GAME SETTINGS
+                </h3>
+
+                <p>
+                    These preferences apply to all
+                    three save slots.
+                </p>
+
+            </div>
+
+            <div class="settingsList">
+
+                ${createSettingsToggle(
+        "soundEffects",
+        "SOUND EFFECTS",
+        "Plays a small sound when the energy can is tapped.",
+        "🔊"
+    )}
+
+                ${createSettingsToggle(
+        "haptics",
+        "HAPTICS",
+        "Uses a light vibration when supported by the device.",
+        "📳"
+    )}
+
+                ${createSettingsToggle(
+        "reducedMotion",
+        "REDUCED MOTION",
+        "Reduces flashing, pulsing, movement, and animated effects.",
+        "🧘"
+    )}
+
+            </div>
+
+            <article class="futureSettingsCard">
+
+                <span class="futureSettingsIcon">
+                    🎨
+                </span>
+
+                <div>
+
+                    <strong>
+                        THEMES & BACKGROUNDS
+                    </strong>
+
+                    <p>
+                        Collectible UI themes and
+                        animated backgrounds will be
+                        added here later.
+                    </p>
+
+                </div>
+
+                <span class="comingSoonBadge">
+                    COMING LATER
+                </span>
+
+            </article>
+
+            <button
+                class="backToStatsButton"
+                id="backToStatsButton"
+                type="button"
+            >
+                BACK TO STATS
+            </button>
+
+        </section>
+    `;
+}
+
+
+// -------------------------------------------------
+// DISPLAY THE SETTINGS SCREEN
+// -------------------------------------------------
+
+function renderSettingsMenu() {
+    shopTitle.textContent =
+        "SETTINGS";
+
+    shopList.innerHTML =
+        createSettingsContent();
+
+    attachSettingsButtons();
+}
+
+
+// -------------------------------------------------
+// CONNECT THE SETTINGS BUTTONS
+// -------------------------------------------------
+
+function attachSettingsButtons() {
+    const settingButtons =
+        shopList.querySelectorAll(
+            ".settingsToggleButton"
+        );
+
+    const backToStatsButton =
+        document.getElementById(
+            "backToStatsButton"
+        );
+
+    settingButtons.forEach((button) => {
+        button.addEventListener(
+            "click",
+            () => {
+                const settingName =
+                    button.dataset.setting;
+
+                toggleGameSetting(
+                    settingName
+                );
+            }
+        );
+    });
+
+    if (backToStatsButton) {
+        backToStatsButton.addEventListener(
+            "click",
+            () => {
+                shopTitle.textContent =
+                    menuTitles.stats;
+
+                renderStatsShop();
+            }
+        );
+    }
+}
+
+
+// -------------------------------------------------
+// TOGGLE ONE GAME SETTING
+// -------------------------------------------------
+
+function toggleGameSetting(settingName) {
+    const settingExists =
+        Object.prototype.hasOwnProperty.call(
+            gameSettings,
+            settingName
+        );
+
+    if (!settingExists) {
+        return;
+    }
+
+    gameSettings[settingName] =
+        !gameSettings[settingName];
+
+    applyGameSettings();
+    saveGameSettings();
+
+    /*
+        Give immediate feedback when sound is
+        switched on.
+    */
+    if (
+        settingName === "soundEffects" &&
+        gameSettings.soundEffects
+    ) {
+        playTapSound();
+    }
+
+    renderSettingsMenu();
+}
+
+
+
+// -------------------------------------------------
 // SHOW A FAILED PURCHASE
 // -------------------------------------------------
 
@@ -2255,21 +4755,33 @@ function buyDrinkUpgrade() {
 // PRODUCE ENERGY BY TAPPING
 // -------------------------------------------------
 function produceEnergyFromTap() {
+    mobileTotalTaps++;
+
     /*
-        Roll Kinetic Overflow before calculating
-        this tap. This means the activation tap
-        also receives the multiplier.
+        Kinetic Overflow may activate before the
+        energy from this tap is calculated.
     */
     tryKineticOverflow();
 
-    mobileEnergy +=
+    const energyEarnedFromTap =
         getCurrentTapPower();
 
+    mobileEnergy +=
+        energyEarnedFromTap;
+
+    mobileLifetimeEnergy +=
+        energyEarnedFromTap;
+
     /*
-        Lucky Shot is checked after the normal
-        or multiplied tap has been added.
+        Lucky Shot may add its separate bonus.
     */
     tryLuckyShot();
+
+    /*
+        Optional device feedback.
+    */
+    playTapSound();
+    triggerTapHaptic();
 
     updateShopBalance();
     animateCanTap();
@@ -2362,19 +4874,13 @@ function openMenu(menuName) {
         renderSkinsShop();
     } else if (menuName === "colors") {
         renderColorsShop();
-    } else {
-        /*
-            Stats is still a placeholder.
-        */
-        shopList.innerHTML =
-            createPlaceholderContent(
-                menuName
-            );
+    } else if (menuName === "stats") {
+        renderStatsShop();
     }
 
     /*
-        Synchronize energy, production, can images,
-        and the currently equipped score color.
+        Synchronize energy, production, can image,
+        score color, and visible statistics.
     */
     updateShopBalance();
 
@@ -2533,23 +5039,183 @@ function attachTestBuyButtons() {
 }
 
 // -------------------------------------------------
+// CALCULATE OFFLINE PRODUCTION
+// -------------------------------------------------
+
+function calculateOfflineProduction(savedAt) {
+    /*
+        A player needs automatic production before
+        they can earn anything while away.
+    */
+    if (mobileEnergyPerSecond <= 0) {
+        return {
+            secondsAway: 0,
+            energyEarned: 0
+        };
+    }
+
+    if (!Number.isFinite(savedAt)) {
+        return {
+            secondsAway: 0,
+            energyEarned: 0
+        };
+    }
+
+    const currentTime =
+        Date.now();
+
+    const rawSecondsAway =
+        Math.floor(
+            (currentTime - savedAt) / 1000
+        );
+
+    /*
+        Prevent negative time if the device clock
+        changed and limit the maximum reward.
+    */
+    const countedSecondsAway =
+        Math.min(
+            Math.max(rawSecondsAway, 0),
+            MAXIMUM_OFFLINE_SECONDS
+        );
+
+    /*
+        Do not display a reward popup for extremely
+        short refreshes or quick tab changes.
+    */
+    if (
+        countedSecondsAway <
+        MINIMUM_OFFLINE_SECONDS
+    ) {
+        return {
+            secondsAway: 0,
+            energyEarned: 0
+        };
+    }
+
+    const energyEarned =
+        mobileEnergyPerSecond *
+        countedSecondsAway;
+
+    return {
+        secondsAway:
+        countedSecondsAway,
+
+        energyEarned:
+        energyEarned
+    };
+}
+
+
+// -------------------------------------------------
+// APPLY OFFLINE PRODUCTION
+// -------------------------------------------------
+
+function applyOfflineProduction(savedAt) {
+    const offlineResult =
+        calculateOfflineProduction(
+            savedAt
+        );
+
+    if (
+        offlineResult.energyEarned <= 0
+    ) {
+        return;
+    }
+
+    /*
+        Award the energy immediately so it cannot
+        be lost if the player closes the app before
+        pressing Continue.
+    */
+    mobileEnergy +=
+        offlineResult.energyEarned;
+
+    mobileLifetimeEnergy +=
+        offlineResult.energyEarned;
+
+    showOfflineReward(
+        offlineResult.secondsAway,
+        offlineResult.energyEarned
+    );
+}
+
+
+// -------------------------------------------------
+// SHOW THE OFFLINE REWARD PANEL
+// -------------------------------------------------
+
+function showOfflineReward(
+    secondsAway,
+    energyEarned
+) {
+    offlineTimeAwayDisplay.textContent =
+        formatGameTime(secondsAway);
+
+    offlineEnergyEarnedDisplay.textContent =
+        `+${formatGameNumber(energyEarned)}`;
+
+    offlineRewardOverlay.classList.add(
+        "open"
+    );
+
+    offlineRewardOverlay.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+}
+
+
+// -------------------------------------------------
+// CLOSE THE OFFLINE REWARD PANEL
+// -------------------------------------------------
+
+function closeOfflineReward() {
+    offlineRewardOverlay.classList.remove(
+        "open"
+    );
+
+    offlineRewardOverlay.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+}
+
+
+offlineContinueButton.addEventListener(
+    "click",
+    closeOfflineReward
+);
+
+
+// -------------------------------------------------
 // AUTOMATIC ENERGY PRODUCTION
 // -------------------------------------------------
 
 function produceAutomaticEnergy() {
-    if (mobileEnergyPerSecond <= 0) {
+    /*
+        The game has not started until the player
+        selects a save slot.
+    */
+    if (!hasSelectedSaveSlot) {
         return;
     }
 
-    mobileEnergy +=
-        mobileEnergyPerSecond;
+    mobileSecondsPlayed++;
 
-    /*
-        This updates both:
-        1. The home-screen score
-        2. The shop balance while a menu is open
-    */
-    updateShopBalance();
+    if (mobileEnergyPerSecond > 0) {
+        mobileEnergy +=
+            mobileEnergyPerSecond;
+
+        mobileLifetimeEnergy +=
+            mobileEnergyPerSecond;
+
+        updateShopBalance();
+
+        return;
+    }
+
+    updateStatsDisplay();
 }
 
 
@@ -2582,7 +5248,581 @@ devEnergyButton.addEventListener(
     addDeveloperEnergy
 );
 
+// -------------------------------------------------
+// SAVE SYSTEM
+// -------------------------------------------------
 
-// Connect the test buttons that already exist when the page loads.
-attachTestBuyButtons();
-updateShopBalance();
+const SAVE_VERSION = 1;
+
+/*
+    No slot is active until the player selects one
+    from the opening screen.
+*/
+let activeSaveSlot = null;
+let hasSelectedSaveSlot = false;
+
+const AUTO_SAVE_INTERVAL_MS = 5000;
+
+
+// -------------------------------------------------
+// GET THE CURRENT SAVE-SLOT KEY
+// -------------------------------------------------
+
+function getSaveKey() {
+    if (!Number.isInteger(activeSaveSlot)) {
+        return null;
+    }
+
+    return `energyClickerSaveSlot${activeSaveSlot}`;
+}
+
+
+// -------------------------------------------------
+// SAVE THE CURRENT GAME
+// -------------------------------------------------
+
+function saveGame() {
+    if (
+        isResettingGame ||
+        !hasSelectedSaveSlot ||
+        !Number.isInteger(activeSaveSlot)
+    ) {
+        return false;
+    }
+
+    const saveKey =
+        getSaveKey();
+
+    if (!saveKey) {
+        return false;
+    }
+
+    const saveData = {
+        version: SAVE_VERSION,
+        savedAt: Date.now(),
+
+        energy:
+        mobileEnergy,
+
+        drinkUpgradeIndex:
+        mobileDrinkUpgradeIndex,
+
+        factoryUpgradeIndex:
+        mobileFactoryUpgradeIndex,
+
+        deliveryUpgradeIndex:
+        mobileDeliveryUpgradeIndex,
+
+        preWorkoutUpgradeIndex:
+        mobilePreWorkoutUpgradeIndex,
+
+        luckyShotUpgradeIndex:
+        mobileLuckyShotUpgradeIndex,
+
+        kineticUpgradeIndex:
+        mobileKineticUpgradeIndex,
+
+        ownedSkins: [
+            ...mobileOwnedSkins
+        ],
+
+        equippedSkinIndex:
+        mobileEquippedSkinIndex,
+
+        ownedColors: [
+            ...mobileOwnedColors
+        ],
+
+        equippedColorIndex:
+        mobileEquippedColorIndex,
+
+        totalTaps:
+        mobileTotalTaps,
+
+        lifetimeEnergy:
+        mobileLifetimeEnergy,
+
+        luckyShotsActivated:
+        mobileLuckyShotsActivated,
+
+        kineticActivations:
+        mobileKineticActivations,
+
+        secondsPlayed:
+        mobileSecondsPlayed,
+
+        /*
+            Permanently completed achievements.
+        */
+        unlockedAchievementIds: [
+            ...mobileUnlockedAchievementIds
+        ]
+    };
+
+    try {
+        localStorage.setItem(
+            saveKey,
+            JSON.stringify(saveData)
+        );
+
+        return true;
+    } catch (error) {
+        console.error(
+            "Energy Clicker could not save:",
+            error
+        );
+
+        return false;
+    }
+}
+
+
+// -------------------------------------------------
+// SAFE SAVED-NUMBER HELPERS
+// -------------------------------------------------
+
+function getSafeSavedNumber(
+    value,
+    fallbackValue = 0
+) {
+    if (!Number.isFinite(value)) {
+        return fallbackValue;
+    }
+
+    return Math.max(
+        0,
+        value
+    );
+}
+
+
+function getSafeUpgradeIndex(
+    value,
+    maximumIndex
+) {
+    if (!Number.isFinite(value)) {
+        return 0;
+    }
+
+    return Math.min(
+        Math.max(
+            Math.trunc(value),
+            0
+        ),
+        maximumIndex
+    );
+}
+
+
+// -------------------------------------------------
+// RESTORE AN OWNED-ITEM ARRAY
+// -------------------------------------------------
+
+function restoreOwnedItems(
+    currentArray,
+    savedArray
+) {
+    currentArray.forEach(
+        (unusedItem, index) => {
+            currentArray[index] =
+                Boolean(
+                    Array.isArray(savedArray) &&
+                    savedArray[index]
+                );
+        }
+    );
+}
+
+
+// -------------------------------------------------
+// REBUILD CALCULATED GAME VALUES
+// -------------------------------------------------
+
+function rebuildDerivedGameValues() {
+    /*
+        Recalculate tap power from purchased
+        Drink Power levels.
+    */
+    mobileEnergyPerTap = 1;
+
+    for (
+        let index = 0;
+        index < mobileDrinkUpgradeIndex;
+        index++
+    ) {
+        mobileEnergyPerTap +=
+            DRINK_UPGRADES[index].multiplier;
+    }
+
+    /*
+        Recalculate all automatic production.
+    */
+    mobileEnergyPerSecond = 0;
+
+    for (
+        let index = 0;
+        index < mobileFactoryUpgradeIndex;
+        index++
+    ) {
+        mobileEnergyPerSecond +=
+            FACTORY_UPGRADES[index].multiplier;
+    }
+
+    for (
+        let index = 0;
+        index < mobileDeliveryUpgradeIndex;
+        index++
+    ) {
+        mobileEnergyPerSecond +=
+            DELIVERY_UPGRADES[index].multiplier;
+    }
+
+    for (
+        let index = 0;
+        index < mobilePreWorkoutUpgradeIndex;
+        index++
+    ) {
+        mobileEnergyPerSecond +=
+            PREWORKOUT_UPGRADES[index].multiplier;
+    }
+
+    /*
+        Recalculate Lucky Shot chance.
+    */
+    mobileLuckyShotChance = 0;
+
+    for (
+        let index = 0;
+        index < mobileLuckyShotUpgradeIndex;
+        index++
+    ) {
+        mobileLuckyShotChance +=
+            LUCKYSHOT_UPGRADES[
+                index
+                ].chanceIncrease;
+    }
+
+    /*
+        Restore the most recently purchased
+        Kinetic Overflow tier.
+    */
+    if (mobileKineticUpgradeIndex > 0) {
+        const currentKineticUpgrade =
+            KINETIC_OVERFLOW_UPGRADES[
+            mobileKineticUpgradeIndex - 1
+                ];
+
+        mobileKineticChance =
+            currentKineticUpgrade.chance;
+
+        mobileKineticMultiplier =
+            currentKineticUpgrade.multiplier;
+
+        mobileKineticDuration =
+            currentKineticUpgrade.duration;
+    } else {
+        mobileKineticChance = 0;
+        mobileKineticMultiplier = 1;
+        mobileKineticDuration = 0;
+    }
+
+    /*
+        Temporary boosts do not continue after
+        closing or refreshing the game.
+    */
+    mobileKineticActive = false;
+    mobileKineticTimeLeft = 0;
+
+    if (kineticCountdownInterval) {
+        clearInterval(
+            kineticCountdownInterval
+        );
+
+        kineticCountdownInterval = null;
+    }
+
+    kineticStatus.textContent = "";
+
+    kineticStatus.classList.remove(
+        "active"
+    );
+
+    /*
+        Restore the equipped skin only when the
+        player actually owns that skin.
+    */
+    const equippedSkinIsValid =
+        Number.isInteger(
+            mobileEquippedSkinIndex
+        ) &&
+        mobileOwnedSkins[
+            mobileEquippedSkinIndex
+            ] &&
+        COSMETIC_UPGRADES[
+            mobileEquippedSkinIndex
+            ];
+
+    if (equippedSkinIsValid) {
+        const equippedSkin =
+            COSMETIC_UPGRADES[
+                mobileEquippedSkinIndex
+                ];
+
+        equippedSkinImage =
+            equippedSkin.buttonImg ||
+            equippedSkin.img;
+    } else {
+        mobileEquippedSkinIndex = null;
+        equippedSkinImage = null;
+    }
+
+    /*
+        Restore the equipped score color only when
+        that color is owned.
+    */
+    const equippedColorIsValid =
+        Number.isInteger(
+            mobileEquippedColorIndex
+        ) &&
+        mobileOwnedColors[
+            mobileEquippedColorIndex
+            ] &&
+        CHANGECOLOR_UPGRADES[
+            mobileEquippedColorIndex
+            ];
+
+    if (!equippedColorIsValid) {
+        mobileEquippedColorIndex = null;
+    }
+}
+
+
+// -------------------------------------------------
+// LOAD THE CURRENT GAME
+// -------------------------------------------------
+
+function loadGame() {
+    const saveKey =
+        getSaveKey();
+
+    if (!saveKey) {
+        return false;
+    }
+
+    let savedText;
+
+    try {
+        savedText =
+            localStorage.getItem(
+                saveKey
+            );
+    } catch (error) {
+        console.error(
+            "Energy Clicker could not access its save:",
+            error
+        );
+
+        return false;
+    }
+
+    if (!savedText) {
+        return false;
+    }
+
+    try {
+        const savedData =
+            JSON.parse(savedText);
+
+        if (
+            !savedData ||
+            typeof savedData !== "object"
+        ) {
+            return false;
+        }
+
+        mobileEnergy =
+            getSafeSavedNumber(
+                savedData.energy
+            );
+
+        mobileDrinkUpgradeIndex =
+            getSafeUpgradeIndex(
+                savedData.drinkUpgradeIndex,
+                DRINK_UPGRADES.length
+            );
+
+        mobileFactoryUpgradeIndex =
+            getSafeUpgradeIndex(
+                savedData.factoryUpgradeIndex,
+                FACTORY_UPGRADES.length
+            );
+
+        mobileDeliveryUpgradeIndex =
+            getSafeUpgradeIndex(
+                savedData.deliveryUpgradeIndex,
+                DELIVERY_UPGRADES.length
+            );
+
+        mobilePreWorkoutUpgradeIndex =
+            getSafeUpgradeIndex(
+                savedData.preWorkoutUpgradeIndex,
+                PREWORKOUT_UPGRADES.length
+            );
+
+        mobileLuckyShotUpgradeIndex =
+            getSafeUpgradeIndex(
+                savedData.luckyShotUpgradeIndex,
+                LUCKYSHOT_UPGRADES.length
+            );
+
+        mobileKineticUpgradeIndex =
+            getSafeUpgradeIndex(
+                savedData.kineticUpgradeIndex,
+                KINETIC_OVERFLOW_UPGRADES.length
+            );
+
+        restoreOwnedItems(
+            mobileOwnedSkins,
+            savedData.ownedSkins
+        );
+
+        restoreOwnedItems(
+            mobileOwnedColors,
+            savedData.ownedColors
+        );
+
+        mobileEquippedSkinIndex =
+            Number.isInteger(
+                savedData.equippedSkinIndex
+            )
+                ? savedData.equippedSkinIndex
+                : null;
+
+        mobileEquippedColorIndex =
+            Number.isInteger(
+                savedData.equippedColorIndex
+            )
+                ? savedData.equippedColorIndex
+                : null;
+
+        mobileTotalTaps =
+            Math.floor(
+                getSafeSavedNumber(
+                    savedData.totalTaps
+                )
+            );
+
+        mobileLifetimeEnergy =
+            getSafeSavedNumber(
+                savedData.lifetimeEnergy
+            );
+
+        mobileLuckyShotsActivated =
+            Math.floor(
+                getSafeSavedNumber(
+                    savedData.luckyShotsActivated
+                )
+            );
+
+        mobileKineticActivations =
+            Math.floor(
+                getSafeSavedNumber(
+                    savedData.kineticActivations
+                )
+            );
+
+        mobileSecondsPlayed =
+            Math.floor(
+                getSafeSavedNumber(
+                    savedData.secondsPlayed
+                )
+            );
+
+        /*
+            Restore permanently unlocked
+            achievements from newer saves.
+        */
+        const saveHasAchievementData =
+            Array.isArray(
+                savedData.unlockedAchievementIds
+            );
+
+        mobileUnlockedAchievementIds =
+            getValidAchievementIds(
+                savedData.unlockedAchievementIds
+            );
+
+        rebuildDerivedGameValues();
+
+        /*
+            Older saves do not contain an achievement
+            list. Mark everything they already earned
+            without showing many popups at once.
+        */
+        if (!saveHasAchievementData) {
+            unlockCurrentAchievementsSilently();
+        }
+
+        applyOfflineProduction(
+            savedData.savedAt
+        );
+
+        return true;
+    } catch (error) {
+        console.error(
+            "Energy Clicker save data was invalid:",
+            error
+        );
+
+        return false;
+    }
+}
+
+
+// -------------------------------------------------
+// AUTOMATIC SAVING
+// -------------------------------------------------
+
+setInterval(
+    saveGame,
+    AUTO_SAVE_INTERVAL_MS
+);
+
+
+/*
+    Save when the browser or future mobile app
+    moves into the background.
+*/
+document.addEventListener(
+    "visibilitychange",
+    () => {
+        if (document.hidden) {
+            saveGame();
+        }
+    }
+);
+
+
+/*
+    pagehide is especially helpful for mobile
+    browsers and app web views.
+*/
+window.addEventListener(
+    "pagehide",
+    saveGame
+);
+
+// -------------------------------------------------
+// INITIAL GAME SETUP
+// -------------------------------------------------
+
+/*
+    Global settings load before the save-slot
+    selection screen appears.
+*/
+loadGameSettings();
+
+/*
+    The player must then select a save slot.
+*/
+renderSaveSlotScreen();
