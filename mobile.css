@@ -1,0 +1,1494 @@
+/* -------------------------------------------------
+   BASIC RESET
+------------------------------------------------- */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    overflow: hidden;
+    background: #090d18;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+
+    /* Stops accidental text highlighting while tapping */
+    user-select: none;
+    -webkit-user-select: none;
+
+    /* Removes the gray tap flash on iPhone */
+    -webkit-tap-highlight-color: transparent;
+}
+
+button {
+    border: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+.hidden {
+    display: none !important;
+}
+
+
+/* -------------------------------------------------
+   FULL APP CONTAINER
+------------------------------------------------- */
+
+.appShell {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+
+    background:
+            radial-gradient(
+                    circle at 50% 20%,
+                    rgba(255, 68, 122, 0.2),
+                    transparent 42%
+            ),
+            linear-gradient(
+                    180deg,
+                    #19213a 0%,
+                    #10172a 55%,
+                    #080d19 100%
+            );
+}
+
+
+/* -------------------------------------------------
+   MAIN GAME SCREEN
+------------------------------------------------- */
+
+.gameScreen {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    height: 100%;
+
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+
+/* -------------------------------------------------
+   SCORE SECTION
+------------------------------------------------- */
+
+.scoreSection {
+    flex-shrink: 0;
+    min-height: 190px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    padding: 18px 20px 16px;
+
+    text-align: center;
+
+    /* This creates the thick divider line */
+    border-bottom: 4px solid rgba(255, 255, 255, 0.85);
+
+    background:
+            linear-gradient(
+                    180deg,
+                    rgba(255, 255, 255, 0.08),
+                    rgba(255, 255, 255, 0.02)
+            );
+}
+
+.gameTitle {
+    font-size: clamp(24px, 7vw, 34px);
+    font-weight: 900;
+    letter-spacing: 2px;
+
+    color: #ffffff;
+
+    text-shadow:
+            0 3px 0 #8e1744,
+            0 6px 14px rgba(255, 38, 108, 0.5);
+}
+
+.scoreNumber {
+    margin-top: 7px;
+
+    font-size: clamp(56px, 17vw, 88px);
+    font-weight: 900;
+    line-height: 1;
+
+    background: linear-gradient(
+            90deg,
+            #ff3d79,
+            #ffbe36,
+            #4cf4ff,
+            #8f6bff,
+            #ff3d79
+    );
+
+    background-size: 300%;
+    background-clip: text;
+    -webkit-background-clip: text;
+
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+
+    animation: scoreGlow 6s linear infinite;
+
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
+}
+
+@keyframes scoreGlow {
+    from {
+        background-position: 0%;
+    }
+
+    to {
+        background-position: 300%;
+    }
+}
+
+.productionText {
+    margin-top: 6px;
+
+    font-size: clamp(14px, 4vw, 18px);
+    font-weight: 800;
+    letter-spacing: 0.6px;
+
+    color: #eaf0ff;
+}
+
+.productionText span {
+    color: #65f3ff;
+}
+
+
+/* -------------------------------------------------
+   LARGE TAPPING AREA
+------------------------------------------------- */
+
+.tapSection {
+    position: relative;
+
+    flex: 1;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+
+    background:
+            radial-gradient(
+                    circle at center,
+                    rgba(255, 47, 109, 0.18),
+                    transparent 45%
+            );
+
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tapSection::before {
+    content: "";
+
+    position: absolute;
+    width: min(82vw, 360px);
+    aspect-ratio: 1;
+
+    border-radius: 50%;
+
+    background:
+            radial-gradient(
+                    circle,
+                    rgba(255, 255, 255, 0.12),
+                    rgba(255, 62, 122, 0.08) 45%,
+                    transparent 70%
+            );
+
+    animation: tapAreaPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes tapAreaPulse {
+    0%,
+    100% {
+        transform: scale(0.96);
+        opacity: 0.7;
+    }
+
+    50% {
+        transform: scale(1.04);
+        opacity: 1;
+    }
+}
+
+
+/* -------------------------------------------------
+   TEMPORARY GAME MESSAGE
+------------------------------------------------- */
+
+.gameMessage {
+    position: absolute;
+    z-index: 5;
+
+    top: 24px;
+    left: 50%;
+
+    width: 90%;
+
+    transform: translateX(-50%);
+
+    text-align: center;
+
+    font-size: clamp(20px, 6vw, 30px);
+    font-weight: 900;
+
+    color: #fff05c;
+
+    text-shadow:
+            0 3px 0 #9a3d00,
+            0 5px 12px rgba(0, 0, 0, 0.5);
+
+    pointer-events: none;
+}
+
+
+/* -------------------------------------------------
+   CAN BUTTON
+------------------------------------------------- */
+
+.canButton {
+    position: relative;
+    z-index: 2;
+
+    width: min(62vw, 280px);
+    height: min(62vw, 280px);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 50%;
+
+    background:
+            radial-gradient(
+                    circle at 35% 25%,
+                    rgba(255, 255, 255, 0.24),
+                    rgba(255, 49, 111, 0.18) 45%,
+                    rgba(0, 0, 0, 0.12) 75%
+            );
+
+    box-shadow:
+            0 0 0 5px rgba(255, 255, 255, 0.1),
+            0 18px 35px rgba(0, 0, 0, 0.4),
+            0 0 40px rgba(255, 45, 105, 0.25);
+
+    transition:
+            transform 0.1s ease,
+            filter 0.1s ease;
+}
+
+.canButton img {
+    width: 78%;
+    height: 78%;
+
+    object-fit: contain;
+
+    pointer-events: none;
+
+    filter: drop-shadow(0 15px 12px rgba(0, 0, 0, 0.38));
+}
+
+.canButton:active {
+    transform: scale(0.9) rotate(-2deg);
+    filter: brightness(1.2);
+}
+
+
+
+/* -------------------------------------------------
+   BOTTOM NAVIGATION
+------------------------------------------------- */
+
+.bottomNavigation {
+    flex-shrink: 0;
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+
+    min-height: 88px;
+
+    border-top: 4px solid rgba(255, 255, 255, 0.85);
+
+    background:
+            linear-gradient(
+                    180deg,
+                    rgba(29, 37, 65, 0.98),
+                    rgba(10, 15, 28, 0.99)
+            );
+
+    box-shadow: 0 -12px 25px rgba(0, 0, 0, 0.25);
+}
+
+.navigationButton {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    gap: 5px;
+    padding: 9px 3px;
+
+    background: transparent;
+
+    transition:
+            background 0.15s ease,
+            transform 0.1s ease;
+}
+
+.navigationButton:not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.navigationButton:active {
+    transform: scale(0.92);
+    background: rgba(255, 53, 114, 0.18);
+}
+
+.navigationIcon {
+    font-size: clamp(21px, 6vw, 28px);
+    line-height: 1;
+}
+
+.navigationText {
+    max-width: 100%;
+
+    overflow: hidden;
+
+    font-size: clamp(9px, 2.8vw, 12px);
+    font-weight: 900;
+    letter-spacing: 0.3px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    color: #ffffff;
+}
+
+
+/* -------------------------------------------------
+   DARK OVERLAY BEHIND SHOP
+------------------------------------------------- */
+
+.menuOverlay {
+    position: fixed;
+    z-index: 100;
+
+    inset: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding:
+            calc(14px + env(safe-area-inset-top))
+            12px
+            calc(14px + env(safe-area-inset-bottom));
+
+    visibility: hidden;
+    opacity: 0;
+
+    transition:
+            opacity 0.25s ease,
+            visibility 0.25s ease;
+}
+
+.menuOverlay.open {
+    visibility: visible;
+    opacity: 1;
+}
+
+.overlayBackground {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background: rgba(3, 6, 15, 0.72);
+
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+
+/* -------------------------------------------------
+   SHOP PANEL
+------------------------------------------------- */
+
+.shopPanel {
+    position: relative;
+    z-index: 2;
+
+    width: 100%;
+    max-width: 520px;
+    height: min(78dvh, 720px);
+
+    display: flex;
+    flex-direction: column;
+
+    margin: 0;
+
+    overflow: hidden;
+
+    border: 4px solid rgba(255, 255, 255, 0.85);
+    border-radius: 28px;
+
+    background:
+            linear-gradient(
+                    180deg,
+                    #253052 0%,
+                    #151d35 100%
+            );
+
+    box-shadow:
+            0 25px 70px rgba(0, 0, 0, 0.65),
+            0 0 35px rgba(255, 46, 108, 0.25);
+
+    transform: translateY(30px) scale(0.96);
+
+    transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.menuOverlay.open .shopPanel {
+    transform: translateY(0) scale(1);
+}
+
+
+/* -------------------------------------------------
+   SHOP HEADER
+------------------------------------------------- */
+
+.shopHeader {
+    flex-shrink: 0;
+
+    min-height: 74px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 12px 68px 12px 20px;
+
+    border-bottom: 4px solid rgba(255, 255, 255, 0.85);
+
+    background:
+            linear-gradient(
+                    135deg,
+                    #ff3977,
+                    #c91858
+            );
+
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+}
+
+.shopHeader h2 {
+    font-size: clamp(22px, 6vw, 30px);
+    font-weight: 900;
+    letter-spacing: 1.5px;
+
+    text-align: center;
+
+    text-shadow:
+            0 3px 0 rgba(86, 0, 36, 0.85),
+            0 5px 8px rgba(0, 0, 0, 0.25);
+}
+
+.closeShopButton {
+    position: absolute;
+
+    top: 10px;
+    right: 12px;
+
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
+
+    background: rgba(80, 0, 32, 0.3);
+
+    font-size: 35px;
+    font-weight: 800;
+    line-height: 1;
+
+    transition:
+            transform 0.1s ease,
+            background 0.15s ease;
+}
+
+.closeShopButton:active {
+    transform: scale(0.88);
+    background: rgba(80, 0, 32, 0.65);
+}
+
+
+/* -------------------------------------------------
+   SCROLLABLE SHOP LIST
+------------------------------------------------- */
+
+.shopList {
+    flex: 1;
+    min-height: 0;
+
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    padding: 14px;
+
+    -webkit-overflow-scrolling: touch;
+
+    scrollbar-width: thin;
+    scrollbar-color: #ff3977 transparent;
+}
+
+.shopList::-webkit-scrollbar {
+    width: 7px;
+}
+
+.shopList::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.shopList::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #ff3977;
+}
+
+
+/* -------------------------------------------------
+   UPGRADE CARDS
+------------------------------------------------- */
+
+.upgradeCard {
+    position: relative;
+
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 13px;
+
+    min-height: 155px;
+
+    margin-bottom: 14px;
+    padding: 13px;
+
+    overflow: hidden;
+
+    border: 3px solid rgba(255, 255, 255, 0.74);
+    border-radius: 20px;
+
+    background:
+            linear-gradient(
+                    145deg,
+                    rgba(255, 255, 255, 0.12),
+                    rgba(255, 255, 255, 0.035)
+            );
+
+    box-shadow:
+            0 8px 18px rgba(0, 0, 0, 0.28),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+    transition:
+            transform 0.16s ease,
+            border-color 0.16s ease,
+            background 0.16s ease;
+}
+
+.upgradeCard:last-child {
+    margin-bottom: 0;
+}
+
+.upgradeCardImage {
+    align-self: center;
+
+    width: 92px;
+    height: 92px;
+
+    padding: 7px;
+
+    object-fit: contain;
+
+    border: 2px solid rgba(255, 255, 255, 0.34);
+    border-radius: 18px;
+
+    background: rgba(3, 7, 17, 0.28);
+
+    filter: drop-shadow(0 9px 8px rgba(0, 0, 0, 0.3));
+}
+
+.upgradeCardInformation {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.upgradeCardName {
+    padding-right: 4px;
+
+    font-size: clamp(17px, 4.8vw, 22px);
+    font-weight: 900;
+    line-height: 1.05;
+
+    color: #ffffff;
+}
+
+.upgradeCardLevel {
+    margin-top: 4px;
+
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+
+    color: #5df0ff;
+}
+
+.upgradeCardDescription {
+    margin-top: 8px;
+
+    font-size: clamp(13px, 3.7vw, 16px);
+    font-weight: 600;
+    line-height: 1.3;
+
+    color: #dce3f5;
+}
+
+.upgradeCardBottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 10px;
+}
+
+.upgradeCardCost {
+    min-width: 0;
+
+    font-size: clamp(13px, 3.7vw, 16px);
+    font-weight: 900;
+
+    color: #ffffff;
+}
+
+.upgradeCardCost span {
+    color: #ffe45e;
+}
+
+
+/* -------------------------------------------------
+   BUY BUTTON
+------------------------------------------------- */
+
+.buyButton {
+    flex-shrink: 0;
+
+    min-width: 76px;
+    min-height: 43px;
+
+    padding: 8px 15px;
+
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    border-radius: 14px;
+
+    background:
+            linear-gradient(
+                    145deg,
+                    #42e578,
+                    #159842
+            );
+
+    font-size: 16px;
+    font-weight: 900;
+
+    box-shadow:
+            0 6px 0 #075f28,
+            0 10px 16px rgba(0, 0, 0, 0.26);
+
+    transition:
+            transform 0.08s ease,
+            box-shadow 0.08s ease,
+            filter 0.12s ease;
+}
+
+.buyButton:active {
+    transform: translateY(5px);
+
+    box-shadow:
+            0 1px 0 #075f28,
+            0 5px 9px rgba(0, 0, 0, 0.25);
+}
+
+.buyButton:disabled {
+    cursor: not-allowed;
+
+    background:
+            linear-gradient(
+                    145deg,
+                    #666b76,
+                    #3f434c
+            );
+
+    box-shadow:
+            0 5px 0 #292c31;
+
+    opacity: 0.7;
+}
+
+
+/* -------------------------------------------------
+   FAILED PURCHASE MESSAGE
+------------------------------------------------- */
+
+.purchaseError {
+    display: none;
+
+    margin-top: 8px;
+
+    text-align: right;
+
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+
+    color: #ff667c;
+}
+
+/*
+   We will add these two classes using JavaScript later.
+*/
+
+.upgradeCard.purchaseFailed {
+    border-color: #ff405d;
+
+    background:
+            linear-gradient(
+                    145deg,
+                    rgba(255, 49, 79, 0.35),
+                    rgba(92, 8, 28, 0.25)
+            );
+
+    animation: purchaseShake 0.35s ease;
+}
+
+.upgradeCard.purchaseFailed .purchaseError {
+    display: block;
+
+    animation: errorFade 1.1s ease forwards;
+}
+
+@keyframes purchaseShake {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-8px);
+    }
+
+    40% {
+        transform: translateX(8px);
+    }
+
+    60% {
+        transform: translateX(-5px);
+    }
+
+    80% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes errorFade {
+    0% {
+        opacity: 0;
+        transform: translateY(-3px);
+    }
+
+    20%,
+    75% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+
+/* -------------------------------------------------
+   SMALLER PHONE ADJUSTMENTS
+------------------------------------------------- */
+
+@media (max-width: 380px) {
+
+    .scoreSection {
+        min-height: 168px;
+        padding-top: 12px;
+        padding-bottom: 11px;
+    }
+
+    .bottomNavigation {
+        min-height: 79px;
+    }
+
+    .shopPanel {
+        width: calc(100% - 14px);
+        height: 85dvh;
+
+        border-radius: 22px;
+    }
+
+    .shopList {
+        padding: 10px;
+    }
+
+    .upgradeCard {
+        grid-template-columns: 76px 1fr;
+        gap: 10px;
+
+        min-height: 145px;
+
+        padding: 10px;
+    }
+
+    .upgradeCardImage {
+        width: 76px;
+        height: 76px;
+    }
+
+    .buyButton {
+        min-width: 68px;
+        padding-inline: 11px;
+    }
+}
+
+
+/* -------------------------------------------------
+   WIDER SCREEN ADJUSTMENTS
+------------------------------------------------- */
+
+@media (min-width: 700px) {
+
+    .gameScreen {
+        max-width: 520px;
+        margin: 0 auto;
+
+        border-left: 2px solid rgba(255, 255, 255, 0.1);
+        border-right: 2px solid rgba(255, 255, 255, 0.1);
+
+        box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* -------------------------------------------------
+   PLACEHOLDER MENU CONTENT
+------------------------------------------------- */
+
+.emptyMenuMessage {
+    min-height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    padding: 30px;
+
+    text-align: center;
+}
+
+.emptyMenuIcon {
+    margin-bottom: 18px;
+
+    font-size: 70px;
+
+    filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.3));
+}
+
+.emptyMenuMessage h3 {
+    font-size: 27px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.emptyMenuMessage p {
+    max-width: 310px;
+
+    margin-top: 12px;
+
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.5;
+
+    color: #cdd6eb;
+}
+
+.menuIsOpen {
+    overflow: hidden;
+}
+
+/* -------------------------------------------------
+   SHOP BALANCE BAR
+------------------------------------------------- */
+
+.shopBalanceBar {
+    flex-shrink: 0;
+
+    min-height: 68px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 14px;
+    padding: 10px 18px;
+
+    border-top: 4px solid rgba(255, 255, 255, 0.85);
+
+    background:
+            linear-gradient(
+                    180deg,
+                    #202b4b,
+                    #11192e
+            );
+
+    box-shadow:
+            0 -8px 20px rgba(0, 0, 0, 0.28);
+}
+
+.shopBalanceLabel {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    font-size: clamp(13px, 3.8vw, 17px);
+    font-weight: 900;
+    letter-spacing: 0.6px;
+
+    color: #ffffff;
+}
+
+.shopBalanceImage {
+    flex-shrink: 0;
+
+    width: 38px;
+    height: 38px;
+
+    object-fit: contain;
+
+    filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.35));
+}
+
+.shopBalanceAmount {
+    min-width: 0;
+
+    overflow: hidden;
+
+    font-size: clamp(22px, 6vw, 31px);
+    font-weight: 900;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    color: #ffe45e;
+
+    text-shadow:
+            0 3px 0 #8d5510,
+            0 5px 9px rgba(0, 0, 0, 0.35);
+}
+
+/* -------------------------------------------------
+   REAL CAN TAP ANIMATION
+------------------------------------------------- */
+
+.canButton.tapped {
+    animation: canTapped 0.16s ease;
+}
+
+@keyframes canTapped {
+
+    0% {
+        transform: scale(1) rotate(0deg);
+        filter: brightness(1);
+    }
+
+    45% {
+        transform: scale(0.86) rotate(-3deg);
+        filter: brightness(1.3);
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+        filter: brightness(1);
+    }
+}
+
+/* -------------------------------------------------
+   SUCCESSFUL UPGRADE PURCHASE
+------------------------------------------------- */
+
+.upgradeCard.purchaseSuccess {
+    animation: purchaseSuccessFlash 0.5s ease;
+}
+
+@keyframes purchaseSuccessFlash {
+
+    0%,
+    100% {
+        border-color: rgba(255, 255, 255, 0.74);
+        filter: brightness(1);
+    }
+
+    45% {
+        border-color: #59ff91;
+        filter: brightness(1.35);
+    }
+}
+
+/* -------------------------------------------------
+   TEMPORARY DEVELOPER ENERGY BUTTON
+------------------------------------------------- */
+
+.devEnergyButton {
+    position: fixed;
+    z-index: 300;
+
+    right: 12px;
+    bottom: calc(100px + env(safe-area-inset-bottom));
+
+    min-width: 82px;
+    min-height: 40px;
+
+    padding: 7px 11px;
+
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+
+    background:
+            linear-gradient(
+                    145deg,
+                    #815cff,
+                    #4c27c7
+            );
+
+    color: white;
+
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+
+    box-shadow:
+            0 5px 0 #281271,
+            0 9px 15px rgba(0, 0, 0, 0.3);
+
+    opacity: 0.8;
+
+    transition:
+            transform 0.08s ease,
+            box-shadow 0.08s ease,
+            opacity 0.15s ease;
+}
+
+.devEnergyButton:active {
+    transform: translateY(4px);
+
+    box-shadow:
+            0 1px 0 #281271,
+            0 4px 8px rgba(0, 0, 0, 0.3);
+
+    opacity: 1;
+}
+
+/* -------------------------------------------------
+   LUCKY SHOT MESSAGE
+------------------------------------------------- */
+
+.gameMessage {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+
+    transition:
+            opacity 0.2s ease,
+            transform 0.2s ease;
+}
+
+.gameMessage.luckyShotActive {
+    opacity: 1;
+
+    animation:
+            luckyShotMessagePop 1.3s ease forwards;
+}
+
+@keyframes luckyShotMessagePop {
+
+    0% {
+        opacity: 0;
+        transform:
+                translateX(-50%)
+                translateY(16px)
+                scale(0.8);
+    }
+
+    18% {
+        opacity: 1;
+        transform:
+                translateX(-50%)
+                translateY(0)
+                scale(1.12);
+    }
+
+    70% {
+        opacity: 1;
+        transform:
+                translateX(-50%)
+                translateY(-8px)
+                scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+                translateX(-50%)
+                translateY(-35px)
+                scale(0.95);
+    }
+}
+
+/* -------------------------------------------------
+   KINETIC OVERFLOW STATUS
+------------------------------------------------- */
+
+.kineticStatus {
+    position: absolute;
+    z-index: 6;
+
+    top: 72px;
+    left: 50%;
+
+    width: 92%;
+
+    transform:
+            translateX(-50%)
+            translateY(8px);
+
+    opacity: 0;
+
+    text-align: center;
+
+    font-size: clamp(16px, 4.7vw, 23px);
+    font-weight: 900;
+
+    color: #8ff8ff;
+
+    text-shadow:
+            0 3px 0 #135a83,
+            0 6px 13px rgba(0, 0, 0, 0.55);
+
+    pointer-events: none;
+}
+
+.kineticStatus.active {
+    opacity: 1;
+
+    animation:
+            kineticStatusPulse 0.75s
+            ease-in-out infinite alternate;
+}
+
+@keyframes kineticStatusPulse {
+    from {
+        transform:
+                translateX(-50%)
+                scale(0.97);
+
+        filter: brightness(1);
+    }
+
+    to {
+        transform:
+                translateX(-50%)
+                scale(1.04);
+
+        filter: brightness(1.4);
+    }
+}
+
+
+/* -------------------------------------------------
+   BOOSTED PER-TAP DISPLAY
+------------------------------------------------- */
+
+.productionText.kineticBoosted {
+    color: #8ff8ff;
+
+    text-shadow:
+            0 0 9px rgba(74, 238, 255, 0.75);
+
+    animation:
+            kineticProductionPulse 0.6s
+            ease-in-out infinite alternate;
+}
+
+@keyframes kineticProductionPulse {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.06);
+    }
+}
+
+/* -------------------------------------------------
+   SKINS SHOP
+------------------------------------------------- */
+
+.skinCard .upgradeCardImage {
+    background:
+            radial-gradient(
+                    circle,
+                    rgba(255, 255, 255, 0.15),
+                    rgba(83, 53, 154, 0.18)
+            );
+}
+
+.skinActionButton:disabled {
+    background:
+            linear-gradient(
+                    145deg,
+                    #4e8fff,
+                    #2854b8
+            );
+
+    box-shadow:
+            0 5px 0 #17306e,
+            0 8px 13px rgba(0, 0, 0, 0.25);
+
+    color: white;
+    opacity: 1;
+}
+/* -------------------------------------------------
+   COLORS SHOP PREVIEWS
+------------------------------------------------- */
+
+.colorPreview {
+    align-self: center;
+
+    width: 92px;
+    height: 92px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+
+    border: 2px solid rgba(255, 255, 255, 0.34);
+    border-radius: 18px;
+
+    background:
+            radial-gradient(
+                    circle,
+                    rgba(255, 255, 255, 0.15),
+                    rgba(3, 7, 17, 0.45)
+            );
+
+    box-shadow:
+            inset 0 1px 8px rgba(255, 255, 255, 0.08),
+            0 8px 13px rgba(0, 0, 0, 0.25);
+}
+
+.colorPreviewNumber {
+    font-size: 27px;
+    font-weight: 900;
+
+    background-size: 300%;
+    background-clip: text;
+    -webkit-background-clip: text;
+
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+
+    animation:
+            scoreGlow 6s linear infinite;
+}
+
+.defaultScoreColor {
+    background-image:
+            linear-gradient(
+                    90deg,
+                    #ff3d79,
+                    #ffbe36,
+                    #4cf4ff,
+                    #8f6bff,
+                    #ff3d79
+            );
+}
+
+.colorActionButton:disabled {
+    background:
+            linear-gradient(
+                    145deg,
+                    #4e8fff,
+                    #2854b8
+            );
+
+    box-shadow:
+            0 5px 0 #17306e,
+            0 8px 13px rgba(0, 0, 0, 0.25);
+
+    color: white;
+    opacity: 1;
+}
+
+
+/* -------------------------------------------------
+   EQUIPPABLE SCORE COLORS
+------------------------------------------------- */
+
+.scoreColor2 {
+    background-image:
+            linear-gradient(
+                    90deg,
+                    #1f45fc,
+                    #0041c2,
+                    #157dec,
+                    #82caff,
+                    #0000ff,
+                    #87ceeb,
+                    #4169e1,
+                    #b7ceec
+            );
+}
+
+.scoreColor3 {
+    background-image:
+            linear-gradient(
+                    90deg,
+                    #ff9e00,
+                    #ff007f,
+                    #7900ff,
+                    #ff007f,
+                    #ff9e00
+            );
+}
+
+.scoreColor4 {
+    background-image:
+            linear-gradient(
+                    90deg,
+                    #b8860b,
+                    #ffdf00,
+                    #ffffff,
+                    #ffdf00,
+                    #b8860b
+            );
+}
+
+.scoreColor5 {
+    background-image:
+            linear-gradient(
+                    90deg,
+                    #39ff14,
+                    #adff2f,
+                    #ffff00,
+                    #adff2f,
+                    #39ff14
+            );
+}
+
+.scoreColor6 {
+    background-image:
+            linear-gradient(
+                    90deg,
+                    #ffb7c5,
+                    #ff1493,
+                    #fff0f5,
+                    #ff1493,
+                    #ffb7c5
+            );
+}
+
+.scoreColor7 {
+    background-image:
+            linear-gradient(
+                    90deg,
+                    #b76e79,
+                    #e0bfb8,
+                    #ffffff,
+                    #e0bfb8,
+                    #b76e79
+            );
+}
+
+.scoreColor8 {
+    background-image:
+            linear-gradient(
+                    90deg,
+                    #8b008b,
+                    #ff00ff,
+                    #4b0082,
+                    #ff00ff,
+                    #8b008b
+            );
+}
+
+
+/* -------------------------------------------------
+   SMALL PHONE COLOR PREVIEW
+------------------------------------------------- */
+
+@media (max-width: 380px) {
+
+    .colorPreview {
+        width: 76px;
+        height: 76px;
+    }
+
+    .colorPreviewNumber {
+        font-size: 23px;
+    }
+}

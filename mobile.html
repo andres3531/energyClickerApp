@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Makes the layout fit correctly on an iPhone -->
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, viewport-fit=cover"
+    >
+
+    <title>Energy Clicker Mobile</title>
+
+    <link rel="stylesheet" href="css/mobile.css">
+</head>
+
+<body>
+
+<div class="appShell">
+
+    <!-- MAIN GAME SCREEN -->
+    <main class="gameScreen">
+
+        <!-- TOP SCORE SECTION -->
+        <header class="scoreSection">
+
+            <h1 class="gameTitle">ENERGY DRINKS</h1>
+
+            <div class="scoreNumber" id="mobileScore">
+                0
+            </div>
+
+            <p class="productionText">
+                PRODUCTION:
+                <span id="mobilePerTap">1</span>
+                PER TAP
+            </p>
+
+            <!-- Hidden until passive production is unlocked -->
+            <p
+                    class="productionText hidden"
+                    id="mobilePerSecondRow"
+            >
+                PRODUCTION:
+                <span id="mobilePerSecond">0</span>
+                / SEC
+            </p>
+
+        </header>
+
+        <!-- MAIN TAPPING SECTION -->
+        <section
+                class="tapSection"
+                id="mobileTapSection"
+                aria-label="Tap to produce energy"
+        >
+
+            <!-- Temporary messages can appear here -->
+            <div
+                    class="gameMessage"
+                    id="mobileGameMessage"
+                    aria-live="polite"
+            ></div>
+            <!-- TEMPORARY KINETIC OVERFLOW COUNTDOWN -->
+            <div
+                    class="kineticStatus"
+                    id="kineticStatus"
+                    aria-live="polite"
+            ></div>
+
+            <button
+                    class="canButton"
+                    id="mobileCanButton"
+                    type="button"
+                    aria-label="Crack an energy drink can"
+            >
+                <img
+                        id="mobileCanImage"
+                        src="imgs/firstCan.png"
+                        alt="Energy drink can"
+                >
+            </button>
+
+        </section>
+
+        <!-- BOTTOM NAVIGATION -->
+        <nav class="bottomNavigation" aria-label="Game menu">
+
+            <button
+                    class="navigationButton"
+                    type="button"
+                    data-menu="upgrades"
+            >
+                <span class="navigationIcon">⚡</span>
+                <span class="navigationText">UPGRADES</span>
+            </button>
+
+            <button
+                    class="navigationButton"
+                    type="button"
+                    data-menu="skins"
+            >
+                <span class="navigationIcon">🥤</span>
+                <span class="navigationText">SKINS</span>
+            </button>
+
+            <button
+                    class="navigationButton"
+                    type="button"
+                    data-menu="colors"
+            >
+                <span class="navigationIcon">🎨</span>
+                <span class="navigationText">COLORS</span>
+            </button>
+
+            <button
+                    class="navigationButton"
+                    type="button"
+                    data-menu="stats"
+            >
+                <span class="navigationIcon">📊</span>
+                <span class="navigationText">STATS</span>
+            </button>
+
+        </nav>
+
+    </main>
+
+
+    <!-- DARK BACKGROUND BEHIND THE OPEN SHOP -->
+    <div
+            class="menuOverlay"
+            id="menuOverlay"
+            aria-hidden="true"
+    >
+
+        <button
+                class="overlayBackground"
+                id="overlayBackground"
+                type="button"
+                aria-label="Close menu"
+        ></button>
+
+
+        <!-- SLIDING SHOP PANEL -->
+        <section
+                class="shopPanel"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="shopTitle"
+        >
+
+            <!-- SHOP HEADER -->
+            <header class="shopHeader">
+
+                <h2 id="shopTitle">UPGRADES SHOP</h2>
+
+                <button
+                        class="closeShopButton"
+                        id="closeShopButton"
+                        type="button"
+                        aria-label="Close shop"
+                >
+                    ×
+                </button>
+
+            </header>
+
+
+            <!-- SCROLLABLE SHOP CONTENT -->
+            <div class="shopList" id="shopList">
+
+                <!-- REAL DRINK POWER UPGRADE -->
+                <article
+                        class="upgradeCard"
+                        id="drinkUpgradeCard"
+                >
+
+                    <img
+                            class="upgradeCardImage"
+                            id="drinkUpgradeImage"
+                            src="imgs/firstCan.png"
+                            alt="Next drink power upgrade"
+                    >
+
+                    <div class="upgradeCardInformation">
+
+                        <h3
+                                class="upgradeCardName"
+                                id="drinkUpgradeName"
+                        >
+                            DRINK POWER
+                        </h3>
+
+                        <p
+                                class="upgradeCardLevel"
+                                id="drinkUpgradeLevel"
+                        >
+                            LEVEL 0
+                        </p>
+
+                        <p
+                                class="upgradeCardDescription"
+                                id="drinkUpgradeDescription"
+                        >
+                            Increases energy per tap by +1.
+                        </p>
+
+                        <div class="upgradeCardBottom">
+
+                            <p class="upgradeCardCost">
+                                COST:
+                                <span id="drinkUpgradeCost">15</span>
+                            </p>
+
+                            <button
+                                    class="buyButton"
+                                    id="drinkUpgradeBuyButton"
+                                    type="button"
+                            >
+                                BUY
+                            </button>
+
+                        </div>
+
+                        <p class="purchaseError">
+                            NOT ENOUGH ENERGY
+                        </p>
+
+                    </div>
+
+                </article>
+
+                <!-- EXAMPLE UPGRADE CARD 2 -->
+                <!-- REAL LUCKY SHOT UPGRADE -->
+                <article
+                        class="upgradeCard"
+                        id="luckyShotUpgradeCard"
+                >
+
+                    <img
+                            class="upgradeCardImage"
+                            id="luckyShotUpgradeImage"
+                            src="imgs/luckyUpgrade.png"
+                            alt="Next Lucky Shot upgrade"
+                    >
+
+                    <div class="upgradeCardInformation">
+
+                        <h3
+                                class="upgradeCardName"
+                                id="luckyShotUpgradeName"
+                        >
+                            LUCKY SHOT
+                        </h3>
+
+                        <p
+                                class="upgradeCardLevel"
+                                id="luckyShotUpgradeLevel"
+                        >
+                            LEVEL 0
+                        </p>
+
+                        <p
+                                class="upgradeCardDescription"
+                                id="luckyShotUpgradeDescription"
+                        >
+                            Gives each tap a chance to earn bonus energy.
+                        </p>
+
+                        <div class="upgradeCardBottom">
+
+                            <p class="upgradeCardCost">
+                                COST:
+                                <span id="luckyShotUpgradeCost">
+                    2,000
+                </span>
+                            </p>
+
+                            <button
+                                    class="buyButton"
+                                    id="luckyShotUpgradeBuyButton"
+                                    type="button"
+                            >
+                                BUY
+                            </button>
+
+                        </div>
+
+                        <p class="purchaseError">
+                            NOT ENOUGH ENERGY
+                        </p>
+
+                    </div>
+
+                </article>
+
+
+                <!-- EXAMPLE UPGRADE CARD 3 -->
+                <!-- REAL FACTORY UPGRADE -->
+                <article
+                        class="upgradeCard"
+                        id="factoryUpgradeCard"
+                >
+
+                    <img
+                            class="upgradeCardImage"
+                            id="factoryUpgradeImage"
+                            src="imgs/firstFactory.png"
+                            alt="Next factory upgrade"
+                    >
+
+                    <div class="upgradeCardInformation">
+
+                        <h3
+                                class="upgradeCardName"
+                                id="factoryUpgradeName"
+                        >
+                            FACTORY
+                        </h3>
+
+                        <p
+                                class="upgradeCardLevel"
+                                id="factoryUpgradeLevel"
+                        >
+                            LEVEL 0
+                        </p>
+
+                        <p
+                                class="upgradeCardDescription"
+                                id="factoryUpgradeDescription"
+                        >
+                            Automatically produces +1 energy every second.
+                        </p>
+
+                        <div class="upgradeCardBottom">
+
+                            <p class="upgradeCardCost">
+                                COST:
+                                <span id="factoryUpgradeCost">1,000</span>
+                            </p>
+
+                            <button
+                                    class="buyButton"
+                                    id="factoryUpgradeBuyButton"
+                                    type="button"
+                            >
+                                BUY
+                            </button>
+
+                        </div>
+
+                        <p class="purchaseError">
+                            NOT ENOUGH ENERGY
+                        </p>
+
+                    </div>
+
+                </article>
+
+
+                <!-- EXAMPLE UPGRADE CARD 4 -->
+                <!-- REAL KINETIC OVERFLOW UPGRADE -->
+                <article
+                        class="upgradeCard"
+                        id="kineticUpgradeCard"
+                >
+
+                    <img
+                            class="upgradeCardImage"
+                            id="kineticUpgradeImage"
+                            src="imgs/firstCan.png"
+                            alt="Next Kinetic Overflow upgrade"
+                    >
+
+                    <div class="upgradeCardInformation">
+
+                        <h3
+                                class="upgradeCardName"
+                                id="kineticUpgradeName"
+                        >
+                            KINETIC OVERFLOW
+                        </h3>
+
+                        <p
+                                class="upgradeCardLevel"
+                                id="kineticUpgradeLevel"
+                        >
+                            LEVEL 0
+                        </p>
+
+                        <p
+                                class="upgradeCardDescription"
+                                id="kineticUpgradeDescription"
+                        >
+                            Gives taps a chance to temporarily multiply their power.
+                        </p>
+
+                        <div class="upgradeCardBottom">
+
+                            <p class="upgradeCardCost">
+                                COST:
+                                <span id="kineticUpgradeCost">
+                    8,000
+                </span>
+                            </p>
+
+                            <button
+                                    class="buyButton"
+                                    id="kineticUpgradeBuyButton"
+                                    type="button"
+                            >
+                                BUY
+                            </button>
+
+                        </div>
+
+                        <p class="purchaseError">
+                            NOT ENOUGH ENERGY
+                        </p>
+
+                    </div>
+
+                </article>
+
+
+                <!-- EXAMPLE UPGRADE CARD 5 -->
+                <!-- REAL DELIVERY TRUCK UPGRADE -->
+                <article
+                        class="upgradeCard"
+                        id="deliveryUpgradeCard"
+                >
+
+                    <img
+                            class="upgradeCardImage"
+                            id="deliveryUpgradeImage"
+                            src="imgs/firstCan.png"
+                            alt="Next Delivery Truck upgrade"
+                    >
+
+                    <div class="upgradeCardInformation">
+
+                        <h3
+                                class="upgradeCardName"
+                                id="deliveryUpgradeName"
+                        >
+                            DELIVERY TRUCK
+                        </h3>
+
+                        <p
+                                class="upgradeCardLevel"
+                                id="deliveryUpgradeLevel"
+                        >
+                            LEVEL 0
+                        </p>
+
+                        <p
+                                class="upgradeCardDescription"
+                                id="deliveryUpgradeDescription"
+                        >
+                            Delivers +2 energy every second.
+                        </p>
+
+                        <div class="upgradeCardBottom">
+
+                            <p class="upgradeCardCost">
+                                COST:
+                                <span id="deliveryUpgradeCost">3,000</span>
+                            </p>
+
+                            <button
+                                    class="buyButton"
+                                    id="deliveryUpgradeBuyButton"
+                                    type="button"
+                            >
+                                BUY
+                            </button>
+
+                        </div>
+
+                        <p class="purchaseError">
+                            NOT ENOUGH ENERGY
+                        </p>
+
+                    </div>
+
+                </article>
+
+
+                <!-- EXAMPLE UPGRADE CARD 6 -->
+                <!-- REAL PRE-WORKOUT UPGRADE -->
+                <article
+                        class="upgradeCard"
+                        id="preWorkoutUpgradeCard"
+                >
+
+                    <img
+                            class="upgradeCardImage"
+                            id="preWorkoutUpgradeImage"
+                            src="imgs/firstCan.png"
+                            alt="Next Pre-Workout upgrade"
+                    >
+
+                    <div class="upgradeCardInformation">
+
+                        <h3
+                                class="upgradeCardName"
+                                id="preWorkoutUpgradeName"
+                        >
+                            PRE-WORKOUT
+                        </h3>
+
+                        <p
+                                class="upgradeCardLevel"
+                                id="preWorkoutUpgradeLevel"
+                        >
+                            LEVEL 0
+                        </p>
+
+                        <p
+                                class="upgradeCardDescription"
+                                id="preWorkoutUpgradeDescription"
+                        >
+                            Automatically generates +3 energy every second.
+                        </p>
+
+                        <div class="upgradeCardBottom">
+
+                            <p class="upgradeCardCost">
+                                COST:
+                                <span id="preWorkoutUpgradeCost">
+                    20,000
+                </span>
+                            </p>
+
+                            <button
+                                    class="buyButton"
+                                    id="preWorkoutUpgradeBuyButton"
+                                    type="button"
+                            >
+                                BUY
+                            </button>
+
+                        </div>
+
+                        <p class="purchaseError">
+                            NOT ENOUGH ENERGY
+                        </p>
+
+                    </div>
+
+                </article>
+
+            </div>
+            <!-- PLAYER BALANCE AT THE BOTTOM OF THE SHOP -->
+            <footer class="shopBalanceBar">
+
+                <div class="shopBalanceLabel">
+
+                    <img
+                            class="shopBalanceImage"
+                            id="shopBalanceImage"
+                            src="imgs/firstCan.png"
+                            alt="Current energy drink can"
+                    >
+
+                    <span>ENERGY DRINKS</span>
+
+                </div>
+
+                <strong
+                        class="shopBalanceAmount"
+                        id="shopBalanceAmount"
+                        aria-live="polite"
+                >
+                    0
+                </strong>
+
+            </footer>
+        </section>
+
+    </div>
+
+</div>
+<!-- TEMPORARY DEVELOPER TEST BUTTON -->
+<button
+        class="devEnergyButton"
+        id="devEnergyButton"
+        type="button"
+>
+    DEV +1B
+</button>
+<script src="js/upgrades.js"></script>
+<script src="js/mobile.js"></script>
+</body>
+</html>
