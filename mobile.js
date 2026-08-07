@@ -37,33 +37,84 @@ const mobileTapSection =
 const mobileCanButton =
     document.getElementById("mobileCanButton");
 
+/*
+    Used only to give each floating tap number
+    a unique identifier while several are visible.
+*/
+let tapEnergyFloatCounter = 0;
+
 // -------------------------------------------------
 // DRINK POWER UPGRADE STATE
 // -------------------------------------------------
 
+/*
+    mobileDrinkUpgradeIndex now represents the
+    player's full Drink Power level.
+
+    Levels 1-6 preserve the original hand-written
+    upgrade costs and gains from upgrades.js.
+
+    Levels 7-1000 are generated automatically.
+*/
 let mobileDrinkUpgradeIndex = 0;
 
+const DRINK_POWER_MAX_LEVEL = 1000;
+const DRINK_POWER_COST_GROWTH = 1.28;
+const DRINK_POWER_GAIN_GROWTH = 1.12;
+
 /*
-    Later, an equipped skin will override
-    the normal can-level image.
+    Major can artwork changes happen only at these
+    Drink Power milestones.
+*/
+const CAN_LEVEL_IMAGES = [
+    "imgs/firstCan.png",
+    "imgs/secondCan.png",
+    "imgs/thirdCan.png",
+    "imgs/fourthCan.png",
+    "imgs/fifthCan.png",
+    "imgs/sixthCan.png"
+];
+
+const DRINK_CAN_MILESTONES = [
+    {
+        level: 0,
+        tier: 1,
+        image: CAN_LEVEL_IMAGES[0]
+    },
+    {
+        level: 10,
+        tier: 2,
+        image: CAN_LEVEL_IMAGES[1]
+    },
+    {
+        level: 25,
+        tier: 3,
+        image: CAN_LEVEL_IMAGES[2]
+    },
+    {
+        level: 50,
+        tier: 4,
+        image: CAN_LEVEL_IMAGES[3]
+    },
+    {
+        level: 100,
+        tier: 5,
+        image: CAN_LEVEL_IMAGES[4]
+    },
+    {
+        level: 200,
+        tier: 6,
+        image: CAN_LEVEL_IMAGES[5]
+    }
+];
+
+/*
+    An equipped cosmetic skin overrides the normal
+    Drink Power can artwork.
 */
 let equippedSkinImage = null;
 
 const MAXED_OUT_IMAGE = "imgs/maxedOut.png";
-
-/*
-    Level 0 is the can the player starts with.
-
-    Each purchase moves to the next image.
-*/
-const CAN_LEVEL_IMAGES = [
-    "imgs/firstCan.png",  // Can 0
-    "imgs/secondCan.png", // Can 1
-    "imgs/thirdCan.png",  // Can 2
-    "imgs/fourthCan.png", // Can 3
-    "imgs/fifthCan.png",  // Can 4
-    "imgs/sixthCan.png"   // Can 5
-];
 
 const mobileCanImage =
     document.getElementById("mobileCanImage");
@@ -76,7 +127,59 @@ const shopBalanceImage =
 // -------------------------------------------------
 
 let mobileEnergyPerSecond = 0;
+
+/*
+    mobileFactoryUpgradeIndex now represents the
+    player's full Factory level.
+
+    The original Factory upgrades remain unchanged.
+    Every level after them is generated automatically.
+*/
 let mobileFactoryUpgradeIndex = 0;
+
+const FACTORY_MAX_LEVEL = 1000;
+const FACTORY_COST_GROWTH = 1.30;
+const FACTORY_GAIN_GROWTH = 1.10;
+
+/*
+    Factory artwork changes at major level milestones.
+
+    sourceIndex selects artwork from the existing
+    FACTORY_UPGRADES array. If fewer images exist,
+    the final available image is reused safely.
+*/
+const FACTORY_TIER_MILESTONES = [
+    {
+        level: 0,
+        tier: 1,
+        sourceIndex: 0
+    },
+    {
+        level: 10,
+        tier: 2,
+        sourceIndex: 1
+    },
+    {
+        level: 25,
+        tier: 3,
+        sourceIndex: 2
+    },
+    {
+        level: 50,
+        tier: 4,
+        sourceIndex: 3
+    },
+    {
+        level: 100,
+        tier: 5,
+        sourceIndex: 4
+    },
+    {
+        level: 200,
+        tier: 6,
+        sourceIndex: 5
+    }
+];
 
 const mobilePerSecondRow =
     document.getElementById("mobilePerSecondRow");
@@ -88,14 +191,50 @@ const mobilePerSecondDisplay =
 // DELIVERY TRUCK UPGRADE STATE
 // -------------------------------------------------
 
+/*
+    The first four Delivery levels preserve the
+    original upgrades.js values. Later levels are
+    generated automatically.
+*/
 let mobileDeliveryUpgradeIndex = 0;
+
+const DELIVERY_MAX_LEVEL = 1000;
+const DELIVERY_COST_GROWTH = 1.31;
+const DELIVERY_GAIN_GROWTH = 1.11;
+
+const DELIVERY_TIER_MILESTONES = [
+    { level: 0, tier: 1, sourceIndex: 0 },
+    { level: 10, tier: 2, sourceIndex: 1 },
+    { level: 25, tier: 3, sourceIndex: 2 },
+    { level: 50, tier: 4, sourceIndex: 3 },
+    { level: 100, tier: 5, sourceIndex: 4 },
+    { level: 200, tier: 6, sourceIndex: 5 }
+];
 
 
 // -------------------------------------------------
 // PRE-WORKOUT UPGRADE STATE
 // -------------------------------------------------
 
+/*
+    The first three Pre-Workout levels preserve the
+    original upgrades.js values. Later levels are
+    generated automatically.
+*/
 let mobilePreWorkoutUpgradeIndex = 0;
+
+const PREWORKOUT_MAX_LEVEL = 1000;
+const PREWORKOUT_COST_GROWTH = 1.34;
+const PREWORKOUT_GAIN_GROWTH = 1.13;
+
+const PREWORKOUT_TIER_MILESTONES = [
+    { level: 0, tier: 1, sourceIndex: 0 },
+    { level: 10, tier: 2, sourceIndex: 1 },
+    { level: 25, tier: 3, sourceIndex: 2 },
+    { level: 50, tier: 4, sourceIndex: 2 },
+    { level: 100, tier: 5, sourceIndex: 2 },
+    { level: 200, tier: 6, sourceIndex: 2 }
+];
 
 // -------------------------------------------------
 // LUCKY SHOT STATE
@@ -103,8 +242,22 @@ let mobilePreWorkoutUpgradeIndex = 0;
 
 let mobileLuckyShotUpgradeIndex = 0;
 let mobileLuckyShotChance = 0;
+let mobileLuckyShotBonusMultiplier = 0.20;
 
-const LUCKY_SHOT_BONUS_MULTIPLIER = 0.20;
+const LUCKY_SHOT_MAX_LEVEL = 1000;
+const LUCKY_SHOT_COST_GROWTH = 1.35;
+const LUCKY_SHOT_MAX_CHANCE = 0.25;
+const LUCKY_SHOT_GENERATED_CHANCE_GAIN = 0.0005;
+const LUCKY_SHOT_GENERATED_BONUS_GAIN = 0.0025;
+
+const LUCKY_SHOT_TIER_MILESTONES = [
+    { level: 0, tier: 1 },
+    { level: 10, tier: 2 },
+    { level: 25, tier: 3 },
+    { level: 50, tier: 4 },
+    { level: 100, tier: 5 },
+    { level: 200, tier: 6 }
+];
 
 const mobileGameMessage =
     document.getElementById("mobileGameMessage");
@@ -116,6 +269,23 @@ let luckyShotMessageTimer = null;
 // -------------------------------------------------
 
 let mobileKineticUpgradeIndex = 0;
+
+const KINETIC_MAX_LEVEL = 1000;
+const KINETIC_COST_GROWTH = 1.38;
+const KINETIC_MAX_CHANCE = 0.20;
+const KINETIC_GENERATED_CHANCE_GAIN = 0.00025;
+const KINETIC_GENERATED_MULTIPLIER_GAIN = 0.35;
+const KINETIC_GENERATED_DURATION_GAIN = 0.05;
+const KINETIC_MAX_DURATION = 60;
+
+const KINETIC_TIER_MILESTONES = [
+    { level: 0, tier: 1, sourceIndex: 0 },
+    { level: 10, tier: 2, sourceIndex: 1 },
+    { level: 25, tier: 3, sourceIndex: 2 },
+    { level: 50, tier: 4, sourceIndex: 2 },
+    { level: 100, tier: 5, sourceIndex: 2 },
+    { level: 200, tier: 6, sourceIndex: 2 }
+];
 
 let mobileKineticChance = 0;
 let mobileKineticMultiplier = 1;
@@ -329,7 +499,7 @@ const PLAYER_ACHIEVEMENTS = [
         name: "AUTOMATION BEGINS",
         description: "Unlock automatic energy production.",
         target: 1,
-        getProgress: () => mobileEnergyPerSecond
+        getProgress: () => getCurrentEnergyPerSecond()
     },
 
     {
@@ -338,7 +508,7 @@ const PLAYER_ACHIEVEMENTS = [
         name: "PRODUCTION LINE",
         description: "Reach 50 energy produced per second.",
         target: 50,
-        getProgress: () => mobileEnergyPerSecond
+        getProgress: () => getCurrentEnergyPerSecond()
     },
 
     {
@@ -411,6 +581,846 @@ const achievementToastDescription =
     document.getElementById(
         "achievementToastDescription"
     );
+
+
+// -------------------------------------------------
+// LIFE / REBIRTH AND PERMANENT PERK STATE
+// -------------------------------------------------
+
+/*
+    These numbers are intentionally easy to rebalance.
+    The game only treats the requirement as a gate:
+    once the player has enough current energy, Rebirth
+    resets that energy to zero anyway.
+*/
+const REBIRTH_BASE_REQUIREMENT = 1_000_000;
+const REBIRTH_REQUIREMENT_GROWTH = 10;
+
+const REBIRTH_RARITY_CHANCES = [
+    { rarity: "common", chance: 0.65 },
+    { rarity: "rare", chance: 0.25 },
+    { rarity: "epic", chance: 0.08 },
+    { rarity: "legendary", chance: 0.02 }
+];
+
+const REBIRTH_RARITY_LABELS = {
+    common: "COMMON",
+    rare: "RARE",
+    epic: "EPIC",
+    legendary: "LEGENDARY"
+};
+
+/*
+    Three Common perks are intentionally unlimited.
+    That guarantees the player can always receive three
+    unique choices even hundreds of Lives into a save.
+*/
+const PERMANENT_PERK_DEFINITIONS = [
+    {
+        id: "energyKick",
+        name: "ENERGY KICK",
+        icon: "⚡",
+        rarity: "common",
+        maxRank: null,
+        effects: [
+            { type: "allProductionPercent", value: 0.01 }
+        ]
+    },
+    {
+        id: "strongGrip",
+        name: "STRONG GRIP",
+        icon: "👊",
+        rarity: "common",
+        maxRank: null,
+        effects: [
+            { type: "tapProductionPercent", value: 0.02 }
+        ]
+    },
+    {
+        id: "assemblyLine",
+        name: "ASSEMBLY LINE",
+        icon: "⚙️",
+        rarity: "common",
+        maxRank: null,
+        effects: [
+            { type: "autoProductionPercent", value: 0.02 }
+        ]
+    },
+    {
+        id: "nightShift",
+        name: "NIGHT SHIFT",
+        icon: "🌙",
+        rarity: "common",
+        maxRank: 25,
+        effects: [
+            { type: "offlineProductionPercent", value: 0.03 }
+        ]
+    },
+    {
+        id: "luckySip",
+        name: "LUCKY SIP",
+        icon: "🍀",
+        rarity: "common",
+        maxRank: 40,
+        effects: [
+            { type: "luckyBonus", value: 0.005 }
+        ]
+    },
+
+    {
+        id: "headStart",
+        name: "HEAD START",
+        icon: "🥤",
+        rarity: "rare",
+        maxRank: 10,
+        effects: [
+            { type: "startingDrinkLevels", value: 3 }
+        ]
+    },
+    {
+        id: "factoryConnections",
+        name: "FACTORY CONNECTIONS",
+        icon: "🏭",
+        rarity: "rare",
+        maxRank: 10,
+        effects: [
+            { type: "startingFactoryLevels", value: 2 }
+        ]
+    },
+    {
+        id: "expressRoute",
+        name: "EXPRESS ROUTE",
+        icon: "🚚",
+        rarity: "rare",
+        maxRank: 10,
+        effects: [
+            { type: "startingDeliveryLevels", value: 2 }
+        ]
+    },
+    {
+        id: "preLoaded",
+        name: "PRE-LOADED",
+        icon: "💪",
+        rarity: "rare",
+        maxRank: 10,
+        effects: [
+            { type: "startingPreWorkoutLevels", value: 2 }
+        ]
+    },
+    {
+        id: "luckyGenes",
+        name: "LUCKY GENES",
+        icon: "🎯",
+        rarity: "rare",
+        maxRank: 15,
+        effects: [
+            { type: "luckyChance", value: 0.001 }
+        ]
+    },
+    {
+        id: "kineticSpark",
+        name: "KINETIC SPARK",
+        icon: "🌩️",
+        rarity: "rare",
+        maxRank: 15,
+        effects: [
+            { type: "kineticChance", value: 0.001 }
+        ]
+    },
+
+    {
+        id: "fullShelf",
+        name: "FULL SHELF",
+        icon: "💰",
+        rarity: "epic",
+        maxRank: 10,
+        effects: [
+            { type: "startingEnergy", value: 100_000 }
+        ]
+    },
+    {
+        id: "overclocked",
+        name: "OVERCLOCKED",
+        icon: "🔥",
+        rarity: "epic",
+        maxRank: 10,
+        effects: [
+            { type: "kineticMultiplier", value: 0.20 }
+        ]
+    },
+    {
+        id: "productionLegacy",
+        name: "PRODUCTION LEGACY",
+        icon: "🏗️",
+        rarity: "epic",
+        maxRank: 10,
+        effects: [
+            { type: "startingPassiveLevels", value: 2 }
+        ]
+    },
+    {
+        id: "chargedStart",
+        name: "CHARGED START",
+        icon: "🔋",
+        rarity: "epic",
+        maxRank: 10,
+        effects: [
+            { type: "startingSpecialLevels", value: 2 }
+        ]
+    },
+    {
+        id: "luckyBreak",
+        name: "LUCKY BREAK",
+        icon: "🎰",
+        rarity: "epic",
+        maxRank: 10,
+        effects: [
+            { type: "luckyChance", value: 0.001 },
+            { type: "luckyBonus", value: 0.01 }
+        ]
+    },
+
+    {
+        id: "secretFormula",
+        name: "SECRET FORMULA",
+        icon: "🧪",
+        rarity: "legendary",
+        maxRank: 5,
+        effects: [
+            { type: "allProductionPercent", value: 0.05 }
+        ]
+    },
+    {
+        id: "goldenHands",
+        name: "GOLDEN HANDS",
+        icon: "✨",
+        rarity: "legendary",
+        maxRank: 5,
+        effects: [
+            { type: "tapProductionPercent", value: 0.10 }
+        ]
+    },
+    {
+        id: "industrialEmpire",
+        name: "INDUSTRIAL EMPIRE",
+        icon: "🏙️",
+        rarity: "legendary",
+        maxRank: 5,
+        effects: [
+            { type: "autoProductionPercent", value: 0.10 }
+        ]
+    },
+    {
+        id: "bornReady",
+        name: "BORN READY",
+        icon: "👑",
+        rarity: "legendary",
+        maxRank: 5,
+        effects: [
+            { type: "startingAllLevels", value: 3 }
+        ]
+    },
+    {
+        id: "loadedDice",
+        name: "LOADED DICE",
+        icon: "🎲",
+        rarity: "legendary",
+        maxRank: 5,
+        effects: [
+            { type: "luckyChance", value: 0.0035 },
+            { type: "kineticChance", value: 0.0035 }
+        ]
+    },
+    {
+        id: "eternalNight",
+        name: "ETERNAL NIGHT",
+        icon: "🌌",
+        rarity: "legendary",
+        maxRank: 5,
+        effects: [
+            { type: "offlineProductionPercent", value: 0.15 }
+        ]
+    }
+];
+
+let mobileLifeLevel = 0;
+let mobilePermanentPerks = {};
+
+/*
+    These exact three perk IDs are saved immediately
+    after a Rebirth. This prevents closing the app to
+    reroll the choices.
+*/
+let mobilePendingRebirthChoices = [];
+
+
+// -------------------------------------------------
+// PERMANENT PERK HELPERS
+// -------------------------------------------------
+
+function getPermanentPerkDefinition(perkId) {
+    return PERMANENT_PERK_DEFINITIONS.find(
+        (perk) => perk.id === perkId
+    ) || null;
+}
+
+
+function getPermanentPerkRank(perkId) {
+    const rank = mobilePermanentPerks[perkId];
+
+    if (!Number.isFinite(rank)) {
+        return 0;
+    }
+
+    return Math.max(0, Math.floor(rank));
+}
+
+
+function isPermanentPerkMaxed(perk) {
+    if (!perk || perk.maxRank === null) {
+        return false;
+    }
+
+    return (
+        getPermanentPerkRank(perk.id) >=
+        perk.maxRank
+    );
+}
+
+
+function getPermanentPerkEffectTotal(effectType) {
+    let total = 0;
+
+    PERMANENT_PERK_DEFINITIONS.forEach(
+        (perk) => {
+            const rank =
+                getPermanentPerkRank(perk.id);
+
+            if (rank <= 0) {
+                return;
+            }
+
+            perk.effects.forEach((effect) => {
+                if (effect.type === effectType) {
+                    total += effect.value * rank;
+                }
+            });
+        }
+    );
+
+    return total;
+}
+
+
+function getAllProductionMultiplier() {
+    return (
+        1 +
+        getPermanentPerkEffectTotal(
+            "allProductionPercent"
+        )
+    );
+}
+
+
+function getTapProductionMultiplier() {
+    return (
+        getAllProductionMultiplier() *
+        (
+            1 +
+            getPermanentPerkEffectTotal(
+                "tapProductionPercent"
+            )
+        )
+    );
+}
+
+
+function getAutomaticProductionMultiplier() {
+    return (
+        getAllProductionMultiplier() *
+        (
+            1 +
+            getPermanentPerkEffectTotal(
+                "autoProductionPercent"
+            )
+        )
+    );
+}
+
+
+function getOfflineProductionMultiplier() {
+    return (
+        1 +
+        getPermanentPerkEffectTotal(
+            "offlineProductionPercent"
+        )
+    );
+}
+
+
+function getCurrentEnergyPerSecond() {
+    return (
+        mobileEnergyPerSecond *
+        getAutomaticProductionMultiplier()
+    );
+}
+
+
+function getCurrentLuckyShotChance() {
+    return Math.min(
+        0.50,
+        mobileLuckyShotChance +
+        getPermanentPerkEffectTotal(
+            "luckyChance"
+        )
+    );
+}
+
+
+function getCurrentLuckyShotBonusMultiplier() {
+    return (
+        mobileLuckyShotBonusMultiplier +
+        getPermanentPerkEffectTotal(
+            "luckyBonus"
+        )
+    );
+}
+
+
+function getCurrentKineticChance() {
+    return Math.min(
+        0.40,
+        mobileKineticChance +
+        getPermanentPerkEffectTotal(
+            "kineticChance"
+        )
+    );
+}
+
+
+function getCurrentKineticMultiplier() {
+    return (
+        mobileKineticMultiplier +
+        getPermanentPerkEffectTotal(
+            "kineticMultiplier"
+        )
+    );
+}
+
+
+function getTotalPermanentPerkRanks() {
+    return Object.keys(mobilePermanentPerks)
+        .reduce(
+            (total, perkId) =>
+                total +
+                getPermanentPerkRank(perkId),
+            0
+        );
+}
+
+
+function getUnlockedPermanentPerkCount() {
+    return PERMANENT_PERK_DEFINITIONS.filter(
+        (perk) =>
+            getPermanentPerkRank(perk.id) > 0
+    ).length;
+}
+
+
+function formatPerkPercent(decimalValue) {
+    return `${Number(
+        (decimalValue * 100).toFixed(2)
+    )}%`;
+}
+
+
+function getPerkEffectLines(perk, rankAmount = 1) {
+    if (!perk) {
+        return [];
+    }
+
+    return perk.effects.map((effect) => {
+        const total = effect.value * rankAmount;
+
+        if (effect.type === "allProductionPercent") {
+            return `+${formatPerkPercent(total)} ALL PRODUCTION`;
+        }
+
+        if (effect.type === "tapProductionPercent") {
+            return `+${formatPerkPercent(total)} TAP POWER`;
+        }
+
+        if (effect.type === "autoProductionPercent") {
+            return `+${formatPerkPercent(total)} AUTOMATIC PRODUCTION`;
+        }
+
+        if (effect.type === "offlineProductionPercent") {
+            return `+${formatPerkPercent(total)} OFFLINE PRODUCTION`;
+        }
+
+        if (effect.type === "luckyChance") {
+            return `+${formatPerkPercent(total)} LUCKY SHOT CHANCE`;
+        }
+
+        if (effect.type === "luckyBonus") {
+            return `+${formatPerkPercent(total)} LUCKY SHOT REWARD`;
+        }
+
+        if (effect.type === "kineticChance") {
+            return `+${formatPerkPercent(total)} KINETIC CHANCE`;
+        }
+
+        if (effect.type === "kineticMultiplier") {
+            return `+${Number(total.toFixed(2))} KINETIC MULTIPLIER`;
+        }
+
+        if (effect.type === "startingEnergy") {
+            return `START EACH LIFE WITH ${formatGameNumber(total)} ENERGY`;
+        }
+
+        if (effect.type === "startingDrinkLevels") {
+            return `START EACH LIFE WITH DRINK POWER LEVEL ${Math.floor(total)}`;
+        }
+
+        if (effect.type === "startingFactoryLevels") {
+            return `START EACH LIFE WITH FACTORY LEVEL ${Math.floor(total)}`;
+        }
+
+        if (effect.type === "startingDeliveryLevels") {
+            return `START EACH LIFE WITH DELIVERY LEVEL ${Math.floor(total)}`;
+        }
+
+        if (effect.type === "startingPreWorkoutLevels") {
+            return `START EACH LIFE WITH PRE-WORKOUT LEVEL ${Math.floor(total)}`;
+        }
+
+        if (effect.type === "startingPassiveLevels") {
+            return `START FACTORY, DELIVERY & PRE-WORKOUT AT LEVEL ${Math.floor(total)}`;
+        }
+
+        if (effect.type === "startingSpecialLevels") {
+            return `START LUCKY SHOT & KINETIC AT LEVEL ${Math.floor(total)}`;
+        }
+
+        if (effect.type === "startingAllLevels") {
+            return `START ALL 6 UPGRADES AT LEVEL ${Math.floor(total)}`;
+        }
+
+        return "PERMANENT BONUS";
+    });
+}
+
+
+// -------------------------------------------------
+// REBIRTH REQUIREMENT
+// -------------------------------------------------
+
+function getRebirthRequirement(
+    lifeLevel = mobileLifeLevel
+) {
+    const safeLifeLevel = Math.max(
+        0,
+        Math.floor(lifeLevel)
+    );
+
+    const requirement =
+        REBIRTH_BASE_REQUIREMENT *
+        Math.pow(
+            REBIRTH_REQUIREMENT_GROWTH,
+            safeLifeLevel
+        );
+
+    if (!Number.isFinite(requirement)) {
+        return Number.MAX_VALUE;
+    }
+
+    return Math.floor(requirement);
+}
+
+
+function canPlayerRebirth() {
+    return (
+        mobileEnergy >=
+        getRebirthRequirement()
+    );
+}
+
+
+// -------------------------------------------------
+// RANDOM REBIRTH PERK ROLLS
+// -------------------------------------------------
+
+function rollRebirthRarity() {
+    const roll = Math.random();
+    let runningChance = 0;
+
+    for (
+        const rarityData of
+        REBIRTH_RARITY_CHANCES
+    ) {
+        runningChance += rarityData.chance;
+
+        if (roll < runningChance) {
+            return rarityData.rarity;
+        }
+    }
+
+    return "common";
+}
+
+
+function getAvailablePermanentPerks(
+    rarity = null,
+    excludedIds = []
+) {
+    return PERMANENT_PERK_DEFINITIONS.filter(
+        (perk) => {
+            if (
+                rarity &&
+                perk.rarity !== rarity
+            ) {
+                return false;
+            }
+
+            if (excludedIds.includes(perk.id)) {
+                return false;
+            }
+
+            return !isPermanentPerkMaxed(perk);
+        }
+    );
+}
+
+
+function getRandomArrayItem(items) {
+    if (!Array.isArray(items) || items.length === 0) {
+        return null;
+    }
+
+    return items[
+        Math.floor(
+            Math.random() * items.length
+        )
+    ];
+}
+
+
+function generateRebirthPerkChoices() {
+    const choices = [];
+
+    while (choices.length < 3) {
+        const rolledRarity =
+            rollRebirthRarity();
+
+        let candidates =
+            getAvailablePermanentPerks(
+                rolledRarity,
+                choices
+            );
+
+        /*
+            If every perk of the rolled rarity is
+            maxed, fall back to any available perk.
+        */
+        if (candidates.length === 0) {
+            candidates =
+                getAvailablePermanentPerks(
+                    null,
+                    choices
+                );
+        }
+
+        const selectedPerk =
+            getRandomArrayItem(candidates);
+
+        if (!selectedPerk) {
+            break;
+        }
+
+        choices.push(selectedPerk.id);
+    }
+
+    return choices;
+}
+
+
+function getValidPendingRebirthChoices(savedChoices) {
+    if (!Array.isArray(savedChoices)) {
+        return [];
+    }
+
+    const validChoices = [];
+
+    savedChoices.forEach((perkId) => {
+        const perk =
+            getPermanentPerkDefinition(perkId);
+
+        if (
+            perk &&
+            !validChoices.includes(perkId)
+        ) {
+            validChoices.push(perkId);
+        }
+    });
+
+    return validChoices.slice(0, 3);
+}
+
+
+function restorePermanentPerks(savedPerks) {
+    mobilePermanentPerks = {};
+
+    if (
+        !savedPerks ||
+        typeof savedPerks !== "object" ||
+        Array.isArray(savedPerks)
+    ) {
+        return;
+    }
+
+    PERMANENT_PERK_DEFINITIONS.forEach(
+        (perk) => {
+            const savedRank =
+                savedPerks[perk.id];
+
+            if (!Number.isFinite(savedRank)) {
+                return;
+            }
+
+            let safeRank = Math.max(
+                0,
+                Math.floor(savedRank)
+            );
+
+            if (perk.maxRank !== null) {
+                safeRank = Math.min(
+                    safeRank,
+                    perk.maxRank
+                );
+            }
+
+            if (safeRank > 0) {
+                mobilePermanentPerks[perk.id] =
+                    safeRank;
+            }
+        }
+    );
+}
+
+
+// -------------------------------------------------
+// STARTING BONUSES FOR A NEW LIFE
+// -------------------------------------------------
+
+function getRebirthStartingLevels() {
+    const allLevels =
+        getPermanentPerkEffectTotal(
+            "startingAllLevels"
+        );
+
+    const passiveLevels =
+        getPermanentPerkEffectTotal(
+            "startingPassiveLevels"
+        );
+
+    const specialLevels =
+        getPermanentPerkEffectTotal(
+            "startingSpecialLevels"
+        );
+
+    return {
+        drink: Math.min(
+            DRINK_POWER_MAX_LEVEL,
+            Math.floor(
+                allLevels +
+                getPermanentPerkEffectTotal(
+                    "startingDrinkLevels"
+                )
+            )
+        ),
+
+        factory: Math.min(
+            FACTORY_MAX_LEVEL,
+            Math.floor(
+                allLevels +
+                passiveLevels +
+                getPermanentPerkEffectTotal(
+                    "startingFactoryLevels"
+                )
+            )
+        ),
+
+        delivery: Math.min(
+            DELIVERY_MAX_LEVEL,
+            Math.floor(
+                allLevels +
+                passiveLevels +
+                getPermanentPerkEffectTotal(
+                    "startingDeliveryLevels"
+                )
+            )
+        ),
+
+        preWorkout: Math.min(
+            PREWORKOUT_MAX_LEVEL,
+            Math.floor(
+                allLevels +
+                passiveLevels +
+                getPermanentPerkEffectTotal(
+                    "startingPreWorkoutLevels"
+                )
+            )
+        ),
+
+        luckyShot: Math.min(
+            LUCKY_SHOT_MAX_LEVEL,
+            Math.floor(
+                allLevels +
+                specialLevels
+            )
+        ),
+
+        kinetic: Math.min(
+            KINETIC_MAX_LEVEL,
+            Math.floor(
+                allLevels +
+                specialLevels
+            )
+        )
+    };
+}
+
+
+function applyRebirthStartingBonuses() {
+    const startingLevels =
+        getRebirthStartingLevels();
+
+    mobileDrinkUpgradeIndex =
+        startingLevels.drink;
+
+    mobileFactoryUpgradeIndex =
+        startingLevels.factory;
+
+    mobileDeliveryUpgradeIndex =
+        startingLevels.delivery;
+
+    mobilePreWorkoutUpgradeIndex =
+        startingLevels.preWorkout;
+
+    mobileLuckyShotUpgradeIndex =
+        startingLevels.luckyShot;
+
+    mobileKineticUpgradeIndex =
+        startingLevels.kinetic;
+
+    mobileEnergy =
+        getPermanentPerkEffectTotal(
+            "startingEnergy"
+        );
+
+    rebuildDerivedGameValues();
+    updateShopBalance();
+}
 
 // -------------------------------------------------
 // MENU TITLES
@@ -491,6 +1501,21 @@ function formatGameNumber(value) {
     const negativeSign =
         number < 0 ? "-" : "";
 
+    /*
+        Extremely large scalable-upgrade values can
+        outgrow the current suffix list. Scientific
+        notation stays readable instead of producing
+        a giant number followed by the final suffix.
+    */
+    if (
+        unitIndex === units.length - 1 &&
+        roundedNumber >= 1000
+    ) {
+        return number
+            .toExponential(2)
+            .replace("+", "");
+    }
+
     return (
         negativeSign +
         roundedNumber +
@@ -529,14 +1554,17 @@ function updateShopBalance() {
         );
     }
 
-    if (mobileEnergyPerSecond > 0) {
+    const currentEnergyPerSecond =
+        getCurrentEnergyPerSecond();
+
+    if (currentEnergyPerSecond > 0) {
         mobilePerSecondRow.classList.remove(
             "hidden"
         );
 
         mobilePerSecondDisplay.textContent =
             formatGameNumber(
-                mobileEnergyPerSecond
+                currentEnergyPerSecond
             );
     } else {
         mobilePerSecondRow.classList.add(
@@ -554,11 +1582,8 @@ function updateShopBalance() {
     updateKineticOverflowCard();
 
     updateStatsDisplay();
+    updateRebirthDynamicDisplays();
 
-    /*
-        Check achievements after every meaningful
-        score or progression update.
-    */
     checkForNewAchievements();
 }
 
@@ -583,6 +1608,12 @@ function getDrinkUpgradeElements() {
         description:
             document.getElementById("drinkUpgradeDescription"),
 
+        progressText:
+            document.getElementById("drinkCanProgressText"),
+
+        progressFill:
+            document.getElementById("drinkCanProgressFill"),
+
         cost:
             document.getElementById("drinkUpgradeCost"),
 
@@ -591,6 +1622,188 @@ function getDrinkUpgradeElements() {
     };
 }
 
+
+
+
+// -------------------------------------------------
+// GET ONE DRINK POWER LEVEL'S COST AND GAIN
+// -------------------------------------------------
+
+function getDrinkPowerUpgradeData(currentLevel) {
+    if (
+        !Number.isInteger(currentLevel) ||
+        currentLevel < 0 ||
+        currentLevel >= DRINK_POWER_MAX_LEVEL
+    ) {
+        return null;
+    }
+
+    /*
+        Preserve the six original upgrades exactly.
+    */
+    if (currentLevel < DRINK_UPGRADES.length) {
+        const originalUpgrade =
+            DRINK_UPGRADES[currentLevel];
+
+        return {
+            level: currentLevel + 1,
+            cost: originalUpgrade.cost,
+            gain: originalUpgrade.multiplier
+        };
+    }
+
+    /*
+        Level 7 and beyond are generated from the
+        final original upgrade.
+    */
+    const lastOriginalUpgrade =
+        DRINK_UPGRADES[
+            DRINK_UPGRADES.length - 1
+        ];
+
+    const generatedStep =
+        currentLevel -
+        DRINK_UPGRADES.length +
+        1;
+
+    const generatedCost =
+        Math.floor(
+            lastOriginalUpgrade.cost *
+            Math.pow(
+                DRINK_POWER_COST_GROWTH,
+                generatedStep
+            )
+        );
+
+    const generatedGain =
+        Math.max(
+            1,
+            Math.floor(
+                lastOriginalUpgrade.multiplier *
+                Math.pow(
+                    DRINK_POWER_GAIN_GROWTH,
+                    generatedStep
+                )
+            )
+        );
+
+    return {
+        level: currentLevel + 1,
+        cost: generatedCost,
+        gain: generatedGain
+    };
+}
+
+
+// -------------------------------------------------
+// CALCULATE TAP POWER FROM A DRINK POWER LEVEL
+// -------------------------------------------------
+
+function calculateDrinkPowerFromLevel(level) {
+    const safeLevel =
+        Math.min(
+            Math.max(
+                Math.floor(level),
+                0
+            ),
+            DRINK_POWER_MAX_LEVEL
+        );
+
+    let calculatedTapPower = 1;
+
+    for (
+        let currentLevel = 0;
+        currentLevel < safeLevel;
+        currentLevel++
+    ) {
+        const upgradeData =
+            getDrinkPowerUpgradeData(
+                currentLevel
+            );
+
+        if (!upgradeData) {
+            break;
+        }
+
+        calculatedTapPower +=
+            upgradeData.gain;
+    }
+
+    return calculatedTapPower;
+}
+
+
+// -------------------------------------------------
+// GET THE CURRENT CAN MILESTONE
+// -------------------------------------------------
+
+function getCurrentCanMilestone(level) {
+    let currentMilestone =
+        DRINK_CAN_MILESTONES[0];
+
+    for (
+        const milestone of
+        DRINK_CAN_MILESTONES
+    ) {
+        if (level < milestone.level) {
+            break;
+        }
+
+        currentMilestone = milestone;
+    }
+
+    return currentMilestone;
+}
+
+
+// -------------------------------------------------
+// GET THE NEXT CAN MILESTONE
+// -------------------------------------------------
+
+function getNextCanMilestone(level) {
+    return (
+        DRINK_CAN_MILESTONES.find(
+            (milestone) =>
+                milestone.level > level
+        ) || null
+    );
+}
+
+
+// -------------------------------------------------
+// GET CAN-MILESTONE PROGRESS
+// -------------------------------------------------
+
+function getCanMilestoneProgress(level) {
+    const currentMilestone =
+        getCurrentCanMilestone(level);
+
+    const nextMilestone =
+        getNextCanMilestone(level);
+
+    if (!nextMilestone) {
+        return 100;
+    }
+
+    const milestoneDistance =
+        nextMilestone.level -
+        currentMilestone.level;
+
+    const completedDistance =
+        level -
+        currentMilestone.level;
+
+    return Math.min(
+        100,
+        Math.max(
+            0,
+            (
+                completedDistance /
+                milestoneDistance
+            ) * 100
+        )
+    );
+}
 
 // -------------------------------------------------
 // DETERMINE THE CURRENT CAN IMAGE
@@ -601,16 +1814,9 @@ function getDrinkUpgradeElements() {
 // -------------------------------------------------
 
 function getCurrentBaseCanImage() {
-    const currentCanImage =
-        CAN_LEVEL_IMAGES[mobileDrinkUpgradeIndex];
-
-    if (!currentCanImage) {
-        return CAN_LEVEL_IMAGES[
-        CAN_LEVEL_IMAGES.length - 1
-            ];
-    }
-
-    return currentCanImage;
+    return getCurrentCanMilestone(
+        mobileDrinkUpgradeIndex
+    ).image;
 }
 
 
@@ -660,80 +1866,84 @@ function updateDrinkUpgradeCard() {
         getDrinkUpgradeElements();
 
     /*
-        The upgrade card does not exist while
-        Skins, Colors, or Stats is open.
+        The card is not present while another
+        Player Hub or shop screen is open.
     */
     if (!elements.card) {
         return;
     }
 
-    if (
-        mobileDrinkUpgradeIndex <
-        DRINK_UPGRADES.length
-    ) {
-        const nextUpgrade =
-            DRINK_UPGRADES[mobileDrinkUpgradeIndex];
+    const currentMilestone =
+        getCurrentCanMilestone(
+            mobileDrinkUpgradeIndex
+        );
 
-        /*
-            The player is purchasing the next can level.
+    const nextMilestone =
+        getNextCanMilestone(
+            mobileDrinkUpgradeIndex
+        );
 
-            At level 0, the card previews Can 1.
-            At level 1, the card previews Can 2.
-        */
-        const nextCanLevel =
-            mobileDrinkUpgradeIndex + 1;
+    const nextUpgrade =
+        getDrinkPowerUpgradeData(
+            mobileDrinkUpgradeIndex
+        );
 
-        const nextCanImage =
-            CAN_LEVEL_IMAGES[nextCanLevel];
+    elements.image.src =
+        currentMilestone.image;
 
-        elements.image.src =
-            nextCanImage || nextUpgrade.img;
+    elements.name.textContent =
+        "DRINK POWER";
 
-        elements.name.textContent =
-            `CAN ${nextCanLevel}`;
+    elements.level.textContent =
+        `LEVEL ${mobileDrinkUpgradeIndex} • CAN TIER ${currentMilestone.tier}`;
 
-        elements.level.textContent =
-            `CURRENT CAN: ${mobileDrinkUpgradeIndex}`;
+    elements.progressFill.style.width =
+        `${getCanMilestoneProgress(
+            mobileDrinkUpgradeIndex
+        )}%`;
 
+    if (!nextUpgrade) {
         elements.description.textContent =
-            nextUpgrade.description.replace(
-                "click",
-                "tap"
-            );
+            "Drink Power has reached the temporary level cap.";
+
+        elements.progressText.textContent =
+            "HIGHEST CURRENT CAN TIER";
 
         elements.cost.textContent =
-            Math.floor(nextUpgrade.cost)
-                .toLocaleString("en-US");
+            "MAX";
 
         elements.buyButton.textContent =
-            "BUY";
+            "MAXED";
 
         elements.buyButton.disabled =
-            false;
+            true;
 
         return;
     }
 
-    elements.image.src =
-        MAXED_OUT_IMAGE;
-
-    elements.name.textContent =
-        `CAN ${mobileDrinkUpgradeIndex}`;
-
-    elements.level.textContent =
-        "MAX LEVEL";
-
     elements.description.textContent =
-        "All can power upgrades have been purchased.";
+        `Next level adds +${formatGameNumber(
+            nextUpgrade.gain
+        )} energy per tap.`;
+
+    if (nextMilestone) {
+        elements.progressText.textContent =
+            `NEXT CAN AT LEVEL ${nextMilestone.level}`;
+    } else {
+        elements.progressText.textContent =
+            "HIGHEST CURRENT CAN TIER";
+    }
 
     elements.cost.textContent =
-        "MAX";
+        formatGameNumber(
+            nextUpgrade.cost
+        );
 
     elements.buyButton.textContent =
-        "MAXED";
+        "BUY";
 
     elements.buyButton.disabled =
-        true;
+        false;
 }
 
 // -------------------------------------------------
@@ -743,26 +1953,285 @@ function updateDrinkUpgradeCard() {
 function getFactoryUpgradeElements() {
     return {
         card:
-            document.getElementById("factoryUpgradeCard"),
+            document.getElementById(
+                "factoryUpgradeCard"
+            ),
 
         image:
-            document.getElementById("factoryUpgradeImage"),
+            document.getElementById(
+                "factoryUpgradeImage"
+            ),
 
         name:
-            document.getElementById("factoryUpgradeName"),
+            document.getElementById(
+                "factoryUpgradeName"
+            ),
 
         level:
-            document.getElementById("factoryUpgradeLevel"),
+            document.getElementById(
+                "factoryUpgradeLevel"
+            ),
 
         description:
-            document.getElementById("factoryUpgradeDescription"),
+            document.getElementById(
+                "factoryUpgradeDescription"
+            ),
+
+        progressText:
+            document.getElementById(
+                "factoryTierProgressText"
+            ),
+
+        progressFill:
+            document.getElementById(
+                "factoryTierProgressFill"
+            ),
 
         cost:
-            document.getElementById("factoryUpgradeCost"),
+            document.getElementById(
+                "factoryUpgradeCost"
+            ),
 
         buyButton:
-            document.getElementById("factoryUpgradeBuyButton")
+            document.getElementById(
+                "factoryUpgradeBuyButton"
+            )
     };
+}
+
+
+// -------------------------------------------------
+// GET ONE FACTORY LEVEL'S COST AND GAIN
+// -------------------------------------------------
+
+function getFactoryUpgradeData(currentLevel) {
+    if (
+        !Number.isInteger(currentLevel) ||
+        currentLevel < 0 ||
+        currentLevel >= FACTORY_MAX_LEVEL
+    ) {
+        return null;
+    }
+
+    /*
+        Preserve every original Factory upgrade
+        exactly as it was written in upgrades.js.
+    */
+    if (
+        currentLevel <
+        FACTORY_UPGRADES.length
+    ) {
+        const originalUpgrade =
+            FACTORY_UPGRADES[currentLevel];
+
+        return {
+            level: currentLevel + 1,
+            cost: originalUpgrade.cost,
+            gain: originalUpgrade.multiplier,
+            image:
+                originalUpgrade.img ||
+                "imgs/firstFactory.png"
+        };
+    }
+
+    /*
+        Levels after the original list are generated
+        from the final original Factory upgrade.
+    */
+    const lastOriginalUpgrade =
+        FACTORY_UPGRADES[
+            FACTORY_UPGRADES.length - 1
+        ];
+
+    if (!lastOriginalUpgrade) {
+        return null;
+    }
+
+    const generatedStep =
+        currentLevel -
+        FACTORY_UPGRADES.length +
+        1;
+
+    const generatedCost =
+        Math.floor(
+            lastOriginalUpgrade.cost *
+            Math.pow(
+                FACTORY_COST_GROWTH,
+                generatedStep
+            )
+        );
+
+    const generatedGain =
+        Math.max(
+            1,
+            Math.floor(
+                lastOriginalUpgrade.multiplier *
+                Math.pow(
+                    FACTORY_GAIN_GROWTH,
+                    generatedStep
+                )
+            )
+        );
+
+    return {
+        level: currentLevel + 1,
+        cost: generatedCost,
+        gain: generatedGain,
+        image:
+            lastOriginalUpgrade.img ||
+            "imgs/firstFactory.png"
+    };
+}
+
+
+// -------------------------------------------------
+// CALCULATE FACTORY PRODUCTION FROM ITS LEVEL
+// -------------------------------------------------
+
+function calculateFactoryProductionFromLevel(
+    level
+) {
+    const safeLevel =
+        Math.min(
+            Math.max(
+                Math.floor(level),
+                0
+            ),
+            FACTORY_MAX_LEVEL
+        );
+
+    let calculatedProduction = 0;
+
+    for (
+        let currentLevel = 0;
+        currentLevel < safeLevel;
+        currentLevel++
+    ) {
+        const upgradeData =
+            getFactoryUpgradeData(
+                currentLevel
+            );
+
+        if (!upgradeData) {
+            break;
+        }
+
+        calculatedProduction +=
+            upgradeData.gain;
+    }
+
+    return calculatedProduction;
+}
+
+
+// -------------------------------------------------
+// GET THE CURRENT FACTORY MILESTONE
+// -------------------------------------------------
+
+function getCurrentFactoryMilestone(level) {
+    let currentMilestone =
+        FACTORY_TIER_MILESTONES[0];
+
+    for (
+        const milestone of
+        FACTORY_TIER_MILESTONES
+    ) {
+        if (level < milestone.level) {
+            break;
+        }
+
+        currentMilestone = milestone;
+    }
+
+    return currentMilestone;
+}
+
+
+// -------------------------------------------------
+// GET THE NEXT FACTORY MILESTONE
+// -------------------------------------------------
+
+function getNextFactoryMilestone(level) {
+    return (
+        FACTORY_TIER_MILESTONES.find(
+            (milestone) =>
+                milestone.level > level
+        ) || null
+    );
+}
+
+
+// -------------------------------------------------
+// GET FACTORY-MILESTONE PROGRESS
+// -------------------------------------------------
+
+function getFactoryMilestoneProgress(level) {
+    const currentMilestone =
+        getCurrentFactoryMilestone(
+            level
+        );
+
+    const nextMilestone =
+        getNextFactoryMilestone(
+            level
+        );
+
+    if (!nextMilestone) {
+        return 100;
+    }
+
+    const milestoneDistance =
+        nextMilestone.level -
+        currentMilestone.level;
+
+    const completedDistance =
+        level -
+        currentMilestone.level;
+
+    return Math.min(
+        100,
+        Math.max(
+            0,
+            (
+                completedDistance /
+                milestoneDistance
+            ) * 100
+        )
+    );
+}
+
+
+// -------------------------------------------------
+// GET FACTORY ARTWORK FOR A MILESTONE
+// -------------------------------------------------
+
+function getFactoryMilestoneImage(
+    milestone
+) {
+    const finalUpgradeIndex =
+        Math.max(
+            0,
+            FACTORY_UPGRADES.length - 1
+        );
+
+    const safeSourceIndex =
+        Math.min(
+            Math.max(
+                milestone.sourceIndex,
+                0
+            ),
+            finalUpgradeIndex
+        );
+
+    const artworkUpgrade =
+        FACTORY_UPGRADES[
+            safeSourceIndex
+        ];
+
+    return (
+        artworkUpgrade?.img ||
+        "imgs/firstFactory.png"
+    );
 }
 
 
@@ -776,64 +2245,103 @@ function updateFactoryUpgradeCard() {
 
     /*
         The Factory card does not exist while
-        Skins, Colors, or Stats is open.
+        another shop or Player Hub is open.
     */
     if (!elements.card) {
         return;
     }
 
-    if (
-        mobileFactoryUpgradeIndex <
-        FACTORY_UPGRADES.length
-    ) {
-        const nextFactory =
-            FACTORY_UPGRADES[mobileFactoryUpgradeIndex];
+    const currentMilestone =
+        getCurrentFactoryMilestone(
+            mobileFactoryUpgradeIndex
+        );
 
-        elements.image.src =
-            nextFactory.img;
-
-        elements.name.textContent =
-            nextFactory.name || "FACTORY";
-
-        elements.level.textContent =
-            `LEVEL ${mobileFactoryUpgradeIndex}`;
-
-        elements.description.textContent =
-            nextFactory.description;
-
-        elements.cost.textContent =
-            Math.floor(nextFactory.cost)
-                .toLocaleString("en-US");
-
-        elements.buyButton.textContent =
-            "BUY";
-
-        elements.buyButton.disabled =
-            false;
-
-        return;
-    }
+    const nextMilestone =
+        getNextFactoryMilestone(
+            mobileFactoryUpgradeIndex
+        );
 
     elements.image.src =
-        MAXED_OUT_IMAGE;
+        getFactoryMilestoneImage(
+            currentMilestone
+        );
 
     elements.name.textContent =
         "FACTORY";
 
     elements.level.textContent =
-        `LEVEL ${FACTORY_UPGRADES.length}`;
+        `LEVEL ${mobileFactoryUpgradeIndex} • FACTORY TIER ${currentMilestone.tier}`;
+
+    if (
+        mobileFactoryUpgradeIndex >=
+        FACTORY_MAX_LEVEL
+    ) {
+        elements.description.textContent =
+            "Factory has reached its current maximum level.";
+
+        if (elements.progressText) {
+            elements.progressText.textContent =
+                "HIGHEST CURRENT FACTORY TIER";
+        }
+
+        if (elements.progressFill) {
+            elements.progressFill.style.width =
+                "100%";
+        }
+
+        elements.cost.textContent =
+            "MAX";
+
+        elements.buyButton.textContent =
+            "MAXED";
+
+        elements.buyButton.disabled =
+            true;
+
+        return;
+    }
+
+    const nextUpgrade =
+        getFactoryUpgradeData(
+            mobileFactoryUpgradeIndex
+        );
+
+    if (!nextUpgrade) {
+        elements.buyButton.disabled =
+            true;
+
+        return;
+    }
 
     elements.description.textContent =
-        "All Factory upgrades have been purchased.";
+        `Next level adds +${formatGameNumber(
+            nextUpgrade.gain
+        )} energy per second.`;
+
+    if (elements.progressText) {
+        elements.progressText.textContent =
+            nextMilestone
+                ? `NEXT FACTORY AT LEVEL ${nextMilestone.level}`
+                : "HIGHEST CURRENT FACTORY TIER";
+    }
+
+    if (elements.progressFill) {
+        elements.progressFill.style.width =
+            `${getFactoryMilestoneProgress(
+                mobileFactoryUpgradeIndex
+            )}%`;
+    }
 
     elements.cost.textContent =
-        "MAX";
+        formatGameNumber(
+            nextUpgrade.cost
+        );
 
     elements.buyButton.textContent =
-        "MAXED";
+        "BUY";
 
     elements.buyButton.disabled =
-        true;
+        false;
 }
 
 
@@ -844,55 +2352,184 @@ function updateFactoryUpgradeCard() {
 function buyFactoryUpgrade() {
     if (
         mobileFactoryUpgradeIndex >=
-        FACTORY_UPGRADES.length
+        FACTORY_MAX_LEVEL
     ) {
         return;
     }
 
     const currentFactory =
-        FACTORY_UPGRADES[mobileFactoryUpgradeIndex];
+        getFactoryUpgradeData(
+            mobileFactoryUpgradeIndex
+        );
 
     const elements =
         getFactoryUpgradeElements();
+
+    if (!currentFactory) {
+        return;
+    }
 
     if (
         mobileEnergy <
         currentFactory.cost
     ) {
-        showPurchaseFailure(elements.card);
+        showPurchaseFailure(
+            elements.card
+        );
+
         return;
     }
+
+    const previousTier =
+        getCurrentFactoryMilestone(
+            mobileFactoryUpgradeIndex
+        ).tier;
 
     mobileEnergy -=
         currentFactory.cost;
 
     mobileEnergyPerSecond +=
-        currentFactory.multiplier;
+        currentFactory.gain;
 
     mobileFactoryUpgradeIndex++;
 
+    const newTier =
+        getCurrentFactoryMilestone(
+            mobileFactoryUpgradeIndex
+        ).tier;
+
     updateShopBalance();
 
-    /*
-        Briefly flash the card green after
-        a successful Factory purchase.
-    */
     elements.card.classList.remove(
-        "purchaseSuccess"
+        "purchaseSuccess",
+        "factoryTierUnlocked"
     );
 
     void elements.card.offsetWidth;
 
-    elements.card.classList.add(
-        "purchaseSuccess"
-    );
+    if (newTier > previousTier) {
+        elements.card.classList.add(
+            "factoryTierUnlocked"
+        );
+    } else {
+        elements.card.classList.add(
+            "purchaseSuccess"
+        );
+    }
 
     setTimeout(() => {
         elements.card.classList.remove(
-            "purchaseSuccess"
+            "purchaseSuccess",
+            "factoryTierUnlocked"
         );
-    }, 500);
+    }, 700);
 }
+
+
+// -------------------------------------------------
+// GENERIC SCALABLE-UPGRADE MILESTONE HELPERS
+// -------------------------------------------------
+
+function getCurrentUpgradeMilestone(
+    level,
+    milestones
+) {
+    let currentMilestone =
+        milestones[0];
+
+    for (const milestone of milestones) {
+        if (level < milestone.level) {
+            break;
+        }
+
+        currentMilestone = milestone;
+    }
+
+    return currentMilestone;
+}
+
+
+function getNextUpgradeMilestone(
+    level,
+    milestones
+) {
+    return (
+        milestones.find(
+            (milestone) =>
+                milestone.level > level
+        ) || null
+    );
+}
+
+
+function getUpgradeMilestoneProgress(
+    level,
+    milestones
+) {
+    const currentMilestone =
+        getCurrentUpgradeMilestone(
+            level,
+            milestones
+        );
+
+    const nextMilestone =
+        getNextUpgradeMilestone(
+            level,
+            milestones
+        );
+
+    if (!nextMilestone) {
+        return 100;
+    }
+
+    const milestoneDistance =
+        nextMilestone.level -
+        currentMilestone.level;
+
+    const completedDistance =
+        level -
+        currentMilestone.level;
+
+    return Math.min(
+        100,
+        Math.max(
+            0,
+            (
+                completedDistance /
+                milestoneDistance
+            ) * 100
+        )
+    );
+}
+
+
+function getUpgradeMilestoneImage(
+    milestone,
+    upgradeArray,
+    fallbackImage
+) {
+    if (!upgradeArray.length) {
+        return fallbackImage;
+    }
+
+    const finalUpgradeIndex =
+        upgradeArray.length - 1;
+
+    const safeSourceIndex =
+        Math.min(
+            Math.max(
+                milestone.sourceIndex || 0,
+                0
+            ),
+            finalUpgradeIndex
+        );
+
+    return (
+        upgradeArray[safeSourceIndex]?.img ||
+        fallbackImage
+    );
+}
+
 
 // -------------------------------------------------
 // GET THE DELIVERY TRUCK CARD ELEMENTS
@@ -925,6 +2562,16 @@ function getDeliveryTruckElements() {
                 "deliveryUpgradeDescription"
             ),
 
+        progressText:
+            document.getElementById(
+                "deliveryTierProgressText"
+            ),
+
+        progressFill:
+            document.getElementById(
+                "deliveryTierProgressFill"
+            ),
+
         cost:
             document.getElementById(
                 "deliveryUpgradeCost"
@@ -939,6 +2586,109 @@ function getDeliveryTruckElements() {
 
 
 // -------------------------------------------------
+// GET ONE DELIVERY LEVEL'S COST AND GAIN
+// -------------------------------------------------
+
+function getDeliveryUpgradeData(currentLevel) {
+    if (
+        !Number.isInteger(currentLevel) ||
+        currentLevel < 0 ||
+        currentLevel >= DELIVERY_MAX_LEVEL
+    ) {
+        return null;
+    }
+
+    if (currentLevel < DELIVERY_UPGRADES.length) {
+        const originalUpgrade =
+            DELIVERY_UPGRADES[currentLevel];
+
+        return {
+            level: currentLevel + 1,
+            cost: originalUpgrade.cost,
+            gain: originalUpgrade.multiplier,
+            image: originalUpgrade.img
+        };
+    }
+
+    const lastOriginalUpgrade =
+        DELIVERY_UPGRADES[
+            DELIVERY_UPGRADES.length - 1
+        ];
+
+    if (!lastOriginalUpgrade) {
+        return null;
+    }
+
+    const generatedStep =
+        currentLevel -
+        DELIVERY_UPGRADES.length +
+        1;
+
+    return {
+        level: currentLevel + 1,
+        cost: Math.floor(
+            lastOriginalUpgrade.cost *
+            Math.pow(
+                DELIVERY_COST_GROWTH,
+                generatedStep
+            )
+        ),
+        gain: Math.max(
+            1,
+            Math.floor(
+                lastOriginalUpgrade.multiplier *
+                Math.pow(
+                    DELIVERY_GAIN_GROWTH,
+                    generatedStep
+                )
+            )
+        ),
+        image: lastOriginalUpgrade.img
+    };
+}
+
+
+// -------------------------------------------------
+// CALCULATE DELIVERY PRODUCTION FROM ITS LEVEL
+// -------------------------------------------------
+
+function calculateDeliveryProductionFromLevel(
+    level
+) {
+    const safeLevel =
+        Math.min(
+            Math.max(
+                Math.floor(level),
+                0
+            ),
+            DELIVERY_MAX_LEVEL
+        );
+
+    let calculatedProduction = 0;
+
+    for (
+        let currentLevel = 0;
+        currentLevel < safeLevel;
+        currentLevel++
+    ) {
+        const upgradeData =
+            getDeliveryUpgradeData(
+                currentLevel
+            );
+
+        if (!upgradeData) {
+            break;
+        }
+
+        calculatedProduction +=
+            upgradeData.gain;
+    }
+
+    return calculatedProduction;
+}
+
+
+// -------------------------------------------------
 // UPDATE THE DELIVERY TRUCK CARD
 // -------------------------------------------------
 
@@ -946,74 +2696,87 @@ function updateDeliveryTruckCard() {
     const elements =
         getDeliveryTruckElements();
 
-    /*
-        The card will not exist while Skins,
-        Colors, or Stats is open.
-    */
     if (!elements.card) {
         return;
     }
 
-    if (
-        mobileDeliveryUpgradeIndex <
-        DELIVERY_UPGRADES.length
-    ) {
-        const nextDeliveryUpgrade =
-            DELIVERY_UPGRADES[
-                mobileDeliveryUpgradeIndex
-                ];
+    const currentMilestone =
+        getCurrentUpgradeMilestone(
+            mobileDeliveryUpgradeIndex,
+            DELIVERY_TIER_MILESTONES
+        );
 
-        elements.image.src =
-            nextDeliveryUpgrade.img;
+    const nextMilestone =
+        getNextUpgradeMilestone(
+            mobileDeliveryUpgradeIndex,
+            DELIVERY_TIER_MILESTONES
+        );
 
-        elements.name.textContent =
-            nextDeliveryUpgrade.name ||
-            "DELIVERY TRUCK";
-
-        elements.level.textContent =
-            `LEVEL ${mobileDeliveryUpgradeIndex}`;
-
-        elements.description.textContent =
-            nextDeliveryUpgrade.description;
-
-        elements.cost.textContent =
-            formatGameNumber(
-                nextDeliveryUpgrade.cost
-            );
-
-        elements.buyButton.textContent =
-            "BUY";
-
-        elements.buyButton.disabled =
-            false;
-
-        return;
-    }
-
-    /*
-        Display the maxed-out state after the
-        player purchases every Delivery upgrade.
-    */
     elements.image.src =
-        MAXED_OUT_IMAGE;
+        getUpgradeMilestoneImage(
+            currentMilestone,
+            DELIVERY_UPGRADES,
+            "imgs/firstCan.png"
+        );
 
     elements.name.textContent =
         "DELIVERY TRUCK";
 
     elements.level.textContent =
-        `LEVEL ${DELIVERY_UPGRADES.length}`;
+        `LEVEL ${mobileDeliveryUpgradeIndex} • DELIVERY TIER ${currentMilestone.tier}`;
+
+    if (
+        mobileDeliveryUpgradeIndex >=
+        DELIVERY_MAX_LEVEL
+    ) {
+        elements.description.textContent =
+            "Delivery has reached its current maximum level.";
+
+        elements.progressText.textContent =
+            "HIGHEST CURRENT DELIVERY TIER";
+
+        elements.progressFill.style.width =
+            "100%";
+
+        elements.cost.textContent = "MAX";
+        elements.buyButton.textContent = "MAXED";
+        elements.buyButton.disabled = true;
+        return;
+    }
+
+    const nextUpgrade =
+        getDeliveryUpgradeData(
+            mobileDeliveryUpgradeIndex
+        );
+
+    if (!nextUpgrade) {
+        elements.buyButton.disabled = true;
+        return;
+    }
 
     elements.description.textContent =
-        "All Delivery Truck upgrades have been purchased.";
+        `Next level adds +${formatGameNumber(
+            nextUpgrade.gain
+        )} energy per second.`;
+
+    elements.progressText.textContent =
+        nextMilestone
+            ? `NEXT DELIVERY TIER AT LEVEL ${nextMilestone.level}`
+            : "HIGHEST CURRENT DELIVERY TIER";
+
+    elements.progressFill.style.width =
+        `${getUpgradeMilestoneProgress(
+            mobileDeliveryUpgradeIndex,
+            DELIVERY_TIER_MILESTONES
+        )}%`;
 
     elements.cost.textContent =
-        "MAX";
+        formatGameNumber(
+            nextUpgrade.cost
+        );
 
-    elements.buyButton.textContent =
-        "MAXED";
-
-    elements.buyButton.disabled =
-        true;
+    elements.buyButton.textContent = "BUY";
+    elements.buyButton.disabled = false;
 }
 
 
@@ -1024,66 +2787,65 @@ function updateDeliveryTruckCard() {
 function buyDeliveryTruckUpgrade() {
     if (
         mobileDeliveryUpgradeIndex >=
-        DELIVERY_UPGRADES.length
+        DELIVERY_MAX_LEVEL
     ) {
         return;
     }
 
-    const currentDeliveryUpgrade =
-        DELIVERY_UPGRADES[
+    const currentUpgrade =
+        getDeliveryUpgradeData(
             mobileDeliveryUpgradeIndex
-            ];
+        );
 
     const elements =
         getDeliveryTruckElements();
 
-    /*
-        Reject the purchase when the player
-        cannot afford the current upgrade.
-    */
-    if (
-        mobileEnergy <
-        currentDeliveryUpgrade.cost
-    ) {
+    if (!currentUpgrade) {
+        return;
+    }
+
+    if (mobileEnergy < currentUpgrade.cost) {
         showPurchaseFailure(elements.card);
         return;
     }
 
-    /*
-        Complete the purchase.
-    */
-    mobileEnergy -=
-        currentDeliveryUpgrade.cost;
+    const previousTier =
+        getCurrentUpgradeMilestone(
+            mobileDeliveryUpgradeIndex,
+            DELIVERY_TIER_MILESTONES
+        ).tier;
 
-    mobileEnergyPerSecond +=
-        currentDeliveryUpgrade.multiplier;
-
+    mobileEnergy -= currentUpgrade.cost;
+    mobileEnergyPerSecond += currentUpgrade.gain;
     mobileDeliveryUpgradeIndex++;
 
-    /*
-        Update the home score, shop balance,
-        production line, and Delivery card.
-    */
+    const newTier =
+        getCurrentUpgradeMilestone(
+            mobileDeliveryUpgradeIndex,
+            DELIVERY_TIER_MILESTONES
+        ).tier;
+
     updateShopBalance();
 
-    /*
-        Flash the card green after success.
-    */
     elements.card.classList.remove(
-        "purchaseSuccess"
+        "purchaseSuccess",
+        "scalableTierUnlocked"
     );
 
     void elements.card.offsetWidth;
 
     elements.card.classList.add(
-        "purchaseSuccess"
+        newTier > previousTier
+            ? "scalableTierUnlocked"
+            : "purchaseSuccess"
     );
 
     setTimeout(() => {
         elements.card.classList.remove(
-            "purchaseSuccess"
+            "purchaseSuccess",
+            "scalableTierUnlocked"
         );
-    }, 500);
+    }, 700);
 }
 
 // -------------------------------------------------
@@ -1117,6 +2879,16 @@ function getPreWorkoutElements() {
                 "preWorkoutUpgradeDescription"
             ),
 
+        progressText:
+            document.getElementById(
+                "preWorkoutTierProgressText"
+            ),
+
+        progressFill:
+            document.getElementById(
+                "preWorkoutTierProgressFill"
+            ),
+
         cost:
             document.getElementById(
                 "preWorkoutUpgradeCost"
@@ -1131,6 +2903,109 @@ function getPreWorkoutElements() {
 
 
 // -------------------------------------------------
+// GET ONE PRE-WORKOUT LEVEL'S COST AND GAIN
+// -------------------------------------------------
+
+function getPreWorkoutUpgradeData(currentLevel) {
+    if (
+        !Number.isInteger(currentLevel) ||
+        currentLevel < 0 ||
+        currentLevel >= PREWORKOUT_MAX_LEVEL
+    ) {
+        return null;
+    }
+
+    if (currentLevel < PREWORKOUT_UPGRADES.length) {
+        const originalUpgrade =
+            PREWORKOUT_UPGRADES[currentLevel];
+
+        return {
+            level: currentLevel + 1,
+            cost: originalUpgrade.cost,
+            gain: originalUpgrade.multiplier,
+            image: originalUpgrade.img
+        };
+    }
+
+    const lastOriginalUpgrade =
+        PREWORKOUT_UPGRADES[
+            PREWORKOUT_UPGRADES.length - 1
+        ];
+
+    if (!lastOriginalUpgrade) {
+        return null;
+    }
+
+    const generatedStep =
+        currentLevel -
+        PREWORKOUT_UPGRADES.length +
+        1;
+
+    return {
+        level: currentLevel + 1,
+        cost: Math.floor(
+            lastOriginalUpgrade.cost *
+            Math.pow(
+                PREWORKOUT_COST_GROWTH,
+                generatedStep
+            )
+        ),
+        gain: Math.max(
+            1,
+            Math.floor(
+                lastOriginalUpgrade.multiplier *
+                Math.pow(
+                    PREWORKOUT_GAIN_GROWTH,
+                    generatedStep
+                )
+            )
+        ),
+        image: lastOriginalUpgrade.img
+    };
+}
+
+
+// -------------------------------------------------
+// CALCULATE PRE-WORKOUT PRODUCTION FROM ITS LEVEL
+// -------------------------------------------------
+
+function calculatePreWorkoutProductionFromLevel(
+    level
+) {
+    const safeLevel =
+        Math.min(
+            Math.max(
+                Math.floor(level),
+                0
+            ),
+            PREWORKOUT_MAX_LEVEL
+        );
+
+    let calculatedProduction = 0;
+
+    for (
+        let currentLevel = 0;
+        currentLevel < safeLevel;
+        currentLevel++
+    ) {
+        const upgradeData =
+            getPreWorkoutUpgradeData(
+                currentLevel
+            );
+
+        if (!upgradeData) {
+            break;
+        }
+
+        calculatedProduction +=
+            upgradeData.gain;
+    }
+
+    return calculatedProduction;
+}
+
+
+// -------------------------------------------------
 // UPDATE THE PRE-WORKOUT CARD
 // -------------------------------------------------
 
@@ -1138,74 +3013,87 @@ function updatePreWorkoutCard() {
     const elements =
         getPreWorkoutElements();
 
-    /*
-        The card does not exist while Skins,
-        Colors, or Stats is open.
-    */
     if (!elements.card) {
         return;
     }
 
-    if (
-        mobilePreWorkoutUpgradeIndex <
-        PREWORKOUT_UPGRADES.length
-    ) {
-        const nextPreWorkout =
-            PREWORKOUT_UPGRADES[
-                mobilePreWorkoutUpgradeIndex
-                ];
+    const currentMilestone =
+        getCurrentUpgradeMilestone(
+            mobilePreWorkoutUpgradeIndex,
+            PREWORKOUT_TIER_MILESTONES
+        );
 
-        elements.image.src =
-            nextPreWorkout.img;
+    const nextMilestone =
+        getNextUpgradeMilestone(
+            mobilePreWorkoutUpgradeIndex,
+            PREWORKOUT_TIER_MILESTONES
+        );
 
-        elements.name.textContent =
-            nextPreWorkout.name ||
-            "PRE-WORKOUT";
-
-        elements.level.textContent =
-            `LEVEL ${mobilePreWorkoutUpgradeIndex}`;
-
-        elements.description.textContent =
-            nextPreWorkout.description;
-
-        elements.cost.textContent =
-            formatGameNumber(
-                nextPreWorkout.cost
-            );
-
-        elements.buyButton.textContent =
-            "BUY";
-
-        elements.buyButton.disabled =
-            false;
-
-        return;
-    }
-
-    /*
-        Show the maxed-out state after every
-        Pre-Workout tier has been purchased.
-    */
     elements.image.src =
-        MAXED_OUT_IMAGE;
+        getUpgradeMilestoneImage(
+            currentMilestone,
+            PREWORKOUT_UPGRADES,
+            "imgs/firstCan.png"
+        );
 
     elements.name.textContent =
         "PRE-WORKOUT";
 
     elements.level.textContent =
-        `LEVEL ${PREWORKOUT_UPGRADES.length}`;
+        `LEVEL ${mobilePreWorkoutUpgradeIndex} • FORMULA TIER ${currentMilestone.tier}`;
+
+    if (
+        mobilePreWorkoutUpgradeIndex >=
+        PREWORKOUT_MAX_LEVEL
+    ) {
+        elements.description.textContent =
+            "Pre-Workout has reached its current maximum level.";
+
+        elements.progressText.textContent =
+            "HIGHEST CURRENT FORMULA TIER";
+
+        elements.progressFill.style.width =
+            "100%";
+
+        elements.cost.textContent = "MAX";
+        elements.buyButton.textContent = "MAXED";
+        elements.buyButton.disabled = true;
+        return;
+    }
+
+    const nextUpgrade =
+        getPreWorkoutUpgradeData(
+            mobilePreWorkoutUpgradeIndex
+        );
+
+    if (!nextUpgrade) {
+        elements.buyButton.disabled = true;
+        return;
+    }
 
     elements.description.textContent =
-        "All Pre-Workout upgrades have been purchased.";
+        `Next level adds +${formatGameNumber(
+            nextUpgrade.gain
+        )} energy per second.`;
+
+    elements.progressText.textContent =
+        nextMilestone
+            ? `NEXT FORMULA TIER AT LEVEL ${nextMilestone.level}`
+            : "HIGHEST CURRENT FORMULA TIER";
+
+    elements.progressFill.style.width =
+        `${getUpgradeMilestoneProgress(
+            mobilePreWorkoutUpgradeIndex,
+            PREWORKOUT_TIER_MILESTONES
+        )}%`;
 
     elements.cost.textContent =
-        "MAX";
+        formatGameNumber(
+            nextUpgrade.cost
+        );
 
-    elements.buyButton.textContent =
-        "MAXED";
-
-    elements.buyButton.disabled =
-        true;
+    elements.buyButton.textContent = "BUY";
+    elements.buyButton.disabled = false;
 }
 
 
@@ -1216,66 +3104,65 @@ function updatePreWorkoutCard() {
 function buyPreWorkoutUpgrade() {
     if (
         mobilePreWorkoutUpgradeIndex >=
-        PREWORKOUT_UPGRADES.length
+        PREWORKOUT_MAX_LEVEL
     ) {
         return;
     }
 
-    const currentPreWorkout =
-        PREWORKOUT_UPGRADES[
+    const currentUpgrade =
+        getPreWorkoutUpgradeData(
             mobilePreWorkoutUpgradeIndex
-            ];
+        );
 
     const elements =
         getPreWorkoutElements();
 
-    /*
-        Reject the purchase when the player
-        cannot afford the current upgrade.
-    */
-    if (
-        mobileEnergy <
-        currentPreWorkout.cost
-    ) {
+    if (!currentUpgrade) {
+        return;
+    }
+
+    if (mobileEnergy < currentUpgrade.cost) {
         showPurchaseFailure(elements.card);
         return;
     }
 
-    /*
-        Complete the purchase.
-    */
-    mobileEnergy -=
-        currentPreWorkout.cost;
+    const previousTier =
+        getCurrentUpgradeMilestone(
+            mobilePreWorkoutUpgradeIndex,
+            PREWORKOUT_TIER_MILESTONES
+        ).tier;
 
-    mobileEnergyPerSecond +=
-        currentPreWorkout.multiplier;
-
+    mobileEnergy -= currentUpgrade.cost;
+    mobileEnergyPerSecond += currentUpgrade.gain;
     mobilePreWorkoutUpgradeIndex++;
 
-    /*
-        Update the score, menu balance,
-        production line, and upgrade cards.
-    */
+    const newTier =
+        getCurrentUpgradeMilestone(
+            mobilePreWorkoutUpgradeIndex,
+            PREWORKOUT_TIER_MILESTONES
+        ).tier;
+
     updateShopBalance();
 
-    /*
-        Flash the card green after success.
-    */
     elements.card.classList.remove(
-        "purchaseSuccess"
+        "purchaseSuccess",
+        "scalableTierUnlocked"
     );
 
     void elements.card.offsetWidth;
 
     elements.card.classList.add(
-        "purchaseSuccess"
+        newTier > previousTier
+            ? "scalableTierUnlocked"
+            : "purchaseSuccess"
     );
 
     setTimeout(() => {
         elements.card.classList.remove(
-            "purchaseSuccess"
+            "purchaseSuccess",
+            "scalableTierUnlocked"
         );
-    }, 500);
+    }, 700);
 }
 
 // -------------------------------------------------
@@ -1309,6 +3196,16 @@ function getLuckyShotElements() {
                 "luckyShotUpgradeDescription"
             ),
 
+        progressText:
+            document.getElementById(
+                "luckyShotTierProgressText"
+            ),
+
+        progressFill:
+            document.getElementById(
+                "luckyShotTierProgressFill"
+            ),
+
         cost:
             document.getElementById(
                 "luckyShotUpgradeCost"
@@ -1323,6 +3220,115 @@ function getLuckyShotElements() {
 
 
 // -------------------------------------------------
+// GET ONE LUCKY SHOT LEVEL'S VALUES
+// -------------------------------------------------
+
+function getLuckyShotUpgradeData(currentLevel) {
+    if (
+        !Number.isInteger(currentLevel) ||
+        currentLevel < 0 ||
+        currentLevel >= LUCKY_SHOT_MAX_LEVEL
+    ) {
+        return null;
+    }
+
+    if (currentLevel < LUCKYSHOT_UPGRADES.length) {
+        const originalUpgrade =
+            LUCKYSHOT_UPGRADES[currentLevel];
+
+        return {
+            level: currentLevel + 1,
+            cost: originalUpgrade.cost,
+            chanceIncrease:
+                originalUpgrade.chanceIncrease,
+            bonusIncrease: 0,
+            image: originalUpgrade.img
+        };
+    }
+
+    const lastOriginalUpgrade =
+        LUCKYSHOT_UPGRADES[
+            LUCKYSHOT_UPGRADES.length - 1
+        ];
+
+    if (!lastOriginalUpgrade) {
+        return null;
+    }
+
+    const generatedStep =
+        currentLevel -
+        LUCKYSHOT_UPGRADES.length +
+        1;
+
+    return {
+        level: currentLevel + 1,
+        cost: Math.floor(
+            lastOriginalUpgrade.cost *
+            Math.pow(
+                LUCKY_SHOT_COST_GROWTH,
+                generatedStep
+            )
+        ),
+        chanceIncrease:
+            LUCKY_SHOT_GENERATED_CHANCE_GAIN,
+        bonusIncrease:
+            LUCKY_SHOT_GENERATED_BONUS_GAIN,
+        image: lastOriginalUpgrade.img
+    };
+}
+
+
+// -------------------------------------------------
+// CALCULATE LUCKY SHOT VALUES FROM ITS LEVEL
+// -------------------------------------------------
+
+function calculateLuckyShotValuesFromLevel(
+    level
+) {
+    const safeLevel =
+        Math.min(
+            Math.max(
+                Math.floor(level),
+                0
+            ),
+            LUCKY_SHOT_MAX_LEVEL
+        );
+
+    let chance = 0;
+    let bonusMultiplier = 0.20;
+
+    for (
+        let currentLevel = 0;
+        currentLevel < safeLevel;
+        currentLevel++
+    ) {
+        const upgradeData =
+            getLuckyShotUpgradeData(
+                currentLevel
+            );
+
+        if (!upgradeData) {
+            break;
+        }
+
+        chance = Math.min(
+            LUCKY_SHOT_MAX_CHANCE,
+            chance +
+            upgradeData.chanceIncrease
+        );
+
+        bonusMultiplier +=
+            upgradeData.bonusIncrease;
+    }
+
+    return {
+        chance,
+        bonusMultiplier
+    };
+}
+
+
+// -------------------------------------------------
 // UPDATE THE LUCKY SHOT CARD
 // -------------------------------------------------
 
@@ -1330,73 +3336,98 @@ function updateLuckyShotCard() {
     const elements =
         getLuckyShotElements();
 
-    /*
-        The card does not exist while Skins,
-        Colors, or Stats is open.
-    */
     if (!elements.card) {
         return;
     }
 
-    if (
-        mobileLuckyShotUpgradeIndex <
-        LUCKYSHOT_UPGRADES.length
-    ) {
-        const nextLuckyShot =
-            LUCKYSHOT_UPGRADES[
-                mobileLuckyShotUpgradeIndex
-                ];
+    const currentMilestone =
+        getCurrentUpgradeMilestone(
+            mobileLuckyShotUpgradeIndex,
+            LUCKY_SHOT_TIER_MILESTONES
+        );
 
-        elements.image.src =
-            nextLuckyShot.img;
-
-        elements.name.textContent =
-            nextLuckyShot.name ||
-            "LUCKY SHOT";
-
-        elements.level.textContent =
-            `LEVEL ${mobileLuckyShotUpgradeIndex}`;
-
-        elements.description.textContent =
-            nextLuckyShot.description.replace(
-                "clicking",
-                "tapping"
-            );
-
-        elements.cost.textContent =
-            formatGameNumber(
-                nextLuckyShot.cost
-            );
-
-        elements.buyButton.textContent =
-            "BUY";
-
-        elements.buyButton.disabled =
-            false;
-
-        return;
-    }
+    const nextMilestone =
+        getNextUpgradeMilestone(
+            mobileLuckyShotUpgradeIndex,
+            LUCKY_SHOT_TIER_MILESTONES
+        );
 
     elements.image.src =
-        MAXED_OUT_IMAGE;
+        LUCKYSHOT_UPGRADES[0]?.img ||
+        "imgs/luckyUpgrade.png";
 
     elements.name.textContent =
         "LUCKY SHOT";
 
     elements.level.textContent =
-        `LEVEL ${LUCKYSHOT_UPGRADES.length}`;
+        `LEVEL ${mobileLuckyShotUpgradeIndex} • LUCK TIER ${currentMilestone.tier}`;
+
+    if (
+        mobileLuckyShotUpgradeIndex >=
+        LUCKY_SHOT_MAX_LEVEL
+    ) {
+        elements.description.textContent =
+            `Maximum current level. ${formatChancePercent(
+                mobileLuckyShotChance
+            )} chance with a ${formatChancePercent(
+                mobileLuckyShotBonusMultiplier
+            )} reward.`;
+
+        elements.progressText.textContent =
+            "HIGHEST CURRENT LUCK TIER";
+
+        elements.progressFill.style.width =
+            "100%";
+
+        elements.cost.textContent = "MAX";
+        elements.buyButton.textContent = "MAXED";
+        elements.buyButton.disabled = true;
+        return;
+    }
+
+    const nextUpgrade =
+        getLuckyShotUpgradeData(
+            mobileLuckyShotUpgradeIndex
+        );
+
+    if (!nextUpgrade) {
+        elements.buyButton.disabled = true;
+        return;
+    }
+
+    const chanceText =
+        mobileLuckyShotChance >=
+        LUCKY_SHOT_MAX_CHANCE
+            ? "Chance is capped; "
+            : `+${formatChancePercent(
+                nextUpgrade.chanceIncrease
+            )} chance and `;
 
     elements.description.textContent =
-        "Lucky Shot is fully upgraded.";
+        `${chanceText}+${formatChancePercent(
+            nextUpgrade.bonusIncrease
+        )} bonus reward. Current reward: ${formatChancePercent(
+            mobileLuckyShotBonusMultiplier
+        )}.`;
+
+    elements.progressText.textContent =
+        nextMilestone
+            ? `NEXT LUCK TIER AT LEVEL ${nextMilestone.level}`
+            : "HIGHEST CURRENT LUCK TIER";
+
+    elements.progressFill.style.width =
+        `${getUpgradeMilestoneProgress(
+            mobileLuckyShotUpgradeIndex,
+            LUCKY_SHOT_TIER_MILESTONES
+        )}%`;
 
     elements.cost.textContent =
-        "MAX";
+        formatGameNumber(
+            nextUpgrade.cost
+        );
 
-    elements.buyButton.textContent =
-        "MAXED";
-
-    elements.buyButton.disabled =
-        true;
+    elements.buyButton.textContent = "BUY";
+    elements.buyButton.disabled = false;
 }
 
 
@@ -1407,71 +3438,89 @@ function updateLuckyShotCard() {
 function buyLuckyShotUpgrade() {
     if (
         mobileLuckyShotUpgradeIndex >=
-        LUCKYSHOT_UPGRADES.length
+        LUCKY_SHOT_MAX_LEVEL
     ) {
         return;
     }
 
-    const currentLuckyShot =
-        LUCKYSHOT_UPGRADES[
+    const currentUpgrade =
+        getLuckyShotUpgradeData(
             mobileLuckyShotUpgradeIndex
-            ];
+        );
 
     const elements =
         getLuckyShotElements();
 
-    if (
-        mobileEnergy <
-        currentLuckyShot.cost
-    ) {
+    if (!currentUpgrade) {
+        return;
+    }
+
+    if (mobileEnergy < currentUpgrade.cost) {
         showPurchaseFailure(elements.card);
         return;
     }
 
-    mobileEnergy -=
-        currentLuckyShot.cost;
+    const previousTier =
+        getCurrentUpgradeMilestone(
+            mobileLuckyShotUpgradeIndex,
+            LUCKY_SHOT_TIER_MILESTONES
+        ).tier;
 
-    mobileLuckyShotChance +=
-        currentLuckyShot.chanceIncrease;
+    mobileEnergy -= currentUpgrade.cost;
+
+    mobileLuckyShotChance = Math.min(
+        LUCKY_SHOT_MAX_CHANCE,
+        mobileLuckyShotChance +
+        currentUpgrade.chanceIncrease
+    );
+
+    mobileLuckyShotBonusMultiplier +=
+        currentUpgrade.bonusIncrease;
 
     mobileLuckyShotUpgradeIndex++;
+
+    const newTier =
+        getCurrentUpgradeMilestone(
+            mobileLuckyShotUpgradeIndex,
+            LUCKY_SHOT_TIER_MILESTONES
+        ).tier;
 
     updateShopBalance();
 
     elements.card.classList.remove(
-        "purchaseSuccess"
+        "purchaseSuccess",
+        "scalableTierUnlocked"
     );
 
     void elements.card.offsetWidth;
 
     elements.card.classList.add(
-        "purchaseSuccess"
+        newTier > previousTier
+            ? "scalableTierUnlocked"
+            : "purchaseSuccess"
     );
 
     setTimeout(() => {
         elements.card.classList.remove(
-            "purchaseSuccess"
+            "purchaseSuccess",
+            "scalableTierUnlocked"
         );
-    }, 500);
+    }, 700);
 }
-
 
 // -------------------------------------------------
 // TRY TO ACTIVATE LUCKY SHOT
 // -------------------------------------------------
 
 function tryLuckyShot() {
-    if (mobileLuckyShotChance <= 0) {
+    const currentLuckyChance =
+        getCurrentLuckyShotChance();
+
+    if (currentLuckyChance <= 0) {
         return;
     }
 
-    const randomNumber =
-        Math.random();
-
-    if (
-        randomNumber >=
-        mobileLuckyShotChance
-    ) {
+    if (Math.random() >= currentLuckyChance) {
         return;
     }
 
@@ -1480,7 +3529,7 @@ function tryLuckyShot() {
             1,
             Math.floor(
                 mobileEnergy *
-                LUCKY_SHOT_BONUS_MULTIPLIER
+                getCurrentLuckyShotBonusMultiplier()
             )
         );
 
@@ -1564,6 +3613,16 @@ function getKineticOverflowElements() {
                 "kineticUpgradeDescription"
             ),
 
+        progressText:
+            document.getElementById(
+                "kineticTierProgressText"
+            ),
+
+        progressFill:
+            document.getElementById(
+                "kineticTierProgressFill"
+            ),
+
         cost:
             document.getElementById(
                 "kineticUpgradeCost"
@@ -1578,6 +3637,129 @@ function getKineticOverflowElements() {
 
 
 // -------------------------------------------------
+// GET ONE KINETIC OVERFLOW LEVEL'S VALUES
+// -------------------------------------------------
+
+function getKineticUpgradeData(currentLevel) {
+    if (
+        !Number.isInteger(currentLevel) ||
+        currentLevel < 0 ||
+        currentLevel >= KINETIC_MAX_LEVEL
+    ) {
+        return null;
+    }
+
+    if (
+        currentLevel <
+        KINETIC_OVERFLOW_UPGRADES.length
+    ) {
+        const originalUpgrade =
+            KINETIC_OVERFLOW_UPGRADES[
+                currentLevel
+            ];
+
+        return {
+            level: currentLevel + 1,
+            cost: originalUpgrade.cost,
+            chance: originalUpgrade.chance,
+            multiplier: originalUpgrade.multiplier,
+            duration: originalUpgrade.duration,
+            image: originalUpgrade.img
+        };
+    }
+
+    const lastOriginalUpgrade =
+        KINETIC_OVERFLOW_UPGRADES[
+            KINETIC_OVERFLOW_UPGRADES.length - 1
+        ];
+
+    if (!lastOriginalUpgrade) {
+        return null;
+    }
+
+    const generatedStep =
+        currentLevel -
+        KINETIC_OVERFLOW_UPGRADES.length +
+        1;
+
+    return {
+        level: currentLevel + 1,
+        cost: Math.floor(
+            lastOriginalUpgrade.cost *
+            Math.pow(
+                KINETIC_COST_GROWTH,
+                generatedStep
+            )
+        ),
+        chance: Math.min(
+            KINETIC_MAX_CHANCE,
+            lastOriginalUpgrade.chance +
+            KINETIC_GENERATED_CHANCE_GAIN *
+            generatedStep
+        ),
+        multiplier: Number(
+            (
+                lastOriginalUpgrade.multiplier +
+                KINETIC_GENERATED_MULTIPLIER_GAIN *
+                generatedStep
+            ).toFixed(2)
+        ),
+        duration: Number(
+            Math.min(
+                KINETIC_MAX_DURATION,
+                lastOriginalUpgrade.duration +
+                KINETIC_GENERATED_DURATION_GAIN *
+                generatedStep
+            ).toFixed(2)
+        ),
+        image: lastOriginalUpgrade.img
+    };
+}
+
+
+// -------------------------------------------------
+// CALCULATE KINETIC VALUES FROM ITS LEVEL
+// -------------------------------------------------
+
+function calculateKineticValuesFromLevel(level) {
+    const safeLevel =
+        Math.min(
+            Math.max(
+                Math.floor(level),
+                0
+            ),
+            KINETIC_MAX_LEVEL
+        );
+
+    if (safeLevel <= 0) {
+        return {
+            chance: 0,
+            multiplier: 1,
+            duration: 0
+        };
+    }
+
+    const currentUpgrade =
+        getKineticUpgradeData(
+            safeLevel - 1
+        );
+
+    return currentUpgrade
+        ? {
+            chance: currentUpgrade.chance,
+            multiplier:
+                currentUpgrade.multiplier,
+            duration: currentUpgrade.duration
+        }
+        : {
+            chance: 0,
+            multiplier: 1,
+            duration: 0
+        };
+}
+
+
+// -------------------------------------------------
 // UPDATE KINETIC OVERFLOW CARD
 // -------------------------------------------------
 
@@ -1585,73 +3767,89 @@ function updateKineticOverflowCard() {
     const elements =
         getKineticOverflowElements();
 
-    /*
-        The card does not exist while another
-        menu such as Stats is open.
-    */
     if (!elements.card) {
         return;
     }
 
-    if (
-        mobileKineticUpgradeIndex <
-        KINETIC_OVERFLOW_UPGRADES.length
-    ) {
-        const nextUpgrade =
-            KINETIC_OVERFLOW_UPGRADES[
-                mobileKineticUpgradeIndex
-                ];
+    const currentMilestone =
+        getCurrentUpgradeMilestone(
+            mobileKineticUpgradeIndex,
+            KINETIC_TIER_MILESTONES
+        );
 
-        elements.image.src =
-            nextUpgrade.img;
-
-        elements.name.textContent =
-            nextUpgrade.name ||
-            "KINETIC OVERFLOW";
-
-        elements.level.textContent =
-            `LEVEL ${mobileKineticUpgradeIndex}`;
-
-        elements.description.textContent =
-            nextUpgrade.description.replace(
-                "click power",
-                "tap power"
-            );
-
-        elements.cost.textContent =
-            formatGameNumber(
-                nextUpgrade.cost
-            );
-
-        elements.buyButton.textContent =
-            "BUY";
-
-        elements.buyButton.disabled =
-            false;
-
-        return;
-    }
+    const nextMilestone =
+        getNextUpgradeMilestone(
+            mobileKineticUpgradeIndex,
+            KINETIC_TIER_MILESTONES
+        );
 
     elements.image.src =
-        MAXED_OUT_IMAGE;
+        getUpgradeMilestoneImage(
+            currentMilestone,
+            KINETIC_OVERFLOW_UPGRADES,
+            "imgs/firstCan.png"
+        );
 
     elements.name.textContent =
         "KINETIC OVERFLOW";
 
     elements.level.textContent =
-        `LEVEL ${KINETIC_OVERFLOW_UPGRADES.length}`;
+        `LEVEL ${mobileKineticUpgradeIndex} • OVERFLOW TIER ${currentMilestone.tier}`;
+
+    if (
+        mobileKineticUpgradeIndex >=
+        KINETIC_MAX_LEVEL
+    ) {
+        elements.description.textContent =
+            `Maximum current level: ${formatChancePercent(
+                mobileKineticChance
+            )} chance, ×${mobileKineticMultiplier}, ${mobileKineticDuration}s.`;
+
+        elements.progressText.textContent =
+            "HIGHEST CURRENT OVERFLOW TIER";
+
+        elements.progressFill.style.width =
+            "100%";
+
+        elements.cost.textContent = "MAX";
+        elements.buyButton.textContent = "MAXED";
+        elements.buyButton.disabled = true;
+        return;
+    }
+
+    const nextUpgrade =
+        getKineticUpgradeData(
+            mobileKineticUpgradeIndex
+        );
+
+    if (!nextUpgrade) {
+        elements.buyButton.disabled = true;
+        return;
+    }
 
     elements.description.textContent =
-        "Kinetic Overflow is fully upgraded.";
+        `Next level: ${formatChancePercent(
+            nextUpgrade.chance
+        )} chance, ×${nextUpgrade.multiplier} tap power for ${nextUpgrade.duration}s.`;
+
+    elements.progressText.textContent =
+        nextMilestone
+            ? `NEXT OVERFLOW TIER AT LEVEL ${nextMilestone.level}`
+            : "HIGHEST CURRENT OVERFLOW TIER";
+
+    elements.progressFill.style.width =
+        `${getUpgradeMilestoneProgress(
+            mobileKineticUpgradeIndex,
+            KINETIC_TIER_MILESTONES
+        )}%`;
 
     elements.cost.textContent =
-        "MAX";
+        formatGameNumber(
+            nextUpgrade.cost
+        );
 
-    elements.buyButton.textContent =
-        "MAXED";
-
-    elements.buyButton.disabled =
-        true;
+    elements.buyButton.textContent = "BUY";
+    elements.buyButton.disabled = false;
 }
 
 
@@ -1662,37 +3860,36 @@ function updateKineticOverflowCard() {
 function buyKineticOverflowUpgrade() {
     if (
         mobileKineticUpgradeIndex >=
-        KINETIC_OVERFLOW_UPGRADES.length
+        KINETIC_MAX_LEVEL
     ) {
         return;
     }
 
     const currentUpgrade =
-        KINETIC_OVERFLOW_UPGRADES[
+        getKineticUpgradeData(
             mobileKineticUpgradeIndex
-            ];
+        );
 
     const elements =
         getKineticOverflowElements();
 
-    if (
-        mobileEnergy <
-        currentUpgrade.cost
-    ) {
-        showPurchaseFailure(
-            elements.card
-        );
-
+    if (!currentUpgrade) {
         return;
     }
 
-    mobileEnergy -=
-        currentUpgrade.cost;
+    if (mobileEnergy < currentUpgrade.cost) {
+        showPurchaseFailure(elements.card);
+        return;
+    }
 
-    /*
-        Each tier replaces the previous tier's
-        chance, multiplier, and duration.
-    */
+    const previousTier =
+        getCurrentUpgradeMilestone(
+            mobileKineticUpgradeIndex,
+            KINETIC_TIER_MILESTONES
+        ).tier;
+
+    mobileEnergy -= currentUpgrade.cost;
+
     mobileKineticChance =
         currentUpgrade.chance;
 
@@ -1704,39 +3901,50 @@ function buyKineticOverflowUpgrade() {
 
     mobileKineticUpgradeIndex++;
 
+    const newTier =
+        getCurrentUpgradeMilestone(
+            mobileKineticUpgradeIndex,
+            KINETIC_TIER_MILESTONES
+        ).tier;
+
     updateShopBalance();
 
     elements.card.classList.remove(
-        "purchaseSuccess"
+        "purchaseSuccess",
+        "scalableTierUnlocked"
     );
 
     void elements.card.offsetWidth;
 
     elements.card.classList.add(
-        "purchaseSuccess"
+        newTier > previousTier
+            ? "scalableTierUnlocked"
+            : "purchaseSuccess"
     );
 
     setTimeout(() => {
         elements.card.classList.remove(
-            "purchaseSuccess"
+            "purchaseSuccess",
+            "scalableTierUnlocked"
         );
-    }, 500);
+    }, 700);
 }
-
 
 // -------------------------------------------------
 // GET CURRENT TAP POWER
 // -------------------------------------------------
 
 function getCurrentTapPower() {
+    let currentTapPower =
+        mobileEnergyPerTap *
+        getTapProductionMultiplier();
+
     if (mobileKineticActive) {
-        return (
-            mobileEnergyPerTap *
-            mobileKineticMultiplier
-        );
+        currentTapPower *=
+            getCurrentKineticMultiplier();
     }
 
-    return mobileEnergyPerTap;
+    return currentTapPower;
 }
 
 
@@ -1745,20 +3953,16 @@ function getCurrentTapPower() {
 // -------------------------------------------------
 
 function tryKineticOverflow() {
-    /*
-        Do not activate it again while the
-        current boost is still running.
-    */
     if (
         mobileKineticActive ||
-        mobileKineticChance <= 0
+        getCurrentKineticChance() <= 0
     ) {
         return;
     }
 
     if (
         Math.random() >=
-        mobileKineticChance
+        getCurrentKineticChance()
     ) {
         return;
     }
@@ -1810,7 +4014,10 @@ function startKineticOverflow() {
 
 function updateKineticStatus() {
     kineticStatus.textContent =
-        `KINETIC OVERFLOW ×${mobileKineticMultiplier} — ${mobileKineticTimeLeft}s`;
+        `KINETIC OVERFLOW ×${Number(
+            getCurrentKineticMultiplier()
+                .toFixed(2)
+        )} — ${mobileKineticTimeLeft}s`;
 
     kineticStatus.classList.add(
         "active"
@@ -2606,6 +4813,23 @@ function createStatsShopContent() {
                     </article>
 
                     <article class="statCard">
+                        <span class="statIcon">💰</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                LUCKY SHOT BONUS
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statLuckyBonus"
+                            >
+                                20%
+                            </strong>
+                        </div>
+                    </article>
+
+                    <article class="statCard">
                         <span class="statIcon">🌩️</span>
 
                         <div class="statInformation">
@@ -2734,39 +4958,40 @@ function createStatsShopContent() {
 // -------------------------------------------------
 
 function renderStatsShop() {
-    /*
-        Main player statistics.
-    */
     shopList.innerHTML =
         createStatsShopContent();
 
-    /*
-        Achievement access.
-    */
     shopList.insertAdjacentHTML(
         "beforeend",
         createAchievementsAccessContent()
     );
 
-    /*
-        Save and slot controls.
-    */
+    shopList.insertAdjacentHTML(
+        "beforeend",
+        createRebirthAccessContent()
+    );
+
+    shopList.insertAdjacentHTML(
+        "beforeend",
+        createPermanentPerksAccessContent()
+    );
+
     shopList.insertAdjacentHTML(
         "beforeend",
         createSaveManagementContent()
     );
 
-    /*
-        Global settings.
-    */
     shopList.insertAdjacentHTML(
         "beforeend",
         createSettingsAccessContent()
     );
 
     updateStatsDisplay();
+    updateRebirthDynamicDisplays();
 
     attachAchievementsAccessButton();
+    attachRebirthAccessButton();
+    attachPermanentPerksAccessButton();
     attachSaveManagementButtons();
     attachSettingsAccessButton();
 }
@@ -2825,7 +5050,7 @@ function updateStatsDisplay() {
     setStatValue(
         "statPerSecond",
         formatGameNumber(
-            mobileEnergyPerSecond
+            getCurrentEnergyPerSecond()
         )
     );
 
@@ -2837,7 +5062,7 @@ function updateStatsDisplay() {
     setStatValue(
         "statLuckyChance",
         formatChancePercent(
-            mobileLuckyShotChance
+            getCurrentLuckyShotChance()
         )
     );
 
@@ -2849,15 +5074,25 @@ function updateStatsDisplay() {
     );
 
     setStatValue(
+        "statLuckyBonus",
+        formatChancePercent(
+            getCurrentLuckyShotBonusMultiplier()
+        )
+    );
+
+    setStatValue(
         "statKineticChance",
         formatChancePercent(
-            mobileKineticChance
+            getCurrentKineticChance()
         )
     );
 
     setStatValue(
         "statKineticMultiplier",
-        `×${mobileKineticMultiplier}`
+        `×${Number(
+            getCurrentKineticMultiplier()
+                .toFixed(2)
+        )}`
     );
 
     setStatValue(
@@ -3146,6 +5381,7 @@ function resetRuntimeStateToNewGame() {
     mobileKineticUpgradeIndex = 0;
 
     mobileLuckyShotChance = 0;
+    mobileLuckyShotBonusMultiplier = 0.20;
 
     mobileKineticChance = 0;
     mobileKineticMultiplier = 1;
@@ -3196,15 +5432,14 @@ function resetRuntimeStateToNewGame() {
 
     mobileTotalTaps = 0;
     mobileLifetimeEnergy = 0;
-
     mobileLuckyShotsActivated = 0;
     mobileKineticActivations = 0;
-
     mobileSecondsPlayed = 0;
 
-    /*
-        Achievement progress belongs to each slot.
-    */
+    mobileLifeLevel = 0;
+    mobilePermanentPerks = {};
+    mobilePendingRebirthChoices = [];
+
     mobileUnlockedAchievementIds = [];
 
     achievementNotificationQueue = [];
@@ -3221,6 +5456,8 @@ function resetRuntimeStateToNewGame() {
     achievementToast.classList.remove(
         "visible"
     );
+
+    setRebirthChoiceMenuLock(false);
 
     if (manualSaveMessageTimer) {
         clearTimeout(
@@ -3280,10 +5517,6 @@ function selectSaveSlot(slotNumber) {
         return;
     }
 
-    /*
-        Always start from a completely clean
-        in-memory state before loading a slot.
-    */
     resetRuntimeStateToNewGame();
 
     activeSaveSlot =
@@ -3301,26 +5534,23 @@ function selectSaveSlot(slotNumber) {
         "true"
     );
 
-    /*
-        Existing slots restore their data.
-
-        Empty slots keep the clean starting values
-        created above.
-    */
     loadGame();
 
-    /*
-        Reconnect any upgrade cards currently
-        present and draw the selected slot.
-    */
     attachTestBuyButtons();
     updateShopBalance();
 
-    /*
-        Immediately create a save when the player
-        selects an empty slot.
-    */
     saveGame();
+
+    /*
+        If the player closed the app after Rebirth
+        but before choosing a perk, restore those
+        exact same three choices instead of rerolling.
+    */
+    if (
+        mobilePendingRebirthChoices.length > 0
+    ) {
+        openPendingRebirthChoiceScreen();
+    }
 }
 
 // -------------------------------------------------
@@ -4248,6 +6478,927 @@ function attachAchievementsButtons() {
     );
 }
 
+
+// -------------------------------------------------
+// PLAYER HUB: REBIRTH ACCESS
+// -------------------------------------------------
+
+function createRebirthAccessContent() {
+    return `
+        <div class="statsSection rebirthAccessSection">
+
+            <h3 class="statsSectionTitle">
+                REBIRTH
+            </h3>
+
+            <article class="rebirthAccessCard">
+
+                <div class="rebirthAccessHeader">
+                    <span class="rebirthAccessIcon">♻️</span>
+
+                    <div>
+                        <strong>
+                            LIFE <span id="hubLifeLevel">${mobileLifeLevel}</span>
+                        </strong>
+
+                        <p>
+                            Reset your current run, move to the next Life,
+                            and choose one permanent perk.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="rebirthAccessStats">
+                    <div>
+                        <span>NEXT LIFE</span>
+                        <strong id="hubNextLife">
+                            ${mobileLifeLevel + 1}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>REQUIREMENT</span>
+                        <strong id="hubRebirthRequirement">
+                            ${formatGameNumber(getRebirthRequirement())}
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="rebirthRequirementProgress">
+                    <div
+                        class="rebirthRequirementProgressFill"
+                        id="hubRebirthProgressFill"
+                    ></div>
+                </div>
+
+                <p
+                    class="rebirthRequirementStatus"
+                    id="hubRebirthStatus"
+                ></p>
+
+                <button
+                    class="openRebirthButton"
+                    id="openRebirthButton"
+                    type="button"
+                >
+                    OPEN REBIRTH
+                </button>
+
+            </article>
+
+        </div>
+    `;
+}
+
+
+function attachRebirthAccessButton() {
+    const button =
+        document.getElementById(
+            "openRebirthButton"
+        );
+
+    if (button) {
+        button.addEventListener(
+            "click",
+            renderRebirthMenu
+        );
+    }
+}
+
+
+// -------------------------------------------------
+// PLAYER HUB: PERMANENT PERKS ACCESS
+// -------------------------------------------------
+
+function createPermanentPerksAccessContent() {
+    return `
+        <div class="statsSection permanentPerksAccessSection">
+
+            <h3 class="statsSectionTitle">
+                PERMANENT PERKS
+            </h3>
+
+            <article class="permanentPerksAccessCard">
+
+                <div class="permanentPerksAccessHeader">
+                    <span class="permanentPerksAccessIcon">💎</span>
+
+                    <div>
+                        <strong>PERK COLLECTION</strong>
+                        <p>
+                            ${getUnlockedPermanentPerkCount()}
+                            unique perks •
+                            ${getTotalPermanentPerkRanks()}
+                            total ranks
+                        </p>
+                    </div>
+                </div>
+
+                <button
+                    class="viewPermanentPerksButton"
+                    id="viewPermanentPerksButton"
+                    type="button"
+                >
+                    VIEW PERMANENT PERKS
+                </button>
+
+            </article>
+
+        </div>
+    `;
+}
+
+
+function attachPermanentPerksAccessButton() {
+    const button =
+        document.getElementById(
+            "viewPermanentPerksButton"
+        );
+
+    if (button) {
+        button.addEventListener(
+            "click",
+            renderPermanentPerksMenu
+        );
+    }
+}
+
+
+// -------------------------------------------------
+// LIVE REBIRTH DISPLAY UPDATES
+// -------------------------------------------------
+
+function updateRebirthDynamicDisplays() {
+    const requirement =
+        getRebirthRequirement();
+
+    const progress =
+        requirement > 0
+            ? Math.min(
+                100,
+                (mobileEnergy / requirement) * 100
+            )
+            : 100;
+
+    const progressFill =
+        document.getElementById(
+            "hubRebirthProgressFill"
+        );
+
+    if (progressFill) {
+        progressFill.style.width =
+            `${progress}%`;
+    }
+
+    const status =
+        document.getElementById(
+            "hubRebirthStatus"
+        );
+
+    if (status) {
+        status.textContent =
+            canPlayerRebirth()
+                ? "REBIRTH READY"
+                : `${formatGameNumber(
+                    Math.max(
+                        0,
+                        requirement - mobileEnergy
+                    )
+                )} MORE ENERGY NEEDED`;
+
+        status.classList.toggle(
+            "ready",
+            canPlayerRebirth()
+        );
+    }
+
+    const rebirthCurrentEnergy =
+        document.getElementById(
+            "rebirthCurrentEnergy"
+        );
+
+    if (rebirthCurrentEnergy) {
+        rebirthCurrentEnergy.textContent =
+            formatGameNumber(mobileEnergy);
+    }
+
+    const rebirthButton =
+        document.getElementById(
+            "confirmRebirthStartButton"
+        );
+
+    if (rebirthButton) {
+        rebirthButton.disabled =
+            !canPlayerRebirth();
+
+        rebirthButton.textContent =
+            canPlayerRebirth()
+                ? `REBIRTH INTO LIFE ${mobileLifeLevel + 1}`
+                : `NEED ${formatGameNumber(requirement)}`;
+    }
+
+    const screenProgress =
+        document.getElementById(
+            "rebirthScreenProgressFill"
+        );
+
+    if (screenProgress) {
+        screenProgress.style.width =
+            `${progress}%`;
+    }
+}
+
+
+// -------------------------------------------------
+// MAIN REBIRTH SCREEN
+// -------------------------------------------------
+
+function createRebirthMenuContent() {
+    const requirement =
+        getRebirthRequirement();
+
+    return `
+        <section class="rebirthScreen">
+
+            <article class="rebirthHeroCard">
+                <span class="rebirthHeroIcon">♻️</span>
+
+                <div>
+                    <span class="rebirthEyebrow">
+                        CURRENT LIFE
+                    </span>
+
+                    <h3>
+                        LIFE ${mobileLifeLevel}
+                        → LIFE ${mobileLifeLevel + 1}
+                    </h3>
+
+                    <p>
+                        Reach the requirement, reset this run,
+                        then choose 1 of 3 permanent perks.
+                    </p>
+                </div>
+            </article>
+
+            <article class="rebirthRequirementCard">
+                <div class="rebirthRequirementRow">
+                    <span>CURRENT ENERGY</span>
+                    <strong id="rebirthCurrentEnergy">
+                        ${formatGameNumber(mobileEnergy)}
+                    </strong>
+                </div>
+
+                <div class="rebirthRequirementRow">
+                    <span>REBIRTH REQUIREMENT</span>
+                    <strong>
+                        ${formatGameNumber(requirement)}
+                    </strong>
+                </div>
+
+                <div class="rebirthRequirementProgress large">
+                    <div
+                        class="rebirthRequirementProgressFill"
+                        id="rebirthScreenProgressFill"
+                    ></div>
+                </div>
+            </article>
+
+            <div class="rebirthRulesGrid">
+                <article class="rebirthRuleCard resets">
+                    <h4>RESETS</h4>
+                    <p>Current Energy</p>
+                    <p>Drink Power</p>
+                    <p>Factory</p>
+                    <p>Delivery</p>
+                    <p>Pre-Workout</p>
+                    <p>Lucky Shot</p>
+                    <p>Kinetic Overflow</p>
+                </article>
+
+                <article class="rebirthRuleCard keeps">
+                    <h4>YOU KEEP</h4>
+                    <p>Life Level</p>
+                    <p>Rebirth Perks</p>
+                    <p>Skins</p>
+                    <p>Colors</p>
+                    <p>Achievements</p>
+                    <p>Lifetime Stats</p>
+                    <p>Settings</p>
+                    <p>Save Slot</p>
+                </article>
+            </div>
+
+            <article class="rarityOddsCard">
+                <h4>EVERY CARD ROLLS ITS OWN RARITY</h4>
+
+                <div class="rarityOddsGrid">
+                    <span class="common">COMMON 65%</span>
+                    <span class="rare">RARE 25%</span>
+                    <span class="epic">EPIC 8%</span>
+                    <span class="legendary">LEGENDARY 2%</span>
+                </div>
+            </article>
+
+            <button
+                class="confirmRebirthStartButton"
+                id="confirmRebirthStartButton"
+                type="button"
+                ${canPlayerRebirth() ? "" : "disabled"}
+            >
+                ${
+                    canPlayerRebirth()
+                        ? `REBIRTH INTO LIFE ${mobileLifeLevel + 1}`
+                        : `NEED ${formatGameNumber(requirement)}`
+                }
+            </button>
+
+            <button
+                class="backToHubButton"
+                id="backFromRebirthButton"
+                type="button"
+            >
+                BACK TO PLAYER HUB
+            </button>
+
+        </section>
+    `;
+}
+
+
+function renderRebirthMenu() {
+    shopTitle.textContent =
+        "REBIRTH";
+
+    shopList.innerHTML =
+        createRebirthMenuContent();
+
+    const rebirthButton =
+        document.getElementById(
+            "confirmRebirthStartButton"
+        );
+
+    const backButton =
+        document.getElementById(
+            "backFromRebirthButton"
+        );
+
+    if (rebirthButton) {
+        rebirthButton.addEventListener(
+            "click",
+            renderRebirthConfirmation
+        );
+    }
+
+    if (backButton) {
+        backButton.addEventListener(
+            "click",
+            () => {
+                shopTitle.textContent =
+                    menuTitles.stats;
+
+                renderStatsShop();
+            }
+        );
+    }
+
+    updateRebirthDynamicDisplays();
+}
+
+
+// -------------------------------------------------
+// REBIRTH CONFIRMATION
+// -------------------------------------------------
+
+function renderRebirthConfirmation() {
+    if (!canPlayerRebirth()) {
+        renderRebirthMenu();
+        return;
+    }
+
+    shopTitle.textContent =
+        "CONFIRM REBIRTH";
+
+    shopList.innerHTML = `
+        <section class="rebirthConfirmationScreen">
+
+            <div class="rebirthConfirmationIcon">⚠️</div>
+
+            <h3>
+                ENTER LIFE ${mobileLifeLevel + 1}?
+            </h3>
+
+            <p>
+                Your current energy and all six gameplay
+                upgrade trees will reset.
+            </p>
+
+            <article class="rebirthConfirmationReward">
+                <span>AFTER THE RESET</span>
+                <strong>CHOOSE 1 OF 3 PERMANENT PERKS</strong>
+                <p>
+                    Each card independently rolls Common,
+                    Rare, Epic, or Legendary.
+                </p>
+            </article>
+
+            <strong class="rebirthPermanentWarning">
+                THE RESET CANNOT BE UNDONE
+            </strong>
+
+            <div class="rebirthConfirmationButtons">
+                <button
+                    class="cancelRebirthButton"
+                    id="cancelRebirthButton"
+                    type="button"
+                >
+                    CANCEL
+                </button>
+
+                <button
+                    class="doRebirthButton"
+                    id="doRebirthButton"
+                    type="button"
+                >
+                    REBIRTH
+                </button>
+            </div>
+
+        </section>
+    `;
+
+    document
+        .getElementById("cancelRebirthButton")
+        .addEventListener(
+            "click",
+            renderRebirthMenu
+        );
+
+    document
+        .getElementById("doRebirthButton")
+        .addEventListener(
+            "click",
+            performRebirth
+        );
+}
+
+
+// -------------------------------------------------
+// RESET ONLY THE CURRENT LIFE
+// -------------------------------------------------
+
+function resetProgressForRebirth() {
+    mobileEnergy = 0;
+
+    mobileDrinkUpgradeIndex = 0;
+    mobileFactoryUpgradeIndex = 0;
+    mobileDeliveryUpgradeIndex = 0;
+    mobilePreWorkoutUpgradeIndex = 0;
+    mobileLuckyShotUpgradeIndex = 0;
+    mobileKineticUpgradeIndex = 0;
+
+    if (luckyShotMessageTimer) {
+        clearTimeout(luckyShotMessageTimer);
+        luckyShotMessageTimer = null;
+    }
+
+    mobileGameMessage.textContent = "";
+    mobileGameMessage.classList.remove(
+        "luckyShotActive"
+    );
+
+    if (kineticCountdownInterval) {
+        clearInterval(kineticCountdownInterval);
+        kineticCountdownInterval = null;
+    }
+
+    mobileKineticActive = false;
+    mobileKineticTimeLeft = 0;
+    kineticStatus.textContent = "";
+    kineticStatus.classList.remove("active");
+    mobilePerTapRow.classList.remove(
+        "kineticBoosted"
+    );
+
+    rebuildDerivedGameValues();
+}
+
+
+function performRebirth() {
+    if (!canPlayerRebirth()) {
+        renderRebirthMenu();
+        return;
+    }
+
+    mobileLifeLevel++;
+
+    resetProgressForRebirth();
+
+    mobilePendingRebirthChoices =
+        generateRebirthPerkChoices();
+
+    saveGame();
+
+    openPendingRebirthChoiceScreen();
+}
+
+
+// -------------------------------------------------
+// LOCK THE MENU UNTIL A PERK IS CHOSEN
+// -------------------------------------------------
+
+function setRebirthChoiceMenuLock(isLocked) {
+    closeShopButton.classList.toggle(
+        "rebirthChoiceLocked",
+        isLocked
+    );
+
+    overlayBackground.disabled =
+        isLocked;
+}
+
+
+function openPendingRebirthChoiceScreen() {
+    if (
+        mobilePendingRebirthChoices.length === 0
+    ) {
+        return;
+    }
+
+    setRebirthChoiceMenuLock(true);
+
+    shopTitle.textContent =
+        "CHOOSE A PERK";
+
+    shopList.innerHTML =
+        createRebirthPerkChoiceContent();
+
+    attachRebirthPerkChoiceButtons();
+
+    menuOverlay.classList.add("open");
+    menuOverlay.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+    document.body.classList.add(
+        "menuIsOpen"
+    );
+}
+
+
+// -------------------------------------------------
+// CREATE THE 3 RANDOM PERK CARDS
+// -------------------------------------------------
+
+function createRebirthPerkChoiceContent() {
+    const choiceCards =
+        mobilePendingRebirthChoices
+            .map((perkId) => {
+                const perk =
+                    getPermanentPerkDefinition(
+                        perkId
+                    );
+
+                if (!perk) {
+                    return "";
+                }
+
+                const currentRank =
+                    getPermanentPerkRank(perk.id);
+
+                const nextRank =
+                    currentRank + 1;
+
+                const maxRankText =
+                    perk.maxRank === null
+                        ? "∞"
+                        : perk.maxRank;
+
+                const effectLines =
+                    getPerkEffectLines(perk, 1)
+                        .map(
+                            (line) =>
+                                `<li>${line}</li>`
+                        )
+                        .join("");
+
+                return `
+                    <article
+                        class="rebirthPerkChoiceCard ${perk.rarity}"
+                    >
+                        <div class="rebirthPerkChoiceTop">
+                            <span class="rebirthPerkChoiceIcon">
+                                ${perk.icon}
+                            </span>
+
+                            <div>
+                                <span class="perkRarityBadge ${perk.rarity}">
+                                    ${REBIRTH_RARITY_LABELS[perk.rarity]}
+                                </span>
+
+                                <h3>${perk.name}</h3>
+
+                                <p>
+                                    RANK ${currentRank}
+                                    → ${nextRank}
+                                    / ${maxRankText}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="rebirthPerkChoiceEffect">
+                            <span>THIS RANK GIVES</span>
+                            <ul>${effectLines}</ul>
+                        </div>
+
+                        <button
+                            class="selectRebirthPerkButton ${perk.rarity}"
+                            type="button"
+                            data-perk-id="${perk.id}"
+                        >
+                            SELECT ${perk.name}
+                        </button>
+                    </article>
+                `;
+            })
+            .join("");
+
+    return `
+        <section class="rebirthPerkChoiceScreen">
+
+            <article class="rebirthPerkChoiceIntro">
+                <span>✨</span>
+                <h3>LIFE ${mobileLifeLevel}</h3>
+                <p>
+                    Pick exactly one permanent perk.
+                    The other two disappear.
+                </p>
+            </article>
+
+            <div class="rebirthPerkChoices">
+                ${choiceCards}
+            </div>
+
+            <p class="rebirthChoiceReminder">
+                Your three choices are already saved.
+                Closing the app will not reroll them.
+            </p>
+
+        </section>
+    `;
+}
+
+
+function attachRebirthPerkChoiceButtons() {
+    const buttons =
+        shopList.querySelectorAll(
+            ".selectRebirthPerkButton"
+        );
+
+    buttons.forEach((button) => {
+        button.addEventListener(
+            "click",
+            () => {
+                selectRebirthPermanentPerk(
+                    button.dataset.perkId
+                );
+            }
+        );
+    });
+}
+
+
+function selectRebirthPermanentPerk(perkId) {
+    if (
+        !mobilePendingRebirthChoices.includes(
+            perkId
+        )
+    ) {
+        return;
+    }
+
+    const perk =
+        getPermanentPerkDefinition(perkId);
+
+    if (
+        !perk ||
+        isPermanentPerkMaxed(perk)
+    ) {
+        return;
+    }
+
+    const newRank =
+        getPermanentPerkRank(perkId) + 1;
+
+    mobilePermanentPerks[perkId] =
+        newRank;
+
+    mobilePendingRebirthChoices = [];
+
+    /*
+        Apply all accumulated starting bonuses now.
+        The newly selected perk affects this Life too.
+    */
+    applyRebirthStartingBonuses();
+
+    setRebirthChoiceMenuLock(false);
+    saveGame();
+
+    renderRebirthPerkAwarded(perk);
+}
+
+
+function renderRebirthPerkAwarded(perk) {
+    const rank =
+        getPermanentPerkRank(perk.id);
+
+    const totalEffectLines =
+        getPerkEffectLines(perk, rank)
+            .map(
+                (line) => `<li>${line}</li>`
+            )
+            .join("");
+
+    shopTitle.textContent =
+        "PERK UNLOCKED";
+
+    shopList.innerHTML = `
+        <section class="rebirthPerkAwardedScreen">
+
+            <div class="rebirthPerkAwardedIcon">
+                ${perk.icon}
+            </div>
+
+            <span class="perkRarityBadge ${perk.rarity}">
+                ${REBIRTH_RARITY_LABELS[perk.rarity]}
+            </span>
+
+            <h3>${perk.name}</h3>
+
+            <p class="rebirthPerkAwardedRank">
+                NOW RANK ${rank}
+            </p>
+
+            <article class="rebirthPerkAwardedEffect ${perk.rarity}">
+                <span>TOTAL PERK EFFECT</span>
+                <ul>${totalEffectLines}</ul>
+            </article>
+
+            <p class="rebirthNewLifeMessage">
+                LIFE ${mobileLifeLevel} HAS BEGUN
+            </p>
+
+            <button
+                class="returnAfterRebirthButton"
+                id="returnAfterRebirthButton"
+                type="button"
+            >
+                RETURN TO GAME
+            </button>
+
+        </section>
+    `;
+
+    document
+        .getElementById(
+            "returnAfterRebirthButton"
+        )
+        .addEventListener(
+            "click",
+            closeMenu
+        );
+}
+
+
+// -------------------------------------------------
+// PERMANENT PERK COLLECTION SCREEN
+// -------------------------------------------------
+
+function createPermanentPerksMenuContent() {
+    const perkCards =
+        PERMANENT_PERK_DEFINITIONS
+            .map((perk) => {
+                const rank =
+                    getPermanentPerkRank(perk.id);
+
+                const unlocked =
+                    rank > 0;
+
+                const maxRankText =
+                    perk.maxRank === null
+                        ? "∞"
+                        : perk.maxRank;
+
+                const totalEffectLines =
+                    unlocked
+                        ? getPerkEffectLines(
+                            perk,
+                            rank
+                        )
+                            .map(
+                                (line) =>
+                                    `<li>${line}</li>`
+                            )
+                            .join("")
+                        : "";
+
+                return `
+                    <article
+                        class="permanentPerkCollectionCard ${perk.rarity} ${unlocked ? "unlocked" : "locked"}"
+                    >
+                        <div class="permanentPerkCollectionIcon">
+                            ${unlocked ? perk.icon : "?"}
+                        </div>
+
+                        <div class="permanentPerkCollectionInfo">
+                            <span class="perkRarityBadge ${perk.rarity}">
+                                ${REBIRTH_RARITY_LABELS[perk.rarity]}
+                            </span>
+
+                            <h3>
+                                ${unlocked ? perk.name : "LOCKED PERK"}
+                            </h3>
+
+                            <p class="permanentPerkRank">
+                                ${
+                                    unlocked
+                                        ? `RANK ${rank} / ${maxRankText}`
+                                        : "FIND THIS DURING REBIRTH"
+                                }
+                            </p>
+
+                            ${
+                                unlocked
+                                    ? `<ul class="permanentPerkEffectList">${totalEffectLines}</ul>`
+                                    : ""
+                            }
+                        </div>
+                    </article>
+                `;
+            })
+            .join("");
+
+    return `
+        <section class="permanentPerksScreen">
+
+            <article class="permanentPerksSummary">
+                <span>💎</span>
+
+                <div>
+                    <small>UNIQUE PERKS</small>
+                    <strong>
+                        ${getUnlockedPermanentPerkCount()}
+                        / ${PERMANENT_PERK_DEFINITIONS.length}
+                    </strong>
+                </div>
+
+                <div>
+                    <small>TOTAL RANKS</small>
+                    <strong>
+                        ${getTotalPermanentPerkRanks()}
+                    </strong>
+                </div>
+            </article>
+
+            <div class="permanentPerksCollection">
+                ${perkCards}
+            </div>
+
+            <button
+                class="backToHubButton"
+                id="backFromPermanentPerksButton"
+                type="button"
+            >
+                BACK TO PLAYER HUB
+            </button>
+
+        </section>
+    `;
+}
+
+
+function renderPermanentPerksMenu() {
+    shopTitle.textContent =
+        "PERMANENT PERKS";
+
+    shopList.innerHTML =
+        createPermanentPerksMenuContent();
+
+    document
+        .getElementById(
+            "backFromPermanentPerksButton"
+        )
+        .addEventListener(
+            "click",
+            () => {
+                shopTitle.textContent =
+                    menuTitles.stats;
+
+                renderStatsShop();
+            }
+        );
+}
+
 // -------------------------------------------------
 // GET OR CREATE THE AUDIO CONTEXT
 // -------------------------------------------------
@@ -4569,7 +7720,7 @@ function createSettingsContent() {
                 id="backToStatsButton"
                 type="button"
             >
-                BACK TO STATS
+                BACK TO PLAYER HUB
             </button>
 
         </section>
@@ -4704,57 +7855,190 @@ function showPurchaseFailure(upgradeCard) {
 // -------------------------------------------------
 
 function buyDrinkUpgrade() {
-    if (
-        mobileDrinkUpgradeIndex >=
-        DRINK_UPGRADES.length
-    ) {
+    const nextUpgrade =
+        getDrinkPowerUpgradeData(
+            mobileDrinkUpgradeIndex
+        );
+
+    if (!nextUpgrade) {
         return;
     }
-
-    const currentUpgrade =
-        DRINK_UPGRADES[mobileDrinkUpgradeIndex];
 
     const elements =
         getDrinkUpgradeElements();
 
     if (
         mobileEnergy <
-        currentUpgrade.cost
+        nextUpgrade.cost
     ) {
-        showPurchaseFailure(elements.card);
+        showPurchaseFailure(
+            elements.card
+        );
+
         return;
     }
 
+    const previousCanTier =
+        getCurrentCanMilestone(
+            mobileDrinkUpgradeIndex
+        ).tier;
+
     mobileEnergy -=
-        currentUpgrade.cost;
+        nextUpgrade.cost;
 
     mobileEnergyPerTap +=
-        currentUpgrade.multiplier;
+        nextUpgrade.gain;
 
     mobileDrinkUpgradeIndex++;
 
+    const newCanTier =
+        getCurrentCanMilestone(
+            mobileDrinkUpgradeIndex
+        ).tier;
+
     updateShopBalance();
+    saveGame();
 
     elements.card.classList.remove(
-        "purchaseSuccess"
+        "purchaseSuccess",
+        "canTierUnlocked"
     );
 
     void elements.card.offsetWidth;
 
-    elements.card.classList.add(
-        "purchaseSuccess"
-    );
+    if (newCanTier > previousCanTier) {
+        elements.card.classList.add(
+            "canTierUnlocked"
+        );
+    } else {
+        elements.card.classList.add(
+            "purchaseSuccess"
+        );
+    }
 
     setTimeout(() => {
         elements.card.classList.remove(
-            "purchaseSuccess"
+            "purchaseSuccess",
+            "canTierUnlocked"
         );
-    }, 500);
+    }, 700);
 }
+// -------------------------------------------------
+// SHOW THE ENERGY EARNED FROM ONE TAP
+// -------------------------------------------------
+
+function showTapEnergyFloat(
+    energyAmount,
+    tapEvent
+) {
+    const tapSectionBounds =
+        mobileTapSection.getBoundingClientRect();
+
+    const canBounds =
+        mobileCanButton.getBoundingClientRect();
+
+    const eventHasPosition =
+        tapEvent &&
+        Number.isFinite(tapEvent.clientX) &&
+        Number.isFinite(tapEvent.clientY) &&
+        (tapEvent.clientX !== 0 ||
+            tapEvent.clientY !== 0);
+
+    /*
+        Normal taps use the exact tap position.
+        Keyboard activation falls back to the center
+        of the energy can.
+    */
+    const positionX =
+        eventHasPosition
+            ? tapEvent.clientX -
+              tapSectionBounds.left
+            : canBounds.left +
+              canBounds.width / 2 -
+              tapSectionBounds.left;
+
+    const positionY =
+        eventHasPosition
+            ? tapEvent.clientY -
+              tapSectionBounds.top
+            : canBounds.top +
+              canBounds.height / 2 -
+              tapSectionBounds.top;
+
+    const floatingNumber =
+        document.createElement("span");
+
+    tapEnergyFloatCounter++;
+
+    floatingNumber.className =
+        "tapEnergyFloat";
+
+    floatingNumber.id =
+        `tapEnergyFloat-${tapEnergyFloatCounter}`;
+
+    floatingNumber.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+    floatingNumber.textContent =
+        `+${formatGameNumber(energyAmount)}`;
+
+    floatingNumber.style.left =
+        `${positionX}px`;
+
+    floatingNumber.style.top =
+        `${positionY}px`;
+
+    /*
+        Use one of three normal CSS classes instead
+        of a custom property inside calc(). This
+        removes the editor warning while preserving
+        a little sideways variety.
+    */
+    const driftRoll = Math.random();
+
+    if (driftRoll < 0.33) {
+        floatingNumber.classList.add(
+            "tapFloatDriftLeft"
+        );
+    } else if (driftRoll > 0.66) {
+        floatingNumber.classList.add(
+            "tapFloatDriftRight"
+        );
+    } else {
+        floatingNumber.classList.add(
+            "tapFloatDriftCenter"
+        );
+    }
+
+    mobileTapSection.appendChild(
+        floatingNumber
+    );
+
+    floatingNumber.addEventListener(
+        "animationend",
+        () => {
+            floatingNumber.remove();
+        },
+        { once: true }
+    );
+
+    /*
+        Fallback cleanup in case a browser does not
+        send the animationend event.
+    */
+    setTimeout(() => {
+        floatingNumber.remove();
+    }, 1000);
+}
+
+
 // -------------------------------------------------
 // PRODUCE ENERGY BY TAPPING
 // -------------------------------------------------
-function produceEnergyFromTap() {
+
+function produceEnergyFromTap(tapEvent) {
     mobileTotalTaps++;
 
     /*
@@ -4771,6 +8055,15 @@ function produceEnergyFromTap() {
 
     mobileLifetimeEnergy +=
         energyEarnedFromTap;
+
+    /*
+        Display the exact direct-tap reward. Lucky
+        Shot still uses its separate large message.
+    */
+    showTapEnergyFloat(
+        energyEarnedFromTap,
+        tapEvent
+    );
 
     /*
         Lucky Shot may add its separate bonus.
@@ -4903,6 +8196,13 @@ function openMenu(menuName) {
 // -------------------------------------------------
 
 function closeMenu() {
+    if (
+        mobilePendingRebirthChoices.length > 0 &&
+        shopTitle.textContent === "CHOOSE A PERK"
+    ) {
+        return;
+    }
+
     menuOverlay.classList.remove("open");
     menuOverlay.setAttribute("aria-hidden", "true");
 
@@ -5043,11 +8343,10 @@ function attachTestBuyButtons() {
 // -------------------------------------------------
 
 function calculateOfflineProduction(savedAt) {
-    /*
-        A player needs automatic production before
-        they can earn anything while away.
-    */
-    if (mobileEnergyPerSecond <= 0) {
+    const currentEnergyPerSecond =
+        getCurrentEnergyPerSecond();
+
+    if (currentEnergyPerSecond <= 0) {
         return {
             secondsAway: 0,
             energyEarned: 0
@@ -5069,20 +8368,12 @@ function calculateOfflineProduction(savedAt) {
             (currentTime - savedAt) / 1000
         );
 
-    /*
-        Prevent negative time if the device clock
-        changed and limit the maximum reward.
-    */
     const countedSecondsAway =
         Math.min(
             Math.max(rawSecondsAway, 0),
             MAXIMUM_OFFLINE_SECONDS
         );
 
-    /*
-        Do not display a reward popup for extremely
-        short refreshes or quick tab changes.
-    */
     if (
         countedSecondsAway <
         MINIMUM_OFFLINE_SECONDS
@@ -5094,15 +8385,16 @@ function calculateOfflineProduction(savedAt) {
     }
 
     const energyEarned =
-        mobileEnergyPerSecond *
+        currentEnergyPerSecond *
+        getOfflineProductionMultiplier() *
         countedSecondsAway;
 
     return {
         secondsAway:
-        countedSecondsAway,
+            countedSecondsAway,
 
         energyEarned:
-        energyEarned
+            energyEarned
     };
 }
 
@@ -5193,29 +8485,28 @@ offlineContinueButton.addEventListener(
 // -------------------------------------------------
 
 function produceAutomaticEnergy() {
-    /*
-        The game has not started until the player
-        selects a save slot.
-    */
     if (!hasSelectedSaveSlot) {
         return;
     }
 
     mobileSecondsPlayed++;
 
-    if (mobileEnergyPerSecond > 0) {
+    const currentEnergyPerSecond =
+        getCurrentEnergyPerSecond();
+
+    if (currentEnergyPerSecond > 0) {
         mobileEnergy +=
-            mobileEnergyPerSecond;
+            currentEnergyPerSecond;
 
         mobileLifetimeEnergy +=
-            mobileEnergyPerSecond;
+            currentEnergyPerSecond;
 
         updateShopBalance();
-
         return;
     }
 
     updateStatsDisplay();
+    updateRebirthDynamicDisplays();
 }
 
 
@@ -5252,7 +8543,7 @@ devEnergyButton.addEventListener(
 // SAVE SYSTEM
 // -------------------------------------------------
 
-const SAVE_VERSION = 1;
+const SAVE_VERSION = 4;
 
 /*
     No slot is active until the player selects one
@@ -5302,60 +8593,68 @@ function saveGame() {
         savedAt: Date.now(),
 
         energy:
-        mobileEnergy,
+            mobileEnergy,
 
         drinkUpgradeIndex:
-        mobileDrinkUpgradeIndex,
+            mobileDrinkUpgradeIndex,
 
         factoryUpgradeIndex:
-        mobileFactoryUpgradeIndex,
+            mobileFactoryUpgradeIndex,
 
         deliveryUpgradeIndex:
-        mobileDeliveryUpgradeIndex,
+            mobileDeliveryUpgradeIndex,
 
         preWorkoutUpgradeIndex:
-        mobilePreWorkoutUpgradeIndex,
+            mobilePreWorkoutUpgradeIndex,
 
         luckyShotUpgradeIndex:
-        mobileLuckyShotUpgradeIndex,
+            mobileLuckyShotUpgradeIndex,
 
         kineticUpgradeIndex:
-        mobileKineticUpgradeIndex,
+            mobileKineticUpgradeIndex,
 
         ownedSkins: [
             ...mobileOwnedSkins
         ],
 
         equippedSkinIndex:
-        mobileEquippedSkinIndex,
+            mobileEquippedSkinIndex,
 
         ownedColors: [
             ...mobileOwnedColors
         ],
 
         equippedColorIndex:
-        mobileEquippedColorIndex,
+            mobileEquippedColorIndex,
 
         totalTaps:
-        mobileTotalTaps,
+            mobileTotalTaps,
 
         lifetimeEnergy:
-        mobileLifetimeEnergy,
+            mobileLifetimeEnergy,
 
         luckyShotsActivated:
-        mobileLuckyShotsActivated,
+            mobileLuckyShotsActivated,
 
         kineticActivations:
-        mobileKineticActivations,
+            mobileKineticActivations,
 
         secondsPlayed:
-        mobileSecondsPlayed,
+            mobileSecondsPlayed,
 
-        /*
-            Permanently completed achievements.
-        */
         unlockedAchievementIds: [
             ...mobileUnlockedAchievementIds
+        ],
+
+        lifeLevel:
+            mobileLifeLevel,
+
+        permanentPerks: {
+            ...mobilePermanentPerks
+        },
+
+        pendingRebirthChoices: [
+            ...mobilePendingRebirthChoices
         ]
     };
 
@@ -5415,6 +8714,25 @@ function getSafeUpgradeIndex(
 
 
 // -------------------------------------------------
+// RESTORE A SCALABLE DRINK POWER LEVEL
+// -------------------------------------------------
+
+function getSafeDrinkPowerLevel(value) {
+    if (!Number.isFinite(value)) {
+        return 0;
+    }
+
+    return Math.min(
+        Math.max(
+            Math.trunc(value),
+            0
+        ),
+        DRINK_POWER_MAX_LEVEL
+    );
+}
+
+
+// -------------------------------------------------
 // RESTORE AN OWNED-ITEM ARRAY
 // -------------------------------------------------
 
@@ -5440,91 +8758,53 @@ function restoreOwnedItems(
 
 function rebuildDerivedGameValues() {
     /*
-        Recalculate tap power from purchased
-        Drink Power levels.
+        Recalculate tap power from the scalable
+        Drink Power level.
     */
-    mobileEnergyPerTap = 1;
-
-    for (
-        let index = 0;
-        index < mobileDrinkUpgradeIndex;
-        index++
-    ) {
-        mobileEnergyPerTap +=
-            DRINK_UPGRADES[index].multiplier;
-    }
+    mobileEnergyPerTap =
+        calculateDrinkPowerFromLevel(
+            mobileDrinkUpgradeIndex
+        );
 
     /*
-        Recalculate all automatic production.
+        Recalculate every source of automatic
+        production from scalable upgrade levels.
     */
-    mobileEnergyPerSecond = 0;
+    mobileEnergyPerSecond =
+        calculateFactoryProductionFromLevel(
+            mobileFactoryUpgradeIndex
+        ) +
+        calculateDeliveryProductionFromLevel(
+            mobileDeliveryUpgradeIndex
+        ) +
+        calculatePreWorkoutProductionFromLevel(
+            mobilePreWorkoutUpgradeIndex
+        );
 
-    for (
-        let index = 0;
-        index < mobileFactoryUpgradeIndex;
-        index++
-    ) {
-        mobileEnergyPerSecond +=
-            FACTORY_UPGRADES[index].multiplier;
-    }
+    const luckyShotValues =
+        calculateLuckyShotValuesFromLevel(
+            mobileLuckyShotUpgradeIndex
+        );
 
-    for (
-        let index = 0;
-        index < mobileDeliveryUpgradeIndex;
-        index++
-    ) {
-        mobileEnergyPerSecond +=
-            DELIVERY_UPGRADES[index].multiplier;
-    }
+    mobileLuckyShotChance =
+        luckyShotValues.chance;
 
-    for (
-        let index = 0;
-        index < mobilePreWorkoutUpgradeIndex;
-        index++
-    ) {
-        mobileEnergyPerSecond +=
-            PREWORKOUT_UPGRADES[index].multiplier;
-    }
+    mobileLuckyShotBonusMultiplier =
+        luckyShotValues.bonusMultiplier;
 
-    /*
-        Recalculate Lucky Shot chance.
-    */
-    mobileLuckyShotChance = 0;
+    const kineticValues =
+        calculateKineticValuesFromLevel(
+            mobileKineticUpgradeIndex
+        );
 
-    for (
-        let index = 0;
-        index < mobileLuckyShotUpgradeIndex;
-        index++
-    ) {
-        mobileLuckyShotChance +=
-            LUCKYSHOT_UPGRADES[
-                index
-                ].chanceIncrease;
-    }
+    mobileKineticChance =
+        kineticValues.chance;
 
-    /*
-        Restore the most recently purchased
-        Kinetic Overflow tier.
-    */
-    if (mobileKineticUpgradeIndex > 0) {
-        const currentKineticUpgrade =
-            KINETIC_OVERFLOW_UPGRADES[
-            mobileKineticUpgradeIndex - 1
-                ];
+    mobileKineticMultiplier =
+        kineticValues.multiplier;
 
-        mobileKineticChance =
-            currentKineticUpgrade.chance;
-
-        mobileKineticMultiplier =
-            currentKineticUpgrade.multiplier;
-
-        mobileKineticDuration =
-            currentKineticUpgrade.duration;
-    } else {
-        mobileKineticChance = 0;
-        mobileKineticMultiplier = 1;
-        mobileKineticDuration = 0;
-    }
+    mobileKineticDuration =
+        kineticValues.duration;
 
     /*
         Temporary boosts do not continue after
@@ -5547,26 +8827,22 @@ function rebuildDerivedGameValues() {
         "active"
     );
 
-    /*
-        Restore the equipped skin only when the
-        player actually owns that skin.
-    */
     const equippedSkinIsValid =
         Number.isInteger(
             mobileEquippedSkinIndex
         ) &&
         mobileOwnedSkins[
             mobileEquippedSkinIndex
-            ] &&
+        ] &&
         COSMETIC_UPGRADES[
             mobileEquippedSkinIndex
-            ];
+        ];
 
     if (equippedSkinIsValid) {
         const equippedSkin =
             COSMETIC_UPGRADES[
                 mobileEquippedSkinIndex
-                ];
+            ];
 
         equippedSkinImage =
             equippedSkin.buttonImg ||
@@ -5576,26 +8852,21 @@ function rebuildDerivedGameValues() {
         equippedSkinImage = null;
     }
 
-    /*
-        Restore the equipped score color only when
-        that color is owned.
-    */
     const equippedColorIsValid =
         Number.isInteger(
             mobileEquippedColorIndex
         ) &&
         mobileOwnedColors[
             mobileEquippedColorIndex
-            ] &&
+        ] &&
         CHANGECOLOR_UPGRADES[
             mobileEquippedColorIndex
-            ];
+        ];
 
     if (!equippedColorIsValid) {
         mobileEquippedColorIndex = null;
     }
 }
-
 
 // -------------------------------------------------
 // LOAD THE CURRENT GAME
@@ -5646,39 +8917,38 @@ function loadGame() {
             );
 
         mobileDrinkUpgradeIndex =
-            getSafeUpgradeIndex(
-                savedData.drinkUpgradeIndex,
-                DRINK_UPGRADES.length
+            getSafeDrinkPowerLevel(
+                savedData.drinkUpgradeIndex
             );
 
         mobileFactoryUpgradeIndex =
             getSafeUpgradeIndex(
                 savedData.factoryUpgradeIndex,
-                FACTORY_UPGRADES.length
+                FACTORY_MAX_LEVEL
             );
 
         mobileDeliveryUpgradeIndex =
             getSafeUpgradeIndex(
                 savedData.deliveryUpgradeIndex,
-                DELIVERY_UPGRADES.length
+                DELIVERY_MAX_LEVEL
             );
 
         mobilePreWorkoutUpgradeIndex =
             getSafeUpgradeIndex(
                 savedData.preWorkoutUpgradeIndex,
-                PREWORKOUT_UPGRADES.length
+                PREWORKOUT_MAX_LEVEL
             );
 
         mobileLuckyShotUpgradeIndex =
             getSafeUpgradeIndex(
                 savedData.luckyShotUpgradeIndex,
-                LUCKYSHOT_UPGRADES.length
+                LUCKY_SHOT_MAX_LEVEL
             );
 
         mobileKineticUpgradeIndex =
             getSafeUpgradeIndex(
                 savedData.kineticUpgradeIndex,
-                KINETIC_OVERFLOW_UPGRADES.length
+                KINETIC_MAX_LEVEL
             );
 
         restoreOwnedItems(
@@ -5738,10 +9008,22 @@ function loadGame() {
                 )
             );
 
-        /*
-            Restore permanently unlocked
-            achievements from newer saves.
-        */
+        mobileLifeLevel =
+            Math.floor(
+                getSafeSavedNumber(
+                    savedData.lifeLevel
+                )
+            );
+
+        restorePermanentPerks(
+            savedData.permanentPerks
+        );
+
+        mobilePendingRebirthChoices =
+            getValidPendingRebirthChoices(
+                savedData.pendingRebirthChoices
+            );
+
         const saveHasAchievementData =
             Array.isArray(
                 savedData.unlockedAchievementIds
@@ -5754,18 +9036,22 @@ function loadGame() {
 
         rebuildDerivedGameValues();
 
-        /*
-            Older saves do not contain an achievement
-            list. Mark everything they already earned
-            without showing many popups at once.
-        */
         if (!saveHasAchievementData) {
             unlockCurrentAchievementsSilently();
         }
 
-        applyOfflineProduction(
-            savedData.savedAt
-        );
+        /*
+            Do not grant offline production while a
+            Rebirth perk choice is still pending. The
+            new Life has not officially started yet.
+        */
+        if (
+            mobilePendingRebirthChoices.length === 0
+        ) {
+            applyOfflineProduction(
+                savedData.savedAt
+            );
+        }
 
         return true;
     } catch (error) {

@@ -170,9 +170,9 @@
             <!-- SCROLLABLE SHOP CONTENT -->
             <div class="shopList" id="shopList">
 
-                <!-- REAL DRINK POWER UPGRADE -->
+                <!-- REAL SCALABLE DRINK POWER UPGRADE -->
                 <article
-                        class="upgradeCard"
+                        class="upgradeCard drinkPowerCard"
                         id="drinkUpgradeCard"
                 >
 
@@ -180,7 +180,7 @@
                             class="upgradeCardImage"
                             id="drinkUpgradeImage"
                             src="imgs/firstCan.png"
-                            alt="Next drink power upgrade"
+                            alt="Current Drink Power can tier"
                     >
 
                     <div class="upgradeCardInformation">
@@ -196,15 +196,34 @@
                                 class="upgradeCardLevel"
                                 id="drinkUpgradeLevel"
                         >
-                            LEVEL 0
+                            LEVEL 0 • CAN TIER 1
                         </p>
 
                         <p
                                 class="upgradeCardDescription"
                                 id="drinkUpgradeDescription"
                         >
-                            Increases energy per tap by +1.
+                            Next level adds +1 energy per tap.
                         </p>
+
+                        <div class="drinkCanProgress">
+
+                            <div class="drinkCanProgressText">
+                                <span>CURRENT CAN</span>
+
+                                <strong id="drinkCanProgressText">
+                                    NEXT CAN AT LEVEL 10
+                                </strong>
+                            </div>
+
+                            <div class="drinkCanProgressBar">
+                                <div
+                                        class="drinkCanProgressFill"
+                                        id="drinkCanProgressFill"
+                                ></div>
+                            </div>
+
+                        </div>
 
                         <div class="upgradeCardBottom">
 
@@ -231,10 +250,9 @@
 
                 </article>
 
-                <!-- EXAMPLE UPGRADE CARD 2 -->
-                <!-- REAL LUCKY SHOT UPGRADE -->
+                <!-- REAL SCALABLE LUCKY SHOT UPGRADE -->
                 <article
-                        class="upgradeCard"
+                        class="upgradeCard scalableUpgradeCard luckyShotPowerCard"
                         id="luckyShotUpgradeCard"
                 >
 
@@ -242,64 +260,60 @@
                             class="upgradeCardImage"
                             id="luckyShotUpgradeImage"
                             src="imgs/luckyUpgrade.png"
-                            alt="Next Lucky Shot upgrade"
+                            alt="Current Lucky Shot tier"
                     >
 
                     <div class="upgradeCardInformation">
 
-                        <h3
-                                class="upgradeCardName"
-                                id="luckyShotUpgradeName"
-                        >
+                        <h3 class="upgradeCardName" id="luckyShotUpgradeName">
                             LUCKY SHOT
                         </h3>
 
-                        <p
-                                class="upgradeCardLevel"
-                                id="luckyShotUpgradeLevel"
-                        >
-                            LEVEL 0
+                        <p class="upgradeCardLevel" id="luckyShotUpgradeLevel">
+                            LEVEL 0 • LUCK TIER 1
                         </p>
 
-                        <p
-                                class="upgradeCardDescription"
-                                id="luckyShotUpgradeDescription"
-                        >
-                            Gives each tap a chance to earn bonus energy.
+                        <p class="upgradeCardDescription" id="luckyShotUpgradeDescription">
+                            Improves Lucky Shot chance and bonus energy.
                         </p>
 
-                        <div class="upgradeCardBottom">
+                        <div class="scalableUpgradeProgress luckyShotTierProgress">
+                            <div class="scalableUpgradeProgressText">
+                                <span>CURRENT LUCK</span>
+                                <strong id="luckyShotTierProgressText">
+                                    NEXT LUCK TIER AT LEVEL 10
+                                </strong>
+                            </div>
 
-                            <p class="upgradeCardCost">
-                                COST:
-                                <span id="luckyShotUpgradeCost">
-                    2,000
-                </span>
-                            </p>
-
-                            <button
-                                    class="buyButton"
-                                    id="luckyShotUpgradeBuyButton"
-                                    type="button"
-                            >
-                                BUY
-                            </button>
-
+                            <div class="scalableUpgradeProgressBar">
+                                <div
+                                        class="scalableUpgradeProgressFill luckyShotTierProgressFill"
+                                        id="luckyShotTierProgressFill"
+                                ></div>
+                            </div>
                         </div>
 
-                        <p class="purchaseError">
-                            NOT ENOUGH ENERGY
-                        </p>
+                        <div class="upgradeCardBottom">
+                            <p class="upgradeCardCost">
+                                COST:
+                                <span id="luckyShotUpgradeCost">2,000</span>
+                            </p>
 
+                            <button class="buyButton" id="luckyShotUpgradeBuyButton" type="button">
+                                BUY
+                            </button>
+                        </div>
+
+                        <p class="purchaseError">NOT ENOUGH ENERGY</p>
                     </div>
-
                 </article>
 
 
+
                 <!-- EXAMPLE UPGRADE CARD 3 -->
-                <!-- REAL FACTORY UPGRADE -->
+                <!-- REAL SCALABLE FACTORY UPGRADE -->
                 <article
-                        class="upgradeCard"
+                        class="upgradeCard factoryPowerCard"
                         id="factoryUpgradeCard"
                 >
 
@@ -307,7 +321,7 @@
                             class="upgradeCardImage"
                             id="factoryUpgradeImage"
                             src="imgs/firstFactory.png"
-                            alt="Next factory upgrade"
+                            alt="Current factory tier"
                     >
 
                     <div class="upgradeCardInformation">
@@ -323,15 +337,34 @@
                                 class="upgradeCardLevel"
                                 id="factoryUpgradeLevel"
                         >
-                            LEVEL 0
+                            LEVEL 0 • FACTORY TIER 1
                         </p>
 
                         <p
                                 class="upgradeCardDescription"
                                 id="factoryUpgradeDescription"
                         >
-                            Automatically produces +1 energy every second.
+                            Next level adds +1 energy per second.
                         </p>
+
+                        <div class="factoryTierProgress">
+
+                            <div class="factoryTierProgressText">
+                                <span>CURRENT FACTORY</span>
+
+                                <strong id="factoryTierProgressText">
+                                    NEXT FACTORY AT LEVEL 10
+                                </strong>
+                            </div>
+
+                            <div class="factoryTierProgressBar">
+                                <div
+                                        class="factoryTierProgressFill"
+                                        id="factoryTierProgressFill"
+                                ></div>
+                            </div>
+
+                        </div>
 
                         <div class="upgradeCardBottom">
 
@@ -359,10 +392,9 @@
                 </article>
 
 
-                <!-- EXAMPLE UPGRADE CARD 4 -->
-                <!-- REAL KINETIC OVERFLOW UPGRADE -->
+                <!-- REAL SCALABLE KINETIC OVERFLOW UPGRADE -->
                 <article
-                        class="upgradeCard"
+                        class="upgradeCard scalableUpgradeCard kineticPowerCard"
                         id="kineticUpgradeCard"
                 >
 
@@ -370,64 +402,58 @@
                             class="upgradeCardImage"
                             id="kineticUpgradeImage"
                             src="imgs/firstCan.png"
-                            alt="Next Kinetic Overflow upgrade"
+                            alt="Current Kinetic Overflow tier"
                     >
 
                     <div class="upgradeCardInformation">
-
-                        <h3
-                                class="upgradeCardName"
-                                id="kineticUpgradeName"
-                        >
+                        <h3 class="upgradeCardName" id="kineticUpgradeName">
                             KINETIC OVERFLOW
                         </h3>
 
-                        <p
-                                class="upgradeCardLevel"
-                                id="kineticUpgradeLevel"
-                        >
-                            LEVEL 0
+                        <p class="upgradeCardLevel" id="kineticUpgradeLevel">
+                            LEVEL 0 • OVERFLOW TIER 1
                         </p>
 
-                        <p
-                                class="upgradeCardDescription"
-                                id="kineticUpgradeDescription"
-                        >
-                            Gives taps a chance to temporarily multiply their power.
+                        <p class="upgradeCardDescription" id="kineticUpgradeDescription">
+                            Improves activation chance, power, and duration.
                         </p>
 
-                        <div class="upgradeCardBottom">
+                        <div class="scalableUpgradeProgress kineticTierProgress">
+                            <div class="scalableUpgradeProgressText">
+                                <span>CURRENT OVERFLOW</span>
+                                <strong id="kineticTierProgressText">
+                                    NEXT OVERFLOW TIER AT LEVEL 10
+                                </strong>
+                            </div>
 
-                            <p class="upgradeCardCost">
-                                COST:
-                                <span id="kineticUpgradeCost">
-                    8,000
-                </span>
-                            </p>
-
-                            <button
-                                    class="buyButton"
-                                    id="kineticUpgradeBuyButton"
-                                    type="button"
-                            >
-                                BUY
-                            </button>
-
+                            <div class="scalableUpgradeProgressBar">
+                                <div
+                                        class="scalableUpgradeProgressFill kineticTierProgressFill"
+                                        id="kineticTierProgressFill"
+                                ></div>
+                            </div>
                         </div>
 
-                        <p class="purchaseError">
-                            NOT ENOUGH ENERGY
-                        </p>
+                        <div class="upgradeCardBottom">
+                            <p class="upgradeCardCost">
+                                COST:
+                                <span id="kineticUpgradeCost">8,000</span>
+                            </p>
 
+                            <button class="buyButton" id="kineticUpgradeBuyButton" type="button">
+                                BUY
+                            </button>
+                        </div>
+
+                        <p class="purchaseError">NOT ENOUGH ENERGY</p>
                     </div>
-
                 </article>
 
 
-                <!-- EXAMPLE UPGRADE CARD 5 -->
-                <!-- REAL DELIVERY TRUCK UPGRADE -->
+
+                <!-- REAL SCALABLE DELIVERY TRUCK UPGRADE -->
                 <article
-                        class="upgradeCard"
+                        class="upgradeCard scalableUpgradeCard deliveryPowerCard"
                         id="deliveryUpgradeCard"
                 >
 
@@ -435,62 +461,58 @@
                             class="upgradeCardImage"
                             id="deliveryUpgradeImage"
                             src="imgs/firstCan.png"
-                            alt="Next Delivery Truck upgrade"
+                            alt="Current Delivery tier"
                     >
 
                     <div class="upgradeCardInformation">
-
-                        <h3
-                                class="upgradeCardName"
-                                id="deliveryUpgradeName"
-                        >
+                        <h3 class="upgradeCardName" id="deliveryUpgradeName">
                             DELIVERY TRUCK
                         </h3>
 
-                        <p
-                                class="upgradeCardLevel"
-                                id="deliveryUpgradeLevel"
-                        >
-                            LEVEL 0
+                        <p class="upgradeCardLevel" id="deliveryUpgradeLevel">
+                            LEVEL 0 • DELIVERY TIER 1
                         </p>
 
-                        <p
-                                class="upgradeCardDescription"
-                                id="deliveryUpgradeDescription"
-                        >
-                            Delivers +2 energy every second.
+                        <p class="upgradeCardDescription" id="deliveryUpgradeDescription">
+                            Next level adds +2 energy per second.
                         </p>
+
+                        <div class="scalableUpgradeProgress deliveryTierProgress">
+                            <div class="scalableUpgradeProgressText">
+                                <span>CURRENT DELIVERY</span>
+                                <strong id="deliveryTierProgressText">
+                                    NEXT DELIVERY TIER AT LEVEL 10
+                                </strong>
+                            </div>
+
+                            <div class="scalableUpgradeProgressBar">
+                                <div
+                                        class="scalableUpgradeProgressFill deliveryTierProgressFill"
+                                        id="deliveryTierProgressFill"
+                                ></div>
+                            </div>
+                        </div>
 
                         <div class="upgradeCardBottom">
-
                             <p class="upgradeCardCost">
                                 COST:
                                 <span id="deliveryUpgradeCost">3,000</span>
                             </p>
 
-                            <button
-                                    class="buyButton"
-                                    id="deliveryUpgradeBuyButton"
-                                    type="button"
-                            >
+                            <button class="buyButton" id="deliveryUpgradeBuyButton" type="button">
                                 BUY
                             </button>
-
                         </div>
 
-                        <p class="purchaseError">
-                            NOT ENOUGH ENERGY
-                        </p>
-
+                        <p class="purchaseError">NOT ENOUGH ENERGY</p>
                     </div>
-
                 </article>
 
 
-                <!-- EXAMPLE UPGRADE CARD 6 -->
-                <!-- REAL PRE-WORKOUT UPGRADE -->
+
+                <!-- REAL SCALABLE PRE-WORKOUT UPGRADE -->
                 <article
-                        class="upgradeCard"
+                        class="upgradeCard scalableUpgradeCard preWorkoutPowerCard"
                         id="preWorkoutUpgradeCard"
                 >
 
@@ -498,58 +520,54 @@
                             class="upgradeCardImage"
                             id="preWorkoutUpgradeImage"
                             src="imgs/firstCan.png"
-                            alt="Next Pre-Workout upgrade"
+                            alt="Current Pre-Workout formula tier"
                     >
 
                     <div class="upgradeCardInformation">
-
-                        <h3
-                                class="upgradeCardName"
-                                id="preWorkoutUpgradeName"
-                        >
+                        <h3 class="upgradeCardName" id="preWorkoutUpgradeName">
                             PRE-WORKOUT
                         </h3>
 
-                        <p
-                                class="upgradeCardLevel"
-                                id="preWorkoutUpgradeLevel"
-                        >
-                            LEVEL 0
+                        <p class="upgradeCardLevel" id="preWorkoutUpgradeLevel">
+                            LEVEL 0 • FORMULA TIER 1
                         </p>
 
-                        <p
-                                class="upgradeCardDescription"
-                                id="preWorkoutUpgradeDescription"
-                        >
-                            Automatically generates +3 energy every second.
+                        <p class="upgradeCardDescription" id="preWorkoutUpgradeDescription">
+                            Next level adds +3 energy per second.
                         </p>
 
-                        <div class="upgradeCardBottom">
+                        <div class="scalableUpgradeProgress preWorkoutTierProgress">
+                            <div class="scalableUpgradeProgressText">
+                                <span>CURRENT FORMULA</span>
+                                <strong id="preWorkoutTierProgressText">
+                                    NEXT FORMULA TIER AT LEVEL 10
+                                </strong>
+                            </div>
 
-                            <p class="upgradeCardCost">
-                                COST:
-                                <span id="preWorkoutUpgradeCost">
-                    20,000
-                </span>
-                            </p>
-
-                            <button
-                                    class="buyButton"
-                                    id="preWorkoutUpgradeBuyButton"
-                                    type="button"
-                            >
-                                BUY
-                            </button>
-
+                            <div class="scalableUpgradeProgressBar">
+                                <div
+                                        class="scalableUpgradeProgressFill preWorkoutTierProgressFill"
+                                        id="preWorkoutTierProgressFill"
+                                ></div>
+                            </div>
                         </div>
 
-                        <p class="purchaseError">
-                            NOT ENOUGH ENERGY
-                        </p>
+                        <div class="upgradeCardBottom">
+                            <p class="upgradeCardCost">
+                                COST:
+                                <span id="preWorkoutUpgradeCost">20,000</span>
+                            </p>
 
+                            <button class="buyButton" id="preWorkoutUpgradeBuyButton" type="button">
+                                BUY
+                            </button>
+                        </div>
+
+                        <p class="purchaseError">NOT ENOUGH ENERGY</p>
                     </div>
-
                 </article>
+
+
 
             </div>
             <!-- PLAYER BALANCE AT THE BOTTOM OF THE SHOP -->
