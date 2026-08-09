@@ -1,3 +1,4 @@
+<!-- VERIFIED BUILD: ACHIEVEMENTS V2 + LIFE CHALLENGES -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -169,6 +170,54 @@
 
             <!-- SCROLLABLE SHOP CONTENT -->
             <div class="shopList" id="shopList">
+
+                <!-- BULK UPGRADE PURCHASE CONTROLS -->
+                <section
+                        class="upgradeBuyModeBar"
+                        id="upgradeBuyModeBar"
+                        aria-label="Choose how many upgrade levels to buy"
+                >
+                    <span class="upgradeBuyModeLabel">
+                        BUY AMOUNT
+                    </span>
+
+                    <div class="upgradeBuyModeButtons">
+
+                        <button
+                                class="upgradeBuyModeButton active"
+                                type="button"
+                                data-buy-mode="1"
+                        >
+                            ×1
+                        </button>
+
+                        <button
+                                class="upgradeBuyModeButton"
+                                type="button"
+                                data-buy-mode="10"
+                        >
+                            ×10
+                        </button>
+
+                        <button
+                                class="upgradeBuyModeButton"
+                                type="button"
+                                data-buy-mode="25"
+                        >
+                            ×25
+                        </button>
+
+                        <button
+                                class="upgradeBuyModeButton"
+                                type="button"
+                                data-buy-mode="max"
+                        >
+                            MAX
+                        </button>
+
+                    </div>
+
+                </section>
 
                 <!-- REAL SCALABLE DRINK POWER UPGRADE -->
                 <article
@@ -627,8 +676,51 @@
             Tap the energy can for the first time.
         </p>
 
+        <strong
+                class="achievementToastReward"
+                id="achievementToastReward"
+        >
+            REWARD +0 ENERGY
+        </strong>
+
     </div>
 </div>
+
+<!-- LIFE CHALLENGE COMPLETE POPUP -->
+<div
+        class="lifeChallengeToast"
+        id="lifeChallengeToast"
+        aria-live="polite"
+        aria-atomic="true"
+>
+    <div class="lifeChallengeToastIcon">
+        🎯
+    </div>
+
+    <div class="lifeChallengeToastInformation">
+
+        <span>
+            LIFE CHALLENGE COMPLETE
+        </span>
+
+        <strong id="lifeChallengeToastTitle">
+            ENERGY RUN I
+        </strong>
+
+        <p id="lifeChallengeToastDescription">
+            Complete a challenge during this Life.
+        </p>
+
+        <strong
+                class="lifeChallengeToastReward"
+                id="lifeChallengeToastReward"
+        >
+            REWARD +0 ENERGY
+        </strong>
+
+    </div>
+</div>
+
 <!-- SAVE SLOT SELECTION SCREEN -->
 <div
         class="saveSlotOverlay open"

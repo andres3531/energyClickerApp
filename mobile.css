@@ -5096,3 +5096,1237 @@ body.reducedMotion .tapEnergyFloat {
         grid-column: 2;
     }
 }
+
+
+/* -------------------------------------------------
+   BULK UPGRADE PURCHASE SELECTOR
+------------------------------------------------- */
+
+.upgradeBuyModeBar {
+    position: sticky;
+    z-index: 20;
+    top: -14px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+    margin: -14px -14px 14px;
+    padding: 12px 14px 13px;
+
+    border-bottom: 2px solid
+        rgba(255, 255, 255, 0.2);
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(20, 28, 51, 0.99),
+            rgba(26, 35, 62, 0.96)
+        );
+
+    box-shadow:
+        0 8px 18px rgba(0, 0, 0, 0.24);
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.upgradeBuyModeLabel {
+    text-align: center;
+
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+
+    color: #cbd5eb;
+}
+
+.upgradeBuyModeButtons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 7px;
+}
+
+.upgradeBuyModeButton {
+    min-width: 0;
+    min-height: 39px;
+
+    padding: 7px 4px;
+
+    border: 2px solid
+        rgba(255, 255, 255, 0.42);
+
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #4a536a,
+            #2c3345
+        );
+
+    font-size: 12px;
+    font-weight: 900;
+
+    box-shadow:
+        0 4px 0 #1c2130;
+
+    transition:
+        transform 0.08s ease,
+        box-shadow 0.08s ease,
+        filter 0.15s ease;
+}
+
+.upgradeBuyModeButton.active {
+    border-color:
+        rgba(117, 246, 255, 0.95);
+
+    background:
+        linear-gradient(
+            145deg,
+            #34d9ef,
+            #1878b7
+        );
+
+    box-shadow:
+        0 4px 0 #0b466f,
+        0 0 15px rgba(71, 229, 255, 0.25);
+
+    color: #ffffff;
+}
+
+.upgradeBuyModeButton:active {
+    transform: translateY(3px);
+    box-shadow: none;
+}
+
+
+/* -------------------------------------------------
+   BULK PURCHASE SUCCESS MESSAGE
+------------------------------------------------- */
+
+.upgradeCard.bulkPurchaseSuccess::after {
+    content:
+        "PURCHASED +"
+        attr(data-bulk-bought)
+        " LEVELS";
+
+    position: absolute;
+    z-index: 12;
+
+    top: 10px;
+    right: 10px;
+
+    max-width: calc(100% - 20px);
+
+    padding: 7px 10px;
+
+    border: 2px solid
+        rgba(255, 255, 255, 0.82);
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #46e97e,
+            #13873a
+        );
+
+    box-shadow:
+        0 7px 15px rgba(0, 0, 0, 0.3);
+
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.6px;
+
+    color: #ffffff;
+
+    pointer-events: none;
+
+    animation:
+        bulkPurchaseBadge 0.8s ease forwards;
+}
+
+@keyframes bulkPurchaseBadge {
+    0% {
+        opacity: 0;
+        transform: translateY(-7px) scale(0.9);
+    }
+
+    20%,
+    72% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-5px) scale(0.96);
+    }
+}
+
+@media (max-width: 380px) {
+    .upgradeBuyModeBar {
+        top: -10px;
+        margin: -10px -10px 10px;
+        padding: 10px;
+    }
+
+    .upgradeBuyModeButtons {
+        gap: 5px;
+    }
+
+    .upgradeBuyModeButton {
+        min-height: 36px;
+        font-size: 11px;
+    }
+}
+
+/* -------------------------------------------------
+   ACHIEVEMENT VERSION 2 - CATEGORY + REWARD UI
+------------------------------------------------- */
+
+.achievementCategorySection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.achievementCategoryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 12px;
+    padding: 0 4px 8px;
+
+    border-bottom: 2px solid
+    rgba(255, 255, 255, 0.22);
+}
+
+.achievementCategoryHeader h3 {
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 1px;
+
+    color: #ff8ab0;
+}
+
+.achievementCategoryHeader span {
+    flex-shrink: 0;
+
+    padding: 5px 8px;
+
+    border-radius: 8px;
+
+    background:
+            rgba(255, 255, 255, 0.08);
+
+    font-size: 10px;
+    font-weight: 900;
+
+    color: #dce4f6;
+}
+
+.achievementRewardRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 10px;
+    margin-top: 9px;
+    padding-top: 8px;
+
+    border-top: 1px solid
+    rgba(255, 255, 255, 0.14);
+}
+
+.achievementRewardRow span {
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.8px;
+
+    color: #cbd5eb;
+}
+
+.achievementRewardRow strong {
+    text-align: right;
+
+    font-size: 11px;
+    font-weight: 900;
+
+    color: #65ff9d;
+}
+
+.achievementRewardSummary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 3px;
+}
+
+.achievementRewardSummary strong {
+    color: #65ff9d;
+}
+
+.achievementToastReward {
+    margin-top: 3px;
+
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.7px;
+
+    color: #65ff9d !important;
+}
+
+
+/* -------------------------------------------------
+   LIFE CHALLENGE ACCESS CARD
+------------------------------------------------- */
+
+.lifeChallengesAccessSection {
+    margin-top: 4px;
+}
+
+.lifeChallengesAccessCard {
+    padding: 15px;
+
+    border: 2px solid
+    rgba(79, 238, 255, 0.48);
+
+    border-radius: 18px;
+
+    background:
+            linear-gradient(
+                    145deg,
+                    rgba(68, 215, 255, 0.14),
+                    rgba(255, 255, 255, 0.035)
+            );
+
+    box-shadow:
+            0 8px 17px rgba(0, 0, 0, 0.25),
+            0 0 18px rgba(67, 218, 255, 0.1);
+}
+
+.lifeChallengesAccessHeader {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+}
+
+.lifeChallengesAccessIcon {
+    flex-shrink: 0;
+
+    font-size: 40px;
+
+    filter:
+            drop-shadow(
+                    0 6px 6px rgba(0, 0, 0, 0.3)
+            );
+}
+
+.lifeChallengesAccessHeader strong {
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.lifeChallengesAccessHeader p {
+    margin-top: 4px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    color: #cbd5eb;
+}
+
+.viewLifeChallengesButton {
+    width: 100%;
+    min-height: 48px;
+
+    margin-top: 14px;
+    padding: 9px 13px;
+
+    border: 3px solid
+    rgba(255, 255, 255, 0.82);
+
+    border-radius: 14px;
+
+    background:
+            linear-gradient(
+                    145deg,
+                    #4fe2ff,
+                    #1974bd
+            );
+
+    font-size: 14px;
+    font-weight: 900;
+
+    box-shadow:
+            0 5px 0 #0d4677;
+}
+
+.viewLifeChallengesButton:active {
+    transform: translateY(4px);
+    box-shadow: none;
+}
+
+
+/* -------------------------------------------------
+   LIFE CHALLENGES SCREEN
+------------------------------------------------- */
+
+.lifeChallengesScreen {
+    display: flex;
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+.lifeChallengesSummary {
+    display: grid;
+    grid-template-columns: auto 1fr 1fr;
+    align-items: center;
+
+    gap: 12px;
+    padding: 15px;
+
+    border: 3px solid
+    rgba(79, 238, 255, 0.55);
+
+    border-radius: 18px;
+
+    background:
+            linear-gradient(
+                    145deg,
+                    rgba(79, 238, 255, 0.16),
+                    rgba(255, 255, 255, 0.04)
+            );
+}
+
+.lifeChallengesSummaryIcon {
+    font-size: 40px;
+}
+
+.lifeChallengesSummary div {
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+.lifeChallengesSummary small {
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.7px;
+
+    color: #cbd5eb;
+}
+
+.lifeChallengesSummary strong {
+    font-size: 18px;
+    font-weight: 900;
+
+    color: #63efff;
+}
+
+.lifeChallengeRuleCard {
+    padding: 13px 14px;
+
+    border: 2px dashed
+    rgba(255, 255, 255, 0.28);
+
+    border-radius: 15px;
+
+    text-align: center;
+
+    background:
+            rgba(255, 255, 255, 0.035);
+}
+
+.lifeChallengeRuleCard strong {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.8px;
+
+    color: #ffe36d;
+}
+
+.lifeChallengeRuleCard p {
+    margin-top: 5px;
+
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+
+    color: #cbd5eb;
+}
+
+.lifeChallengesList {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+.lifeChallengeCard {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+
+    gap: 11px;
+    padding: 12px;
+
+    border: 2px solid
+    rgba(255, 255, 255, 0.27);
+
+    border-radius: 17px;
+
+    background:
+            linear-gradient(
+                    145deg,
+                    rgba(255, 255, 255, 0.085),
+                    rgba(255, 255, 255, 0.025)
+            );
+
+    box-shadow:
+            0 7px 14px rgba(0, 0, 0, 0.22);
+}
+
+.lifeChallengeCard.completed {
+    border-color:
+            rgba(91, 255, 151, 0.65);
+
+    background:
+            linear-gradient(
+                    145deg,
+                    rgba(70, 224, 128, 0.15),
+                    rgba(255, 255, 255, 0.025)
+            );
+}
+
+.lifeChallengeCard.failed {
+    border-color:
+            rgba(255, 88, 111, 0.62);
+
+    background:
+            linear-gradient(
+                    145deg,
+                    rgba(255, 74, 102, 0.13),
+                    rgba(255, 255, 255, 0.02)
+            );
+
+    opacity: 0.72;
+}
+
+.lifeChallengeIcon {
+    width: 52px;
+    height: 52px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 14px;
+
+    background:
+            rgba(0, 0, 0, 0.2);
+
+    font-size: 27px;
+}
+
+.lifeChallengeInfo {
+    min-width: 0;
+}
+
+.lifeChallengeHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    gap: 8px;
+}
+
+.lifeChallengeHeader h3 {
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.lifeChallengeStatus {
+    flex-shrink: 0;
+
+    padding: 4px 6px;
+
+    border-radius: 7px;
+
+    background:
+            rgba(255, 255, 255, 0.09);
+
+    font-size: 7px;
+    font-weight: 900;
+    letter-spacing: 0.4px;
+
+    color: #cbd5eb;
+}
+
+.lifeChallengeCard.completed
+.lifeChallengeStatus {
+    color: #8dffb5;
+
+    background:
+            rgba(74, 226, 131, 0.15);
+}
+
+.lifeChallengeCard.failed
+.lifeChallengeStatus {
+    color: #ff9aab;
+
+    background:
+            rgba(255, 80, 108, 0.14);
+}
+
+.lifeChallengeInfo > p {
+    margin-top: 5px;
+
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.35;
+
+    color: #cbd5eb;
+}
+
+.lifeChallengeProgressText {
+    display: flex;
+    justify-content: space-between;
+
+    gap: 10px;
+    margin-top: 9px;
+
+    font-size: 9px;
+    font-weight: 900;
+
+    color: #cbd5eb;
+}
+
+.lifeChallengeProgressText strong {
+    color: #63efff;
+}
+
+.lifeChallengeProgressBar {
+    height: 9px;
+
+    margin-top: 5px;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+
+    background:
+            rgba(0, 0, 0, 0.32);
+}
+
+.lifeChallengeProgressFill {
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+            linear-gradient(
+                    90deg,
+                    #29bfff,
+                    #63efff,
+                    #76ffbb
+            );
+
+    transition:
+            width 0.25s ease;
+}
+
+.lifeChallengeCard.failed
+.lifeChallengeProgressFill {
+    background:
+            linear-gradient(
+                    90deg,
+                    #b82f4c,
+                    #ff667f
+            );
+}
+
+.lifeChallengeReward {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 10px;
+    margin-top: 8px;
+    padding-top: 7px;
+
+    border-top: 1px solid
+    rgba(255, 255, 255, 0.12);
+}
+
+.lifeChallengeReward span {
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: 0.7px;
+
+    color: #cbd5eb;
+}
+
+.lifeChallengeReward strong {
+    text-align: right;
+
+    font-size: 10px;
+    font-weight: 900;
+
+    color: #65ff9d;
+}
+
+
+/* -------------------------------------------------
+   LIFE CHALLENGE COMPLETE POPUP
+------------------------------------------------- */
+
+.lifeChallengeToast {
+    position: fixed;
+    z-index: 548;
+
+    top:
+            calc(
+                    118px +
+                    env(safe-area-inset-top)
+            );
+
+    left: 50%;
+
+    width: calc(100% - 28px);
+    max-width: 410px;
+
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    align-items: center;
+
+    gap: 11px;
+    padding: 12px 14px;
+
+    visibility: hidden;
+    opacity: 0;
+
+    border: 3px solid
+    rgba(101, 243, 255, 0.88);
+
+    border-radius: 18px;
+
+    background:
+            linear-gradient(
+                    145deg,
+                    #163f52,
+                    #151d2d
+            );
+
+    box-shadow:
+            0 15px 35px rgba(0, 0, 0, 0.5),
+            0 0 24px rgba(79, 238, 255, 0.25);
+
+    transform:
+            translateX(-50%)
+            translateY(-22px)
+            scale(0.97);
+
+    pointer-events: none;
+
+    transition:
+            opacity 0.24s ease,
+            transform 0.24s ease,
+            visibility 0.24s ease;
+}
+
+.lifeChallengeToast.visible {
+    visibility: visible;
+    opacity: 1;
+
+    transform:
+            translateX(-50%)
+            translateY(0)
+            scale(1);
+}
+
+.lifeChallengeToastIcon {
+    width: 52px;
+    height: 52px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 14px;
+
+    background:
+            rgba(79, 238, 255, 0.14);
+
+    font-size: 29px;
+}
+
+.lifeChallengeToastInformation {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+.lifeChallengeToastInformation > span {
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: 0.9px;
+
+    color: #7ef6ff;
+}
+
+.lifeChallengeToastInformation > strong {
+    overflow: hidden;
+
+    font-size: 15px;
+    font-weight: 900;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.lifeChallengeToastInformation p {
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.25;
+
+    color: #dce4f6;
+}
+
+.lifeChallengeToastReward {
+    font-size: 9px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.6px;
+
+    color: #65ff9d !important;
+}
+
+
+/* -------------------------------------------------
+   SMALL PHONE LIFE CHALLENGES
+------------------------------------------------- */
+
+@media (max-width: 380px) {
+
+    .lifeChallengesSummary {
+        grid-template-columns: auto 1fr;
+    }
+
+    .lifeChallengesSummary > div:last-child {
+        grid-column: 1 / -1;
+
+        padding-top: 8px;
+
+        border-top: 1px solid
+        rgba(255, 255, 255, 0.12);
+    }
+
+    .lifeChallengeCard {
+        grid-template-columns: 44px 1fr;
+    }
+
+    .lifeChallengeIcon {
+        width: 44px;
+        height: 44px;
+
+        font-size: 23px;
+    }
+
+    .lifeChallengeHeader {
+        flex-direction: column;
+    }
+
+    .lifeChallengeToast {
+        top:
+                calc(
+                        108px +
+                        env(safe-area-inset-top)
+                );
+    }
+}
+
+/* -------------------------------------------------
+   NEW LIFE ENERGY EXPLANATION
+------------------------------------------------- */
+
+.newLifeEnergySummary {
+    margin-top: 14px;
+    padding: 13px;
+
+    border: 2px solid rgba(99, 239, 255, 0.35);
+    border-radius: 15px;
+
+    text-align: center;
+
+    background: rgba(99, 239, 255, 0.07);
+}
+
+.newLifeEnergySummary span {
+    display: block;
+
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.9px;
+
+    color: #cbd5eb;
+}
+
+.newLifeEnergySummary strong {
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 24px;
+    font-weight: 900;
+
+    color: #63efff;
+}
+
+.newLifeEnergySummary p {
+    margin-top: 6px;
+
+    font-size: 11px;
+    font-weight: 650;
+    line-height: 1.35;
+
+    color: #d8e2f5;
+}
+
+
+/* -------------------------------------------------
+   UNAFFORDABLE SHOP CARDS
+------------------------------------------------- */
+
+/*
+   Cards the player cannot currently afford are dimmed
+   but remain fully clickable so the existing
+   NOT ENOUGH ENERGY feedback still appears.
+*/
+.upgradeCard.cannotAfford {
+    opacity: 0.58;
+
+    filter:
+        grayscale(0.72)
+        brightness(0.72);
+
+    border-color:
+        rgba(255, 255, 255, 0.24);
+}
+
+.upgradeCard.cannotAfford .upgradeCardCost,
+.upgradeCard.cannotAfford .upgradeCardCost span {
+    color: #ff8a9c;
+}
+
+.upgradeCard.cannotAfford .buyButton {
+    background:
+        linear-gradient(
+            145deg,
+            #666b76,
+            #3f434c
+        );
+
+    box-shadow:
+        0 5px 0 #292c31;
+
+    opacity: 0.9;
+}
+
+/*
+   The failure flash temporarily cuts through the gray
+   treatment so it is still obvious why the purchase
+   did not happen.
+*/
+.upgradeCard.cannotAfford.purchaseFailed {
+    opacity: 1;
+
+    filter: none;
+}
+
+
+/* -------------------------------------------------
+   LAST LIFE SUMMARY
+------------------------------------------------- */
+
+.lastLifeAccessSection {
+    margin-top: 4px;
+}
+
+.lastLifeAccessCard {
+    padding: 15px;
+
+    border: 2px solid
+        rgba(126, 246, 255, 0.38);
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(72, 199, 222, 0.13),
+            rgba(255, 255, 255, 0.035)
+        );
+
+    box-shadow:
+        0 8px 17px rgba(0, 0, 0, 0.25);
+}
+
+.lastLifeAccessCard.empty {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+
+    gap: 12px;
+}
+
+.lastLifeAccessHeader {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+}
+
+.lastLifeAccessIcon {
+    flex-shrink: 0;
+
+    font-size: 39px;
+
+    filter:
+        drop-shadow(
+            0 6px 6px rgba(0, 0, 0, 0.3)
+        );
+}
+
+.lastLifeAccessCard strong {
+    font-size: 16px;
+    font-weight: 900;
+
+    color: #ffffff;
+}
+
+.lastLifeAccessCard p {
+    margin-top: 4px;
+
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.35;
+
+    color: #cbd5eb;
+}
+
+.viewLastLifeButton {
+    width: 100%;
+    min-height: 48px;
+
+    margin-top: 14px;
+    padding: 9px 13px;
+
+    border: 3px solid
+        rgba(255, 255, 255, 0.82);
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #4bcbd8,
+            #277aa4
+        );
+
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+
+    box-shadow:
+        0 5px 0 #164860;
+}
+
+.viewLastLifeButton:active {
+    transform: translateY(4px);
+    box-shadow: none;
+}
+
+.lastLifeSummaryScreen {
+    display: flex;
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+.lastLifeHeroCard {
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+    padding: 17px;
+
+    border: 3px solid
+        rgba(126, 246, 255, 0.55);
+
+    border-radius: 19px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(72, 199, 222, 0.18),
+            rgba(255, 255, 255, 0.04)
+        );
+}
+
+.lastLifeHeroCard > span {
+    flex-shrink: 0;
+
+    font-size: 49px;
+}
+
+.lastLifeHeroCard small {
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1px;
+
+    color: #7ef6ff;
+}
+
+.lastLifeHeroCard h3 {
+    margin-top: 3px;
+
+    font-size: 24px;
+    font-weight: 900;
+}
+
+.lastLifeHeroCard p {
+    margin-top: 5px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    color: #d8e2f5;
+}
+
+.lastLifeSummaryGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 9px;
+}
+
+.lastLifeSummaryStat {
+    min-width: 0;
+    min-height: 82px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+    padding: 11px;
+
+    border: 2px solid
+        rgba(255, 255, 255, 0.24);
+
+    border-radius: 15px;
+
+    background:
+        rgba(255, 255, 255, 0.055);
+}
+
+.lastLifeSummaryStatIcon {
+    flex-shrink: 0;
+
+    font-size: 27px;
+}
+
+.lastLifeSummaryStat > div {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+.lastLifeSummaryStat > div > span {
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: 0.55px;
+
+    color: #cbd5eb;
+}
+
+.lastLifeSummaryStat strong {
+    overflow: hidden;
+
+    font-size: 16px;
+    font-weight: 900;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    color: #63efff;
+}
+
+@media (max-width: 380px) {
+
+    .lastLifeSummaryGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* -------------------------------------------------
+   REBIRTH LAST-LIFE QUICK SUMMARY
+------------------------------------------------- */
+
+.rebirthLastLifeMini {
+    margin-top: 13px;
+    padding: 13px;
+
+    border: 2px solid
+        rgba(126, 246, 255, 0.35);
+
+    border-radius: 15px;
+
+    text-align: center;
+
+    background:
+        rgba(72, 199, 222, 0.07);
+}
+
+.rebirthLastLifeMini > span {
+    display: block;
+
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.8px;
+
+    color: #7ef6ff;
+}
+
+.rebirthLastLifeMini > strong {
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.rebirthLastLifeMini > p {
+    margin-top: 6px;
+
+    font-size: 11px;
+    font-weight: 650;
+    line-height: 1.35;
+
+    color: #d8e2f5;
+}

@@ -1,5 +1,7 @@
+// BALANCED BUILD: ECONOMY V1 + ACHIEVEMENTS V3 + LIFE CHALLENGES
 // -------------------------------------------------
 // MOBILE MENU ELEMENTS
+// -------------------------------------------------
 // -------------------------------------------------
 
 const navigationButtons = document.querySelectorAll(".navigationButton");
@@ -43,24 +45,154 @@ const mobileCanButton =
 */
 let tapEnergyFloatCounter = 0;
 
+
+// -------------------------------------------------
+// FINAL ECONOMY V1 — CENTRAL BALANCE SETTINGS
+// -------------------------------------------------
+
+/*
+    Economy target:
+    - First Rebirth: roughly 15–30 minutes of casual active play.
+    - Early Rebirths: roughly 20–40 minutes, depending on tapping,
+      upgrades, challenge rewards, Lucky Shot, Kinetic, and perks.
+    - Later Lives gradually become longer without turning into a wall.
+
+    All main upgrade prices and gains are generated from these bands.
+    That makes the full 1–1000 progression smooth instead of relying on
+    giant hand-written jumps between the first few levels.
+*/
+const GAME_BALANCE_VERSION = 3;
+
+const MAIN_COST_GROWTH_BANDS = [
+    { untilLevel: 10, growth: 1.50 },
+    { untilLevel: 50, growth: 1.22 },
+    { untilLevel: 200, growth: 1.17 },
+    { untilLevel: 1000, growth: 1.13 }
+];
+
+const TAP_GAIN_GROWTH_BANDS = [
+    { untilLevel: 10, growth: 1.30 },
+    { untilLevel: 50, growth: 1.20 },
+    { untilLevel: 200, growth: 1.16 },
+    { untilLevel: 1000, growth: 1.125 }
+];
+
+const PASSIVE_GAIN_GROWTH_BANDS = [
+    { untilLevel: 10, growth: 1.32 },
+    { untilLevel: 50, growth: 1.21 },
+    { untilLevel: 200, growth: 1.165 },
+    { untilLevel: 1000, growth: 1.128 }
+];
+
+const SPECIAL_COST_GROWTH_BANDS = [
+    { untilLevel: 10, growth: 1.55 },
+    { untilLevel: 50, growth: 1.24 },
+    { untilLevel: 200, growth: 1.18 },
+    { untilLevel: 1000, growth: 1.135 }
+];
+
+function calculateBandedProgressionValue(
+    baseValue,
+    currentLevel,
+    growthBands
+) {
+    const safeLevel = Math.max(
+        0,
+        Math.floor(currentLevel)
+    );
+
+    let value = Math.max(0, baseValue);
+    let levelsRemaining = safeLevel;
+    let previousEnd = 0;
+
+    for (const band of growthBands) {
+        const bandLength = Math.max(
+            0,
+            band.untilLevel - previousEnd
+        );
+
+        const levelsInBand = Math.min(
+            levelsRemaining,
+            bandLength
+        );
+
+        if (levelsInBand > 0) {
+            value *= Math.pow(
+                band.growth,
+                levelsInBand
+            );
+
+            levelsRemaining -= levelsInBand;
+        }
+
+        previousEnd = band.untilLevel;
+
+        if (levelsRemaining <= 0) {
+            break;
+        }
+    }
+
+    if (levelsRemaining > 0) {
+        const finalGrowth =
+            growthBands[growthBands.length - 1]
+                ?.growth || 1;
+
+        value *= Math.pow(
+            finalGrowth,
+            levelsRemaining
+        );
+    }
+
+    if (!Number.isFinite(value)) {
+        return Number.MAX_VALUE;
+    }
+
+    return value;
+}
+
+const DRINK_POWER_BASE_COST = 12;
+const DRINK_POWER_BASE_GAIN = 1;
+
+const FACTORY_BASE_COST = 120;
+const FACTORY_BASE_GAIN = 2;
+
+const DELIVERY_BASE_COST = 650;
+const DELIVERY_BASE_GAIN = 8;
+
+const PREWORKOUT_BASE_COST = 3_500;
+const PREWORKOUT_BASE_GAIN = 45;
+
+const LUCKY_SHOT_BASE_COST = 1_500;
+const LUCKY_SHOT_BASE_CHANCE = 0.01;
+const LUCKY_SHOT_CHANCE_PER_LEVEL = 0.0001;
+const LUCKY_SHOT_MAX_CHANCE = 0.025;
+const LUCKY_SHOT_BASE_BONUS = 0.03;
+const LUCKY_SHOT_BONUS_PER_LEVEL = 0.0001;
+const LUCKY_SHOT_MAX_BONUS = 0.08;
+
+const KINETIC_BASE_COST = 4_000;
+const KINETIC_BASE_CHANCE = 0.005;
+const KINETIC_CHANCE_PER_LEVEL = 0.00001;
+const KINETIC_MAX_CHANCE = 0.015;
+const KINETIC_BASE_MULTIPLIER = 2;
+const KINETIC_MULTIPLIER_PER_LEVEL = 0.006;
+const KINETIC_MAX_MULTIPLIER = 8;
+const KINETIC_BASE_DURATION = 3;
+const KINETIC_DURATION_PER_LEVEL = 0.005;
+const KINETIC_MAX_DURATION = 8;
+
+const OFFLINE_PRODUCTION_EFFICIENCY = 0.50;
+
 // -------------------------------------------------
 // DRINK POWER UPGRADE STATE
 // -------------------------------------------------
 
 /*
-    mobileDrinkUpgradeIndex now represents the
-    player's full Drink Power level.
-
-    Levels 1-6 preserve the original hand-written
-    upgrade costs and gains from upgrades.js.
-
-    Levels 7-1000 are generated automatically.
+    Drink Power is formula-driven from Level 1 through 1000.
 */
 let mobileDrinkUpgradeIndex = 0;
 
 const DRINK_POWER_MAX_LEVEL = 1000;
-const DRINK_POWER_COST_GROWTH = 1.28;
-const DRINK_POWER_GAIN_GROWTH = 1.12;
 
 /*
     Major can artwork changes happen only at these
@@ -129,17 +261,11 @@ const shopBalanceImage =
 let mobileEnergyPerSecond = 0;
 
 /*
-    mobileFactoryUpgradeIndex now represents the
-    player's full Factory level.
-
-    The original Factory upgrades remain unchanged.
-    Every level after them is generated automatically.
+    Factory is formula-driven from Level 1 through 1000.
 */
 let mobileFactoryUpgradeIndex = 0;
 
 const FACTORY_MAX_LEVEL = 1000;
-const FACTORY_COST_GROWTH = 1.30;
-const FACTORY_GAIN_GROWTH = 1.10;
 
 /*
     Factory artwork changes at major level milestones.
@@ -192,15 +318,11 @@ const mobilePerSecondDisplay =
 // -------------------------------------------------
 
 /*
-    The first four Delivery levels preserve the
-    original upgrades.js values. Later levels are
-    generated automatically.
+    Delivery Truck is formula-driven from Level 1 through 1000.
 */
 let mobileDeliveryUpgradeIndex = 0;
 
 const DELIVERY_MAX_LEVEL = 1000;
-const DELIVERY_COST_GROWTH = 1.31;
-const DELIVERY_GAIN_GROWTH = 1.11;
 
 const DELIVERY_TIER_MILESTONES = [
     { level: 0, tier: 1, sourceIndex: 0 },
@@ -217,15 +339,11 @@ const DELIVERY_TIER_MILESTONES = [
 // -------------------------------------------------
 
 /*
-    The first three Pre-Workout levels preserve the
-    original upgrades.js values. Later levels are
-    generated automatically.
+    Pre-Workout is formula-driven from Level 1 through 1000.
 */
 let mobilePreWorkoutUpgradeIndex = 0;
 
 const PREWORKOUT_MAX_LEVEL = 1000;
-const PREWORKOUT_COST_GROWTH = 1.34;
-const PREWORKOUT_GAIN_GROWTH = 1.13;
 
 const PREWORKOUT_TIER_MILESTONES = [
     { level: 0, tier: 1, sourceIndex: 0 },
@@ -242,13 +360,9 @@ const PREWORKOUT_TIER_MILESTONES = [
 
 let mobileLuckyShotUpgradeIndex = 0;
 let mobileLuckyShotChance = 0;
-let mobileLuckyShotBonusMultiplier = 0.20;
+let mobileLuckyShotBonusMultiplier = LUCKY_SHOT_BASE_BONUS;
 
 const LUCKY_SHOT_MAX_LEVEL = 1000;
-const LUCKY_SHOT_COST_GROWTH = 1.35;
-const LUCKY_SHOT_MAX_CHANCE = 0.25;
-const LUCKY_SHOT_GENERATED_CHANCE_GAIN = 0.0005;
-const LUCKY_SHOT_GENERATED_BONUS_GAIN = 0.0025;
 
 const LUCKY_SHOT_TIER_MILESTONES = [
     { level: 0, tier: 1 },
@@ -271,12 +385,6 @@ let luckyShotMessageTimer = null;
 let mobileKineticUpgradeIndex = 0;
 
 const KINETIC_MAX_LEVEL = 1000;
-const KINETIC_COST_GROWTH = 1.38;
-const KINETIC_MAX_CHANCE = 0.20;
-const KINETIC_GENERATED_CHANCE_GAIN = 0.00025;
-const KINETIC_GENERATED_MULTIPLIER_GAIN = 0.35;
-const KINETIC_GENERATED_DURATION_GAIN = 0.05;
-const KINETIC_MAX_DURATION = 60;
 
 const KINETIC_TIER_MILESTONES = [
     { level: 0, tier: 1, sourceIndex: 0 },
@@ -295,12 +403,33 @@ let mobileKineticActive = false;
 let mobileKineticTimeLeft = 0;
 
 let kineticCountdownInterval = null;
+let kineticOverflowEndTime = 0;
 
 const kineticStatus =
     document.getElementById("kineticStatus");
 
 const mobilePerTapRow =
     mobilePerTapDisplay.closest(".productionText");
+
+
+// -------------------------------------------------
+// BULK UPGRADE PURCHASE STATE
+// -------------------------------------------------
+
+/*
+    Because every upgrade tree can now reach 1,000
+    levels, players should not have to press BUY one
+    thousand separate times. This selector applies to
+    all six gameplay upgrade cards.
+*/
+const VALID_UPGRADE_BUY_MODES = [
+    "1",
+    "10",
+    "25",
+    "max"
+];
+
+let mobileUpgradeBuyMode = "1";
 
 
 // -------------------------------------------------
@@ -373,13 +502,12 @@ let mobileSecondsPlayed = 0;
 const MINIMUM_OFFLINE_SECONDS = 10;
 
 /*
-    Players can currently earn a maximum of
-    eight hours of offline production.
-
-    We can rebalance this later.
+    Players earn 50% of normal passive production
+    for a maximum of six hours while away. Permanent
+    offline perks can improve that efficiency.
 */
 const MAXIMUM_OFFLINE_SECONDS =
-    8 * 60 * 60;
+    6 * 60 * 60;
 
 const offlineRewardOverlay =
     document.getElementById(
@@ -438,113 +566,346 @@ let gameAudioContext = null;
 // ACHIEVEMENT DEFINITIONS
 // -------------------------------------------------
 
+/*
+    Achievement System Version 3 balances the long-term
+    short testing achievements with long-term chains.
+
+    Rewards add CURRENT ENERGY only. They intentionally
+    do not increase lifetime energy, so achievement
+    rewards cannot trigger other energy achievements.
+*/
+const ACHIEVEMENT_SYSTEM_VERSION = 3;
+
+const ACHIEVEMENT_ROMAN_NUMERALS = [
+    "I", "II", "III", "IV", "V", "VI", "VII"
+];
+
+
+function createAchievementChain({
+    idPrefix,
+    category,
+    icon,
+    baseName,
+    targets,
+    rewards,
+    getProgress,
+    descriptionBuilder
+}) {
+    return targets.map((target, index) => ({
+        id: `${idPrefix}${index + 1}`,
+        category,
+        icon,
+        name:
+            `${baseName} ${ACHIEVEMENT_ROMAN_NUMERALS[index] || index + 1}`,
+        description:
+            descriptionBuilder(target),
+        target,
+        rewardEnergy:
+            rewards[index] || 0,
+        getProgress
+    }));
+}
+
+
 const PLAYER_ACHIEVEMENTS = [
-    {
-        id: "firstTap",
+    ...createAchievementChain({
+        idPrefix: "tapMachine",
+        category: "TAPPING",
         icon: "👆",
-        name: "FIRST CRACK",
-        description: "Tap the energy can for the first time.",
-        target: 1,
-        getProgress: () => mobileTotalTaps
-    },
+        baseName: "TAP MACHINE",
+        targets: [
+            1_000,
+            10_000,
+            100_000,
+            1_000_000,
+            10_000_000,
+            100_000_000,
+            1_000_000_000
+        ],
+        rewards: [
+            50_000,
+            300_000,
+            2_000_000,
+            15_000_000,
+            120_000_000,
+            1_000_000_000,
+            10_000_000_000
+        ],
+        getProgress: () => mobileTotalTaps,
+        descriptionBuilder: (target) =>
+            `Tap the can ${formatGameNumber(target)} times.`
+    }),
 
-    {
-        id: "tap100",
+    ...createAchievementChain({
+        idPrefix: "energyEmpire",
+        category: "LIFETIME ENERGY",
         icon: "⚡",
-        name: "GETTING STARTED",
-        description: "Tap the energy can 100 times.",
-        target: 100,
-        getProgress: () => mobileTotalTaps
-    },
+        baseName: "ENERGY EMPIRE",
+        targets: [
+            1_000_000,
+            1_000_000_000,
+            1_000_000_000_000,
+            1_000_000_000_000_000,
+            1e18,
+            1e21,
+            1e24
+        ],
+        rewards: [
+            25_000,
+            25_000_000,
+            25_000_000_000,
+            25_000_000_000_000,
+            2.5e16,
+            2.5e19,
+            2.5e22
+        ],
+        getProgress: () => mobileLifetimeEnergy,
+        descriptionBuilder: (target) =>
+            `Produce ${formatGameNumber(target)} lifetime energy.`
+    }),
 
-    {
-        id: "tap1000",
-        icon: "🔥",
-        name: "TAP MACHINE",
-        description: "Tap the energy can 1,000 times.",
-        target: 1000,
-        getProgress: () => mobileTotalTaps
-    },
-
-    {
-        id: "energy10000",
+    ...createAchievementChain({
+        idPrefix: "drinkMaster",
+        category: "DRINK POWER",
         icon: "🥤",
-        name: "ENERGY STOCKPILE",
-        description: "Produce 10,000 lifetime energy.",
-        target: 10000,
-        getProgress: () => mobileLifetimeEnergy
-    },
+        baseName: "CAN MASTER",
+        targets: [25, 100, 500, 1_000],
+        rewards: [
+            100_000,
+            1_000_000_000,
+            5e31,
+            1e58
+        ],
+        getProgress: () => mobileDrinkUpgradeIndex,
+        descriptionBuilder: (target) =>
+            `Reach Drink Power Level ${target}.`
+    }),
 
-    {
-        id: "energyMillion",
-        icon: "💰",
-        name: "ENERGY EMPIRE",
-        description: "Produce 1,000,000 lifetime energy.",
-        target: 1000000,
-        getProgress: () => mobileLifetimeEnergy
-    },
-
-    {
-        id: "canLevel3",
-        icon: "📈",
-        name: "CAN COLLECTOR",
-        description: "Reach Drink Power can level 3.",
-        target: 3,
-        getProgress: () => mobileDrinkUpgradeIndex
-    },
-
-    {
-        id: "automaticProduction",
+    ...createAchievementChain({
+        idPrefix: "factoryMaster",
+        category: "FACTORY",
         icon: "🏭",
-        name: "AUTOMATION BEGINS",
-        description: "Unlock automatic energy production.",
-        target: 1,
-        getProgress: () => getCurrentEnergyPerSecond()
-    },
+        baseName: "FACTORY TYCOON",
+        targets: [25, 100, 500, 1_000],
+        rewards: [
+            100_000,
+            10_000_000_000,
+            5e32,
+            1e59
+        ],
+        getProgress: () => mobileFactoryUpgradeIndex,
+        descriptionBuilder: (target) =>
+            `Reach Factory Level ${target}.`
+    }),
 
-    {
-        id: "production50",
+    ...createAchievementChain({
+        idPrefix: "deliveryMaster",
+        category: "DELIVERY",
         icon: "🚚",
-        name: "PRODUCTION LINE",
-        description: "Reach 50 energy produced per second.",
-        target: 50,
-        getProgress: () => getCurrentEnergyPerSecond()
-    },
+        baseName: "ROAD KING",
+        targets: [25, 100, 500, 1_000],
+        rewards: [
+            250_000,
+            50_000_000_000,
+            2.5e33,
+            5e59
+        ],
+        getProgress: () => mobileDeliveryUpgradeIndex,
+        descriptionBuilder: (target) =>
+            `Reach Delivery Truck Level ${target}.`
+    }),
 
-    {
-        id: "firstLuckyShot",
+    ...createAchievementChain({
+        idPrefix: "preWorkoutMaster",
+        category: "PRE-WORKOUT",
+        icon: "💪",
+        baseName: "FULLY LOADED",
+        targets: [25, 100, 500, 1_000],
+        rewards: [
+            1_000_000,
+            250_000_000_000,
+            1.5e34,
+            2.5e60
+        ],
+        getProgress: () => mobilePreWorkoutUpgradeIndex,
+        descriptionBuilder: (target) =>
+            `Reach Pre-Workout Level ${target}.`
+    }),
+
+    ...createAchievementChain({
+        idPrefix: "luckyLevel",
+        category: "LUCKY SHOT",
         icon: "🍀",
-        name: "LUCKY BREAK",
-        description: "Activate Lucky Shot for the first time.",
-        target: 1,
-        getProgress: () => mobileLuckyShotsActivated
-    },
+        baseName: "LUCKY STREAK",
+        targets: [25, 100, 500, 1_000],
+        rewards: [
+            750_000,
+            500_000_000_000,
+            2e35,
+            5e62
+        ],
+        getProgress: () => mobileLuckyShotUpgradeIndex,
+        descriptionBuilder: (target) =>
+            `Reach Lucky Shot Level ${target}.`
+    }),
 
-    {
-        id: "firstKinetic",
+    ...createAchievementChain({
+        idPrefix: "kineticLevel",
+        category: "KINETIC OVERFLOW",
         icon: "🌩️",
-        name: "OVERFLOWING",
-        description: "Activate Kinetic Overflow for the first time.",
+        baseName: "OVERFLOW ENGINE",
+        targets: [25, 100, 500, 1_000],
+        rewards: [
+            2_000_000,
+            1_500_000_000_000,
+            5e35,
+            1e63
+        ],
+        getProgress: () => mobileKineticUpgradeIndex,
+        descriptionBuilder: (target) =>
+            `Reach Kinetic Overflow Level ${target}.`
+    }),
+
+    ...createAchievementChain({
+        idPrefix: "luckyActivations",
+        category: "LUCKY SHOT",
+        icon: "🎯",
+        baseName: "LUCK NEVER ENDS",
+        targets: [25, 250, 2_500],
+        rewards: [
+            500_000,
+            25_000_000,
+            1_000_000_000
+        ],
+        getProgress: () => mobileLuckyShotsActivated,
+        descriptionBuilder: (target) =>
+            `Activate Lucky Shot ${formatGameNumber(target)} times.`
+    }),
+
+    ...createAchievementChain({
+        idPrefix: "kineticActivations",
+        category: "KINETIC OVERFLOW",
+        icon: "🔥",
+        baseName: "UNSTABLE POWER",
+        targets: [25, 250, 2_500],
+        rewards: [
+            750_000,
+            35_000_000,
+            1_500_000_000
+        ],
+        getProgress: () => mobileKineticActivations,
+        descriptionBuilder: (target) =>
+            `Activate Kinetic Overflow ${formatGameNumber(target)} times.`
+    }),
+
+    ...createAchievementChain({
+        idPrefix: "lifeVeteran",
+        category: "REBIRTH",
+        icon: "♻️",
+        baseName: "ANOTHER LIFE",
+        targets: [1, 5, 10, 25, 50],
+        rewards: [
+            1_875_000,
+            73_000_000,
+            7_150_000_000,
+            2_630_000_000_000_000,
+            9.57e23
+        ],
+        getProgress: () => mobileLifeLevel,
+        descriptionBuilder: (target) =>
+            `Reach Life ${target}.`
+    }),
+
+    {
+        id: "perkRanks1",
+        category: "PERMANENT PERKS",
+        icon: "💎",
+        name: "FIRST BLESSING",
+        description: "Earn your first permanent perk rank.",
         target: 1,
-        getProgress: () => mobileKineticActivations
+        rewardEnergy: 1_000_000,
+        getProgress: () =>
+            getTotalPermanentPerkRanks()
+    },
+    {
+        id: "perkRanks25",
+        category: "PERMANENT PERKS",
+        icon: "💎",
+        name: "STACKED",
+        description: "Own 25 total permanent perk ranks.",
+        target: 25,
+        rewardEnergy: 250_000_000,
+        getProgress: () =>
+            getTotalPermanentPerkRanks()
+    },
+    {
+        id: "perkUnique10",
+        category: "PERMANENT PERKS",
+        icon: "🧬",
+        name: "PERK COLLECTOR",
+        description: "Discover 10 different permanent perks.",
+        target: 10,
+        rewardEnergy: 5_000_000_000,
+        getProgress: () =>
+            getUnlockedPermanentPerkCount()
+    },
+    {
+        id: "perkLegendary1",
+        category: "PERMANENT PERKS",
+        icon: "👑",
+        name: "JACKPOT",
+        description: "Obtain your first Legendary permanent perk.",
+        target: 1,
+        rewardEnergy: 10_000_000_000,
+        getProgress: () =>
+            PERMANENT_PERK_DEFINITIONS.filter(
+                (perk) =>
+                    perk.rarity === "legendary" &&
+                    getPermanentPerkRank(perk.id) > 0
+            ).length
     },
 
     {
-        id: "firstSkin",
+        id: "skinsOwned1",
+        category: "COLLECTION",
         icon: "🎭",
-        name: "FRESH LOOK",
+        name: "FIRST STYLE",
         description: "Purchase your first can skin.",
         target: 1,
+        rewardEnergy: 50_000,
         getProgress: () =>
             mobileOwnedSkins.filter(Boolean).length
     },
-
     {
-        id: "firstColor",
+        id: "skinsOwnedAll",
+        category: "COLLECTION",
+        icon: "🎭",
+        name: "SKIN VAULT",
+        description: "Own every available can skin.",
+        target: Math.max(1, COSMETIC_UPGRADES.length),
+        rewardEnergy: 10_000_000,
+        getProgress: () =>
+            mobileOwnedSkins.filter(Boolean).length
+    },
+    {
+        id: "colorsOwned1",
+        category: "COLLECTION",
         icon: "🎨",
-        name: "SHOW YOUR COLORS",
+        name: "FIRST COLOR",
         description: "Purchase your first score color.",
         target: 1,
+        rewardEnergy: 50_000,
+        getProgress: () =>
+            mobileOwnedColors.filter(Boolean).length
+    },
+    {
+        id: "colorsOwnedAll",
+        category: "COLLECTION",
+        icon: "🌈",
+        name: "FULL SPECTRUM",
+        description: "Own every available score color.",
+        target: Math.max(1, CHANGECOLOR_UPGRADES.length),
+        rewardEnergy: 50_000_000,
         getProgress: () =>
             mobileOwnedColors.filter(Boolean).length
     }
@@ -582,6 +943,55 @@ const achievementToastDescription =
         "achievementToastDescription"
     );
 
+const achievementToastReward =
+    document.getElementById(
+        "achievementToastReward"
+    );
+
+
+// -------------------------------------------------
+// CURRENT LIFE / LIFE CHALLENGE STATE
+// -------------------------------------------------
+
+let mobileCurrentLifeEnergyProduced = 0;
+let mobileCurrentLifeTaps = 0;
+let mobileCurrentLifeLuckyActivations = 0;
+let mobileCurrentLifeKineticActivations = 0;
+let mobileCurrentLifeSecondsPlayed = 0;
+
+/*
+    Snapshot of the most recently completed Life.
+    This is saved permanently in the slot so the
+    player can review the run after Rebirthing.
+*/
+let mobileLastLifeSummary = null;
+
+let mobileCompletedLifeChallengeIds = [];
+
+let lifeChallengeNotificationQueue = [];
+let lifeChallengeNotificationActive = false;
+let lifeChallengeNotificationTimer = null;
+
+const lifeChallengeToast =
+    document.getElementById(
+        "lifeChallengeToast"
+    );
+
+const lifeChallengeToastTitle =
+    document.getElementById(
+        "lifeChallengeToastTitle"
+    );
+
+const lifeChallengeToastDescription =
+    document.getElementById(
+        "lifeChallengeToastDescription"
+    );
+
+const lifeChallengeToastReward =
+    document.getElementById(
+        "lifeChallengeToastReward"
+    );
+
 
 // -------------------------------------------------
 // LIFE / REBIRTH AND PERMANENT PERK STATE
@@ -593,8 +1003,14 @@ const achievementToastDescription =
     once the player has enough current energy, Rebirth
     resets that energy to zero anyway.
 */
-const REBIRTH_BASE_REQUIREMENT = 1_000_000;
-const REBIRTH_REQUIREMENT_GROWTH = 10;
+const REBIRTH_BASE_REQUIREMENT = 25_000_000;
+
+const REBIRTH_REQUIREMENT_GROWTH_BANDS = [
+    { untilLife: 10, growth: 2.50 },
+    { untilLife: 25, growth: 2.35 },
+    { untilLife: 50, growth: 2.20 },
+    { untilLife: 1000, growth: 2.00 }
+];
 
 const REBIRTH_RARITY_CHANCES = [
     { rarity: "common", chance: 0.65 },
@@ -623,7 +1039,7 @@ const PERMANENT_PERK_DEFINITIONS = [
         rarity: "common",
         maxRank: null,
         effects: [
-            { type: "allProductionPercent", value: 0.01 }
+            { type: "allProductionPercent", value: 0.015 }
         ]
     },
     {
@@ -633,7 +1049,7 @@ const PERMANENT_PERK_DEFINITIONS = [
         rarity: "common",
         maxRank: null,
         effects: [
-            { type: "tapProductionPercent", value: 0.02 }
+            { type: "tapProductionPercent", value: 0.03 }
         ]
     },
     {
@@ -643,7 +1059,7 @@ const PERMANENT_PERK_DEFINITIONS = [
         rarity: "common",
         maxRank: null,
         effects: [
-            { type: "autoProductionPercent", value: 0.02 }
+            { type: "autoProductionPercent", value: 0.03 }
         ]
     },
     {
@@ -651,9 +1067,9 @@ const PERMANENT_PERK_DEFINITIONS = [
         name: "NIGHT SHIFT",
         icon: "🌙",
         rarity: "common",
-        maxRank: 25,
+        maxRank: 20,
         effects: [
-            { type: "offlineProductionPercent", value: 0.03 }
+            { type: "offlineProductionPercent", value: 0.04 }
         ]
     },
     {
@@ -661,9 +1077,9 @@ const PERMANENT_PERK_DEFINITIONS = [
         name: "LUCKY SIP",
         icon: "🍀",
         rarity: "common",
-        maxRank: 40,
+        maxRank: 20,
         effects: [
-            { type: "luckyBonus", value: 0.005 }
+            { type: "luckyBonus", value: 0.0015 }
         ]
     },
 
@@ -674,7 +1090,7 @@ const PERMANENT_PERK_DEFINITIONS = [
         rarity: "rare",
         maxRank: 10,
         effects: [
-            { type: "startingDrinkLevels", value: 3 }
+            { type: "startingDrinkLevels", value: 4 }
         ]
     },
     {
@@ -684,7 +1100,7 @@ const PERMANENT_PERK_DEFINITIONS = [
         rarity: "rare",
         maxRank: 10,
         effects: [
-            { type: "startingFactoryLevels", value: 2 }
+            { type: "startingFactoryLevels", value: 3 }
         ]
     },
     {
@@ -694,7 +1110,7 @@ const PERMANENT_PERK_DEFINITIONS = [
         rarity: "rare",
         maxRank: 10,
         effects: [
-            { type: "startingDeliveryLevels", value: 2 }
+            { type: "startingDeliveryLevels", value: 3 }
         ]
     },
     {
@@ -704,7 +1120,7 @@ const PERMANENT_PERK_DEFINITIONS = [
         rarity: "rare",
         maxRank: 10,
         effects: [
-            { type: "startingPreWorkoutLevels", value: 2 }
+            { type: "startingPreWorkoutLevels", value: 3 }
         ]
     },
     {
@@ -712,9 +1128,9 @@ const PERMANENT_PERK_DEFINITIONS = [
         name: "LUCKY GENES",
         icon: "🎯",
         rarity: "rare",
-        maxRank: 15,
+        maxRank: 10,
         effects: [
-            { type: "luckyChance", value: 0.001 }
+            { type: "luckyChance", value: 0.0005 }
         ]
     },
     {
@@ -722,9 +1138,9 @@ const PERMANENT_PERK_DEFINITIONS = [
         name: "KINETIC SPARK",
         icon: "🌩️",
         rarity: "rare",
-        maxRank: 15,
+        maxRank: 10,
         effects: [
-            { type: "kineticChance", value: 0.001 }
+            { type: "kineticChance", value: 0.0003 }
         ]
     },
 
@@ -733,9 +1149,9 @@ const PERMANENT_PERK_DEFINITIONS = [
         name: "FULL SHELF",
         icon: "💰",
         rarity: "epic",
-        maxRank: 10,
+        maxRank: 5,
         effects: [
-            { type: "startingEnergy", value: 100_000 }
+            { type: "startingEnergyFraction", value: 0.005 }
         ]
     },
     {
@@ -745,7 +1161,7 @@ const PERMANENT_PERK_DEFINITIONS = [
         rarity: "epic",
         maxRank: 10,
         effects: [
-            { type: "kineticMultiplier", value: 0.20 }
+            { type: "kineticMultiplier", value: 0.15 }
         ]
     },
     {
@@ -775,8 +1191,8 @@ const PERMANENT_PERK_DEFINITIONS = [
         rarity: "epic",
         maxRank: 10,
         effects: [
-            { type: "luckyChance", value: 0.001 },
-            { type: "luckyBonus", value: 0.01 }
+            { type: "luckyChance", value: 0.00035 },
+            { type: "luckyBonus", value: 0.002 }
         ]
     },
 
@@ -797,7 +1213,7 @@ const PERMANENT_PERK_DEFINITIONS = [
         rarity: "legendary",
         maxRank: 5,
         effects: [
-            { type: "tapProductionPercent", value: 0.10 }
+            { type: "tapProductionPercent", value: 0.08 }
         ]
     },
     {
@@ -807,7 +1223,7 @@ const PERMANENT_PERK_DEFINITIONS = [
         rarity: "legendary",
         maxRank: 5,
         effects: [
-            { type: "autoProductionPercent", value: 0.10 }
+            { type: "autoProductionPercent", value: 0.08 }
         ]
     },
     {
@@ -827,8 +1243,8 @@ const PERMANENT_PERK_DEFINITIONS = [
         rarity: "legendary",
         maxRank: 5,
         effects: [
-            { type: "luckyChance", value: 0.0035 },
-            { type: "kineticChance", value: 0.0035 }
+            { type: "luckyChance", value: 0.0015 },
+            { type: "kineticChance", value: 0.001 }
         ]
     },
     {
@@ -838,7 +1254,7 @@ const PERMANENT_PERK_DEFINITIONS = [
         rarity: "legendary",
         maxRank: 5,
         effects: [
-            { type: "offlineProductionPercent", value: 0.15 }
+            { type: "offlineProductionPercent", value: 0.10 }
         ]
     }
 ];
@@ -968,7 +1384,7 @@ function getCurrentEnergyPerSecond() {
 
 function getCurrentLuckyShotChance() {
     return Math.min(
-        0.50,
+        0.04,
         mobileLuckyShotChance +
         getPermanentPerkEffectTotal(
             "luckyChance"
@@ -978,7 +1394,8 @@ function getCurrentLuckyShotChance() {
 
 
 function getCurrentLuckyShotBonusMultiplier() {
-    return (
+    return Math.min(
+        0.12,
         mobileLuckyShotBonusMultiplier +
         getPermanentPerkEffectTotal(
             "luckyBonus"
@@ -989,7 +1406,7 @@ function getCurrentLuckyShotBonusMultiplier() {
 
 function getCurrentKineticChance() {
     return Math.min(
-        0.40,
+        0.025,
         mobileKineticChance +
         getPermanentPerkEffectTotal(
             "kineticChance"
@@ -1078,6 +1495,10 @@ function getPerkEffectLines(perk, rankAmount = 1) {
             return `START EACH LIFE WITH ${formatGameNumber(total)} ENERGY`;
         }
 
+        if (effect.type === "startingEnergyFraction") {
+            return `START EACH LIFE WITH ${formatPerkPercent(total)} OF THE NEXT REBIRTH REQUIREMENT`;
+        }
+
         if (effect.type === "startingDrinkLevels") {
             return `START EACH LIFE WITH DRINK POWER LEVEL ${Math.floor(total)}`;
         }
@@ -1123,12 +1544,43 @@ function getRebirthRequirement(
         Math.floor(lifeLevel)
     );
 
-    const requirement =
-        REBIRTH_BASE_REQUIREMENT *
-        Math.pow(
-            REBIRTH_REQUIREMENT_GROWTH,
-            safeLifeLevel
+    let requirement =
+        REBIRTH_BASE_REQUIREMENT;
+
+    let livesRemaining =
+        safeLifeLevel;
+
+    let previousEnd = 0;
+
+    for (
+        const band of
+        REBIRTH_REQUIREMENT_GROWTH_BANDS
+    ) {
+        const bandLength = Math.max(
+            0,
+            band.untilLife - previousEnd
         );
+
+        const livesInBand = Math.min(
+            livesRemaining,
+            bandLength
+        );
+
+        if (livesInBand > 0) {
+            requirement *= Math.pow(
+                band.growth,
+                livesInBand
+            );
+
+            livesRemaining -= livesInBand;
+        }
+
+        previousEnd = band.untilLife;
+
+        if (livesRemaining <= 0) {
+            break;
+        }
+    }
 
     if (!Number.isFinite(requirement)) {
         return Number.MAX_VALUE;
@@ -1136,6 +1588,7 @@ function getRebirthRequirement(
 
     return Math.floor(requirement);
 }
+
 
 
 function canPlayerRebirth() {
@@ -1413,10 +1866,20 @@ function applyRebirthStartingBonuses() {
     mobileKineticUpgradeIndex =
         startingLevels.kinetic;
 
-    mobileEnergy =
+    const fixedStartingEnergy =
         getPermanentPerkEffectTotal(
             "startingEnergy"
         );
+
+    const percentageStartingEnergy =
+        getRebirthRequirement() *
+        getPermanentPerkEffectTotal(
+            "startingEnergyFraction"
+        );
+
+    mobileEnergy =
+        fixedStartingEnergy +
+        percentageStartingEnergy;
 
     rebuildDerivedGameValues();
     updateShopBalance();
@@ -1525,9 +1988,782 @@ function formatGameNumber(value) {
 
 
 // -------------------------------------------------
+// FORMAT PRECISE PRODUCTION VALUES
+// -------------------------------------------------
+
+/*
+    Production bonuses from permanent perks can create
+    useful decimals at low levels. The main Energy
+    total stays whole-number styled, but /tap, /sec,
+    and floating tap rewards show those small bonuses.
+*/
+function formatProductionNumber(value) {
+    if (!Number.isFinite(value)) {
+        return "0";
+    }
+
+    const absoluteValue = Math.abs(value);
+
+    if (absoluteValue >= 1000) {
+        return formatGameNumber(value);
+    }
+
+    let decimalPlaces = 0;
+
+    if (
+        Math.abs(value - Math.round(value)) >
+        0.000001
+    ) {
+        decimalPlaces =
+            absoluteValue < 100
+                ? 2
+                : 1;
+    }
+
+    return Number(
+        value.toFixed(decimalPlaces)
+    ).toLocaleString(
+        "en-US",
+        {
+            maximumFractionDigits:
+                decimalPlaces
+        }
+    );
+}
+
+
+// -------------------------------------------------
+// BULK UPGRADE PURCHASE CONFIGURATION
+// -------------------------------------------------
+
+function getBulkUpgradeConfig(upgradeKey) {
+    const configurations = {
+        drink: {
+            getLevel: () =>
+                mobileDrinkUpgradeIndex,
+
+            setLevel: (level) => {
+                mobileDrinkUpgradeIndex = level;
+
+                mobileEnergyPerTap =
+                    calculateDrinkPowerFromLevel(
+                        level
+                    );
+            },
+
+            maxLevel:
+                DRINK_POWER_MAX_LEVEL,
+
+            getUpgradeData:
+                getDrinkPowerUpgradeData,
+
+            getElements:
+                getDrinkUpgradeElements,
+
+            getTier: (level) =>
+                getCurrentCanMilestone(
+                    level
+                ).tier,
+
+            tierClass:
+                "canTierUnlocked"
+        },
+
+        factory: {
+            getLevel: () =>
+                mobileFactoryUpgradeIndex,
+
+            setLevel: (level) => {
+                mobileFactoryUpgradeIndex = level;
+                recalculateAutomaticProduction();
+            },
+
+            maxLevel:
+                FACTORY_MAX_LEVEL,
+
+            getUpgradeData:
+                getFactoryUpgradeData,
+
+            getElements:
+                getFactoryUpgradeElements,
+
+            getTier: (level) =>
+                getCurrentFactoryMilestone(
+                    level
+                ).tier,
+
+            tierClass:
+                "factoryTierUnlocked"
+        },
+
+        delivery: {
+            getLevel: () =>
+                mobileDeliveryUpgradeIndex,
+
+            setLevel: (level) => {
+                mobileDeliveryUpgradeIndex = level;
+                recalculateAutomaticProduction();
+            },
+
+            maxLevel:
+                DELIVERY_MAX_LEVEL,
+
+            getUpgradeData:
+                getDeliveryUpgradeData,
+
+            getElements:
+                getDeliveryTruckElements,
+
+            getTier: (level) =>
+                getCurrentUpgradeMilestone(
+                    level,
+                    DELIVERY_TIER_MILESTONES
+                ).tier,
+
+            tierClass:
+                "scalableTierUnlocked"
+        },
+
+        preWorkout: {
+            getLevel: () =>
+                mobilePreWorkoutUpgradeIndex,
+
+            setLevel: (level) => {
+                mobilePreWorkoutUpgradeIndex = level;
+                recalculateAutomaticProduction();
+            },
+
+            maxLevel:
+                PREWORKOUT_MAX_LEVEL,
+
+            getUpgradeData:
+                getPreWorkoutUpgradeData,
+
+            getElements:
+                getPreWorkoutElements,
+
+            getTier: (level) =>
+                getCurrentUpgradeMilestone(
+                    level,
+                    PREWORKOUT_TIER_MILESTONES
+                ).tier,
+
+            tierClass:
+                "scalableTierUnlocked"
+        },
+
+        luckyShot: {
+            getLevel: () =>
+                mobileLuckyShotUpgradeIndex,
+
+            setLevel: (level) => {
+                mobileLuckyShotUpgradeIndex = level;
+
+                const luckyValues =
+                    calculateLuckyShotValuesFromLevel(
+                        level
+                    );
+
+                mobileLuckyShotChance =
+                    luckyValues.chance;
+
+                mobileLuckyShotBonusMultiplier =
+                    luckyValues.bonusMultiplier;
+            },
+
+            maxLevel:
+                LUCKY_SHOT_MAX_LEVEL,
+
+            getUpgradeData:
+                getLuckyShotUpgradeData,
+
+            getElements:
+                getLuckyShotElements,
+
+            getTier: (level) =>
+                getCurrentUpgradeMilestone(
+                    level,
+                    LUCKY_SHOT_TIER_MILESTONES
+                ).tier,
+
+            tierClass:
+                "scalableTierUnlocked"
+        },
+
+        kinetic: {
+            getLevel: () =>
+                mobileKineticUpgradeIndex,
+
+            setLevel: (level) => {
+                mobileKineticUpgradeIndex = level;
+
+                const kineticValues =
+                    calculateKineticValuesFromLevel(
+                        level
+                    );
+
+                mobileKineticChance =
+                    kineticValues.chance;
+
+                mobileKineticMultiplier =
+                    kineticValues.multiplier;
+
+                mobileKineticDuration =
+                    kineticValues.duration;
+            },
+
+            maxLevel:
+                KINETIC_MAX_LEVEL,
+
+            getUpgradeData:
+                getKineticUpgradeData,
+
+            getElements:
+                getKineticOverflowElements,
+
+            getTier: (level) =>
+                getCurrentUpgradeMilestone(
+                    level,
+                    KINETIC_TIER_MILESTONES
+                ).tier,
+
+            tierClass:
+                "scalableTierUnlocked"
+        }
+    };
+
+    return configurations[upgradeKey] || null;
+}
+
+
+// -------------------------------------------------
+// RECALCULATE BASE AUTOMATIC PRODUCTION
+// -------------------------------------------------
+
+function recalculateAutomaticProduction() {
+    mobileEnergyPerSecond =
+        calculateFactoryProductionFromLevel(
+            mobileFactoryUpgradeIndex
+        ) +
+        calculateDeliveryProductionFromLevel(
+            mobileDeliveryUpgradeIndex
+        ) +
+        calculatePreWorkoutProductionFromLevel(
+            mobilePreWorkoutUpgradeIndex
+        );
+}
+
+
+// -------------------------------------------------
+// CALCULATE A BULK PURCHASE PLAN
+// -------------------------------------------------
+
+function getBulkUpgradePurchasePlan(
+    configuration,
+    calculateMaximumAffordable = false
+) {
+    if (!configuration) {
+        return {
+            count: 0,
+            totalCost: 0,
+            affordable: false
+        };
+    }
+
+    const currentLevel =
+        configuration.getLevel();
+
+    const levelsRemaining =
+        Math.max(
+            0,
+            configuration.maxLevel -
+            currentLevel
+        );
+
+    if (levelsRemaining <= 0) {
+        return {
+            count: 0,
+            totalCost: 0,
+            affordable: false
+        };
+    }
+
+    const usingMaxMode =
+        mobileUpgradeBuyMode === "max";
+
+    let requestedCount;
+
+    if (usingMaxMode) {
+        requestedCount = levelsRemaining;
+    } else {
+        requestedCount = Math.min(
+            Number(mobileUpgradeBuyMode) || 1,
+            levelsRemaining
+        );
+    }
+
+    let totalCost = 0;
+    let count = 0;
+
+    for (
+        let offset = 0;
+        offset < requestedCount;
+        offset++
+    ) {
+        const upgradeData =
+            configuration.getUpgradeData(
+                currentLevel + offset
+            );
+
+        if (!upgradeData) {
+            break;
+        }
+
+        const nextTotalCost =
+            totalCost + upgradeData.cost;
+
+        if (
+            usingMaxMode &&
+            calculateMaximumAffordable &&
+            nextTotalCost > mobileEnergy
+        ) {
+            break;
+        }
+
+        totalCost = nextTotalCost;
+        count++;
+    }
+
+    if (
+        usingMaxMode &&
+        !calculateMaximumAffordable
+    ) {
+        return {
+            count: levelsRemaining,
+            totalCost: 0,
+            affordable: true
+        };
+    }
+
+    return {
+        count,
+        totalCost,
+        affordable:
+            count > 0 &&
+            mobileEnergy >= totalCost
+    };
+}
+
+
+// -------------------------------------------------
+// UPDATE THE BULK PURCHASE SELECTOR
+// -------------------------------------------------
+
+function updateUpgradeBuyModeButtons() {
+    const modeButtons =
+        document.querySelectorAll(
+            ".upgradeBuyModeButton"
+        );
+
+    modeButtons.forEach((button) => {
+        const buttonMode =
+            button.dataset.buyMode;
+
+        const selected =
+            buttonMode ===
+            mobileUpgradeBuyMode;
+
+        button.classList.toggle(
+            "active",
+            selected
+        );
+
+        button.setAttribute(
+            "aria-pressed",
+            String(selected)
+        );
+    });
+}
+
+
+// -------------------------------------------------
+// CONNECT BULK PURCHASE SELECTOR BUTTONS
+// -------------------------------------------------
+
+function attachUpgradeBuyModeButtons() {
+    const modeButtons =
+        document.querySelectorAll(
+            ".upgradeBuyModeButton"
+        );
+
+    modeButtons.forEach((button) => {
+        button.addEventListener(
+            "click",
+            () => {
+                const selectedMode =
+                    button.dataset.buyMode;
+
+                if (
+                    !VALID_UPGRADE_BUY_MODES.includes(
+                        selectedMode
+                    )
+                ) {
+                    return;
+                }
+
+                mobileUpgradeBuyMode =
+                    selectedMode;
+
+                updateUpgradeBuyModeButtons();
+                updateAllBulkPurchaseCardControls();
+            }
+        );
+    });
+
+    updateUpgradeBuyModeButtons();
+}
+
+
+// -------------------------------------------------
+// UPDATE ONE CARD FOR THE SELECTED BUY AMOUNT
+// -------------------------------------------------
+
+function updateBulkPurchaseCardControls(
+    upgradeKey
+) {
+    const configuration =
+        getBulkUpgradeConfig(
+            upgradeKey
+        );
+
+    if (!configuration) {
+        return;
+    }
+
+    const elements =
+        configuration.getElements();
+
+    if (
+        !elements ||
+        !elements.card ||
+        !elements.buyButton ||
+        !elements.cost
+    ) {
+        return;
+    }
+
+    const currentLevel =
+        configuration.getLevel();
+
+    if (
+        currentLevel >=
+        configuration.maxLevel
+    ) {
+        elements.card.classList.remove(
+            "cannotAfford"
+        );
+
+        return;
+    }
+
+    if (mobileUpgradeBuyMode === "max") {
+        const maxPlan =
+            getBulkUpgradePurchasePlan(
+                configuration,
+                true
+            );
+
+        elements.cost.textContent =
+            "AS MANY AS POSSIBLE";
+
+        elements.buyButton.textContent =
+            "BUY MAX";
+
+        elements.card.classList.toggle(
+            "cannotAfford",
+            !maxPlan.affordable ||
+            maxPlan.count <= 0
+        );
+
+        return;
+    }
+
+    const plan =
+        getBulkUpgradePurchasePlan(
+            configuration
+        );
+
+    if (plan.count <= 0) {
+        elements.card.classList.remove(
+            "cannotAfford"
+        );
+
+        return;
+    }
+
+    elements.card.classList.toggle(
+        "cannotAfford",
+        !plan.affordable
+    );
+
+    if (plan.count === 1) {
+        elements.cost.textContent =
+            formatGameNumber(
+                plan.totalCost
+            );
+
+        elements.buyButton.textContent =
+            "BUY";
+
+        return;
+    }
+
+    elements.cost.textContent =
+        `${plan.count} LVLS • ${formatGameNumber(
+            plan.totalCost
+        )}`;
+
+    elements.buyButton.textContent =
+        `BUY ×${plan.count}`;
+}
+
+// -------------------------------------------------
+// UPDATE ALL VISIBLE BULK PURCHASE CONTROLS
+// -------------------------------------------------
+
+function updateAllBulkPurchaseCardControls() {
+    [
+        "drink",
+        "factory",
+        "delivery",
+        "preWorkout",
+        "luckyShot",
+        "kinetic"
+    ].forEach(
+        updateBulkPurchaseCardControls
+    );
+}
+
+
+// -------------------------------------------------
+// PERFORM A BULK UPGRADE PURCHASE
+// -------------------------------------------------
+
+function performBulkUpgradePurchase(
+    upgradeKey
+) {
+    const configuration =
+        getBulkUpgradeConfig(
+            upgradeKey
+        );
+
+    if (!configuration) {
+        return;
+    }
+
+    const currentLevel =
+        configuration.getLevel();
+
+    if (
+        currentLevel >=
+        configuration.maxLevel
+    ) {
+        return;
+    }
+
+    const elements =
+        configuration.getElements();
+
+    if (!elements || !elements.card) {
+        return;
+    }
+
+    const calculateMaximumAffordable =
+        mobileUpgradeBuyMode === "max";
+
+    const plan =
+        getBulkUpgradePurchasePlan(
+            configuration,
+            calculateMaximumAffordable
+        );
+
+    if (
+        plan.count <= 0 ||
+        !plan.affordable
+    ) {
+        showPurchaseFailure(
+            elements.card
+        );
+
+        return;
+    }
+
+    const previousTier =
+        configuration.getTier(
+            currentLevel
+        );
+
+    mobileEnergy -=
+        plan.totalCost;
+
+    const newLevel =
+        currentLevel + plan.count;
+
+    configuration.setLevel(
+        newLevel
+    );
+
+    const newTier =
+        configuration.getTier(
+            newLevel
+        );
+
+    updateShopBalance();
+    saveGame();
+
+    elements.card.classList.remove(
+        "purchaseSuccess",
+        "canTierUnlocked",
+        "factoryTierUnlocked",
+        "scalableTierUnlocked",
+        "bulkPurchaseSuccess"
+    );
+
+    delete elements.card.dataset.bulkBought;
+
+    void elements.card.offsetWidth;
+
+    if (newTier > previousTier) {
+        elements.card.classList.add(
+            configuration.tierClass
+        );
+    } else {
+        elements.card.classList.add(
+            "purchaseSuccess"
+        );
+    }
+
+    if (plan.count > 1) {
+        elements.card.dataset.bulkBought =
+            String(plan.count);
+
+        elements.card.classList.add(
+            "bulkPurchaseSuccess"
+        );
+    }
+
+    setTimeout(() => {
+        elements.card.classList.remove(
+            "purchaseSuccess",
+            "canTierUnlocked",
+            "factoryTierUnlocked",
+            "scalableTierUnlocked",
+            "bulkPurchaseSuccess"
+        );
+
+        delete elements.card.dataset.bulkBought;
+    }, 800);
+}
+
+
+// -------------------------------------------------
+// LIVE SHOP AFFORDABILITY
+// -------------------------------------------------
+
+/*
+    Expensive cards are visually dimmed while still
+    remaining clickable. Clicking one still shows the
+    normal NOT ENOUGH ENERGY feedback.
+*/
+function updateCosmeticAffordabilityStates() {
+    document
+        .querySelectorAll(
+            ".skinActionButton[data-skin-index]"
+        )
+        .forEach((button) => {
+            const rawIndex =
+                button.dataset.skinIndex;
+
+            if (rawIndex === "default") {
+                return;
+            }
+
+            const index = Number(rawIndex);
+            const skin =
+                COSMETIC_UPGRADES[index];
+
+            const card =
+                document.getElementById(
+                    `skinCard-${index}`
+                );
+
+            if (!skin || !card) {
+                return;
+            }
+
+            const owned =
+                Boolean(
+                    mobileOwnedSkins[index]
+                );
+
+            card.classList.toggle(
+                "cannotAfford",
+                !owned &&
+                mobileEnergy < skin.cost
+            );
+        });
+
+    document
+        .querySelectorAll(
+            ".colorActionButton[data-color-index]"
+        )
+        .forEach((button) => {
+            const rawIndex =
+                button.dataset.colorIndex;
+
+            if (rawIndex === "default") {
+                return;
+            }
+
+            const index = Number(rawIndex);
+            const color =
+                CHANGECOLOR_UPGRADES[index];
+
+            const card =
+                document.getElementById(
+                    `colorCard-${index}`
+                );
+
+            if (!color || !card) {
+                return;
+            }
+
+            const owned =
+                Boolean(
+                    mobileOwnedColors[index]
+                );
+
+            card.classList.toggle(
+                "cannotAfford",
+                !owned &&
+                mobileEnergy < color.cost
+            );
+        });
+}
+
+
+// -------------------------------------------------
 // SHOP BALANCE
 // -------------------------------------------------
 function updateShopBalance() {
+    /*
+        Achievement and Life Challenge rewards can add
+        current energy. Check them before drawing the
+        score so the new balance appears immediately.
+    */
+    checkForNewAchievements();
+    checkForCompletedLifeChallenges();
+
     const formattedEnergy =
         formatGameNumber(mobileEnergy);
 
@@ -1540,7 +2776,7 @@ function updateShopBalance() {
     updateScoreColor();
 
     mobilePerTapDisplay.textContent =
-        formatGameNumber(
+        formatProductionNumber(
             getCurrentTapPower()
         );
 
@@ -1563,7 +2799,7 @@ function updateShopBalance() {
         );
 
         mobilePerSecondDisplay.textContent =
-            formatGameNumber(
+            formatProductionNumber(
                 currentEnergyPerSecond
             );
     } else {
@@ -1581,11 +2817,14 @@ function updateShopBalance() {
     updateLuckyShotCard();
     updateKineticOverflowCard();
 
+    updateAllBulkPurchaseCardControls();
+    updateCosmeticAffordabilityStates();
+
     updateStatsDisplay();
     updateRebirthDynamicDisplays();
-
-    checkForNewAchievements();
+    updateLifeChallengeDisplays();
 }
+
 
 // -------------------------------------------------
 // GET THE DRINK UPGRADE CARD ELEMENTS
@@ -1638,61 +2877,35 @@ function getDrinkPowerUpgradeData(currentLevel) {
         return null;
     }
 
-    /*
-        Preserve the six original upgrades exactly.
-    */
-    if (currentLevel < DRINK_UPGRADES.length) {
-        const originalUpgrade =
-            DRINK_UPGRADES[currentLevel];
-
-        return {
-            level: currentLevel + 1,
-            cost: originalUpgrade.cost,
-            gain: originalUpgrade.multiplier
-        };
-    }
-
-    /*
-        Level 7 and beyond are generated from the
-        final original upgrade.
-    */
-    const lastOriginalUpgrade =
-        DRINK_UPGRADES[
-            DRINK_UPGRADES.length - 1
-        ];
-
-    const generatedStep =
-        currentLevel -
-        DRINK_UPGRADES.length +
-        1;
-
-    const generatedCost =
+    const cost = Math.max(
+        1,
         Math.floor(
-            lastOriginalUpgrade.cost *
-            Math.pow(
-                DRINK_POWER_COST_GROWTH,
-                generatedStep
+            calculateBandedProgressionValue(
+                DRINK_POWER_BASE_COST,
+                currentLevel,
+                MAIN_COST_GROWTH_BANDS
             )
-        );
+        )
+    );
 
-    const generatedGain =
-        Math.max(
-            1,
-            Math.floor(
-                lastOriginalUpgrade.multiplier *
-                Math.pow(
-                    DRINK_POWER_GAIN_GROWTH,
-                    generatedStep
-                )
+    const gain = Math.max(
+        1,
+        Math.round(
+            calculateBandedProgressionValue(
+                DRINK_POWER_BASE_GAIN,
+                currentLevel,
+                TAP_GAIN_GROWTH_BANDS
             )
-        );
+        )
+    );
 
     return {
         level: currentLevel + 1,
-        cost: generatedCost,
-        gain: generatedGain
+        cost,
+        gain
     };
 }
+
 
 
 // -------------------------------------------------
@@ -2013,75 +3226,34 @@ function getFactoryUpgradeData(currentLevel) {
         return null;
     }
 
-    /*
-        Preserve every original Factory upgrade
-        exactly as it was written in upgrades.js.
-    */
-    if (
-        currentLevel <
-        FACTORY_UPGRADES.length
-    ) {
-        const originalUpgrade =
-            FACTORY_UPGRADES[currentLevel];
-
-        return {
-            level: currentLevel + 1,
-            cost: originalUpgrade.cost,
-            gain: originalUpgrade.multiplier,
-            image:
-                originalUpgrade.img ||
-                "imgs/firstFactory.png"
-        };
-    }
-
-    /*
-        Levels after the original list are generated
-        from the final original Factory upgrade.
-    */
-    const lastOriginalUpgrade =
-        FACTORY_UPGRADES[
-            FACTORY_UPGRADES.length - 1
-        ];
-
-    if (!lastOriginalUpgrade) {
-        return null;
-    }
-
-    const generatedStep =
-        currentLevel -
-        FACTORY_UPGRADES.length +
-        1;
-
-    const generatedCost =
-        Math.floor(
-            lastOriginalUpgrade.cost *
-            Math.pow(
-                FACTORY_COST_GROWTH,
-                generatedStep
-            )
-        );
-
-    const generatedGain =
-        Math.max(
-            1,
-            Math.floor(
-                lastOriginalUpgrade.multiplier *
-                Math.pow(
-                    FACTORY_GAIN_GROWTH,
-                    generatedStep
-                )
-            )
-        );
-
     return {
         level: currentLevel + 1,
-        cost: generatedCost,
-        gain: generatedGain,
+        cost: Math.max(
+            1,
+            Math.floor(
+                calculateBandedProgressionValue(
+                    FACTORY_BASE_COST,
+                    currentLevel,
+                    MAIN_COST_GROWTH_BANDS
+                )
+            )
+        ),
+        gain: Math.max(
+            1,
+            Math.round(
+                calculateBandedProgressionValue(
+                    FACTORY_BASE_GAIN,
+                    currentLevel,
+                    PASSIVE_GAIN_GROWTH_BANDS
+                )
+            )
+        ),
         image:
-            lastOriginalUpgrade.img ||
+            FACTORY_UPGRADES[0]?.img ||
             "imgs/firstFactory.png"
     };
 }
+
 
 
 // -------------------------------------------------
@@ -2350,79 +3522,9 @@ function updateFactoryUpgradeCard() {
 // -------------------------------------------------
 
 function buyFactoryUpgrade() {
-    if (
-        mobileFactoryUpgradeIndex >=
-        FACTORY_MAX_LEVEL
-    ) {
-        return;
-    }
-
-    const currentFactory =
-        getFactoryUpgradeData(
-            mobileFactoryUpgradeIndex
-        );
-
-    const elements =
-        getFactoryUpgradeElements();
-
-    if (!currentFactory) {
-        return;
-    }
-
-    if (
-        mobileEnergy <
-        currentFactory.cost
-    ) {
-        showPurchaseFailure(
-            elements.card
-        );
-
-        return;
-    }
-
-    const previousTier =
-        getCurrentFactoryMilestone(
-            mobileFactoryUpgradeIndex
-        ).tier;
-
-    mobileEnergy -=
-        currentFactory.cost;
-
-    mobileEnergyPerSecond +=
-        currentFactory.gain;
-
-    mobileFactoryUpgradeIndex++;
-
-    const newTier =
-        getCurrentFactoryMilestone(
-            mobileFactoryUpgradeIndex
-        ).tier;
-
-    updateShopBalance();
-
-    elements.card.classList.remove(
-        "purchaseSuccess",
-        "factoryTierUnlocked"
+    performBulkUpgradePurchase(
+        "factory"
     );
-
-    void elements.card.offsetWidth;
-
-    if (newTier > previousTier) {
-        elements.card.classList.add(
-            "factoryTierUnlocked"
-        );
-    } else {
-        elements.card.classList.add(
-            "purchaseSuccess"
-        );
-    }
-
-    setTimeout(() => {
-        elements.card.classList.remove(
-            "purchaseSuccess",
-            "factoryTierUnlocked"
-        );
-    }, 700);
 }
 
 
@@ -2598,54 +3700,34 @@ function getDeliveryUpgradeData(currentLevel) {
         return null;
     }
 
-    if (currentLevel < DELIVERY_UPGRADES.length) {
-        const originalUpgrade =
-            DELIVERY_UPGRADES[currentLevel];
-
-        return {
-            level: currentLevel + 1,
-            cost: originalUpgrade.cost,
-            gain: originalUpgrade.multiplier,
-            image: originalUpgrade.img
-        };
-    }
-
-    const lastOriginalUpgrade =
-        DELIVERY_UPGRADES[
-            DELIVERY_UPGRADES.length - 1
-        ];
-
-    if (!lastOriginalUpgrade) {
-        return null;
-    }
-
-    const generatedStep =
-        currentLevel -
-        DELIVERY_UPGRADES.length +
-        1;
-
     return {
         level: currentLevel + 1,
-        cost: Math.floor(
-            lastOriginalUpgrade.cost *
-            Math.pow(
-                DELIVERY_COST_GROWTH,
-                generatedStep
+        cost: Math.max(
+            1,
+            Math.floor(
+                calculateBandedProgressionValue(
+                    DELIVERY_BASE_COST,
+                    currentLevel,
+                    MAIN_COST_GROWTH_BANDS
+                )
             )
         ),
         gain: Math.max(
             1,
-            Math.floor(
-                lastOriginalUpgrade.multiplier *
-                Math.pow(
-                    DELIVERY_GAIN_GROWTH,
-                    generatedStep
+            Math.round(
+                calculateBandedProgressionValue(
+                    DELIVERY_BASE_GAIN,
+                    currentLevel,
+                    PASSIVE_GAIN_GROWTH_BANDS
                 )
             )
         ),
-        image: lastOriginalUpgrade.img
+        image:
+            DELIVERY_UPGRADES[0]?.img ||
+            "imgs/firstCan.png"
     };
 }
+
 
 
 // -------------------------------------------------
@@ -2785,67 +3867,9 @@ function updateDeliveryTruckCard() {
 // -------------------------------------------------
 
 function buyDeliveryTruckUpgrade() {
-    if (
-        mobileDeliveryUpgradeIndex >=
-        DELIVERY_MAX_LEVEL
-    ) {
-        return;
-    }
-
-    const currentUpgrade =
-        getDeliveryUpgradeData(
-            mobileDeliveryUpgradeIndex
-        );
-
-    const elements =
-        getDeliveryTruckElements();
-
-    if (!currentUpgrade) {
-        return;
-    }
-
-    if (mobileEnergy < currentUpgrade.cost) {
-        showPurchaseFailure(elements.card);
-        return;
-    }
-
-    const previousTier =
-        getCurrentUpgradeMilestone(
-            mobileDeliveryUpgradeIndex,
-            DELIVERY_TIER_MILESTONES
-        ).tier;
-
-    mobileEnergy -= currentUpgrade.cost;
-    mobileEnergyPerSecond += currentUpgrade.gain;
-    mobileDeliveryUpgradeIndex++;
-
-    const newTier =
-        getCurrentUpgradeMilestone(
-            mobileDeliveryUpgradeIndex,
-            DELIVERY_TIER_MILESTONES
-        ).tier;
-
-    updateShopBalance();
-
-    elements.card.classList.remove(
-        "purchaseSuccess",
-        "scalableTierUnlocked"
+    performBulkUpgradePurchase(
+        "delivery"
     );
-
-    void elements.card.offsetWidth;
-
-    elements.card.classList.add(
-        newTier > previousTier
-            ? "scalableTierUnlocked"
-            : "purchaseSuccess"
-    );
-
-    setTimeout(() => {
-        elements.card.classList.remove(
-            "purchaseSuccess",
-            "scalableTierUnlocked"
-        );
-    }, 700);
 }
 
 // -------------------------------------------------
@@ -2915,54 +3939,34 @@ function getPreWorkoutUpgradeData(currentLevel) {
         return null;
     }
 
-    if (currentLevel < PREWORKOUT_UPGRADES.length) {
-        const originalUpgrade =
-            PREWORKOUT_UPGRADES[currentLevel];
-
-        return {
-            level: currentLevel + 1,
-            cost: originalUpgrade.cost,
-            gain: originalUpgrade.multiplier,
-            image: originalUpgrade.img
-        };
-    }
-
-    const lastOriginalUpgrade =
-        PREWORKOUT_UPGRADES[
-            PREWORKOUT_UPGRADES.length - 1
-        ];
-
-    if (!lastOriginalUpgrade) {
-        return null;
-    }
-
-    const generatedStep =
-        currentLevel -
-        PREWORKOUT_UPGRADES.length +
-        1;
-
     return {
         level: currentLevel + 1,
-        cost: Math.floor(
-            lastOriginalUpgrade.cost *
-            Math.pow(
-                PREWORKOUT_COST_GROWTH,
-                generatedStep
+        cost: Math.max(
+            1,
+            Math.floor(
+                calculateBandedProgressionValue(
+                    PREWORKOUT_BASE_COST,
+                    currentLevel,
+                    MAIN_COST_GROWTH_BANDS
+                )
             )
         ),
         gain: Math.max(
             1,
-            Math.floor(
-                lastOriginalUpgrade.multiplier *
-                Math.pow(
-                    PREWORKOUT_GAIN_GROWTH,
-                    generatedStep
+            Math.round(
+                calculateBandedProgressionValue(
+                    PREWORKOUT_BASE_GAIN,
+                    currentLevel,
+                    PASSIVE_GAIN_GROWTH_BANDS
                 )
             )
         ),
-        image: lastOriginalUpgrade.img
+        image:
+            PREWORKOUT_UPGRADES[0]?.img ||
+            "imgs/firstCan.png"
     };
 }
+
 
 
 // -------------------------------------------------
@@ -3102,67 +4106,9 @@ function updatePreWorkoutCard() {
 // -------------------------------------------------
 
 function buyPreWorkoutUpgrade() {
-    if (
-        mobilePreWorkoutUpgradeIndex >=
-        PREWORKOUT_MAX_LEVEL
-    ) {
-        return;
-    }
-
-    const currentUpgrade =
-        getPreWorkoutUpgradeData(
-            mobilePreWorkoutUpgradeIndex
-        );
-
-    const elements =
-        getPreWorkoutElements();
-
-    if (!currentUpgrade) {
-        return;
-    }
-
-    if (mobileEnergy < currentUpgrade.cost) {
-        showPurchaseFailure(elements.card);
-        return;
-    }
-
-    const previousTier =
-        getCurrentUpgradeMilestone(
-            mobilePreWorkoutUpgradeIndex,
-            PREWORKOUT_TIER_MILESTONES
-        ).tier;
-
-    mobileEnergy -= currentUpgrade.cost;
-    mobileEnergyPerSecond += currentUpgrade.gain;
-    mobilePreWorkoutUpgradeIndex++;
-
-    const newTier =
-        getCurrentUpgradeMilestone(
-            mobilePreWorkoutUpgradeIndex,
-            PREWORKOUT_TIER_MILESTONES
-        ).tier;
-
-    updateShopBalance();
-
-    elements.card.classList.remove(
-        "purchaseSuccess",
-        "scalableTierUnlocked"
+    performBulkUpgradePurchase(
+        "preWorkout"
     );
-
-    void elements.card.offsetWidth;
-
-    elements.card.classList.add(
-        newTier > previousTier
-            ? "scalableTierUnlocked"
-            : "purchaseSuccess"
-    );
-
-    setTimeout(() => {
-        elements.card.classList.remove(
-            "purchaseSuccess",
-            "scalableTierUnlocked"
-        );
-    }, 700);
 }
 
 // -------------------------------------------------
@@ -3232,50 +4178,44 @@ function getLuckyShotUpgradeData(currentLevel) {
         return null;
     }
 
-    if (currentLevel < LUCKYSHOT_UPGRADES.length) {
-        const originalUpgrade =
-            LUCKYSHOT_UPGRADES[currentLevel];
+    const currentValues =
+        calculateLuckyShotValuesFromLevel(
+            currentLevel
+        );
 
-        return {
-            level: currentLevel + 1,
-            cost: originalUpgrade.cost,
-            chanceIncrease:
-                originalUpgrade.chanceIncrease,
-            bonusIncrease: 0,
-            image: originalUpgrade.img
-        };
-    }
-
-    const lastOriginalUpgrade =
-        LUCKYSHOT_UPGRADES[
-            LUCKYSHOT_UPGRADES.length - 1
-        ];
-
-    if (!lastOriginalUpgrade) {
-        return null;
-    }
-
-    const generatedStep =
-        currentLevel -
-        LUCKYSHOT_UPGRADES.length +
-        1;
+    const nextValues =
+        calculateLuckyShotValuesFromLevel(
+            currentLevel + 1
+        );
 
     return {
         level: currentLevel + 1,
-        cost: Math.floor(
-            lastOriginalUpgrade.cost *
-            Math.pow(
-                LUCKY_SHOT_COST_GROWTH,
-                generatedStep
+        cost: Math.max(
+            1,
+            Math.floor(
+                calculateBandedProgressionValue(
+                    LUCKY_SHOT_BASE_COST,
+                    currentLevel,
+                    SPECIAL_COST_GROWTH_BANDS
+                )
             )
         ),
-        chanceIncrease:
-            LUCKY_SHOT_GENERATED_CHANCE_GAIN,
-        bonusIncrease:
-            LUCKY_SHOT_GENERATED_BONUS_GAIN,
-        image: lastOriginalUpgrade.img
+        chanceIncrease: Math.max(
+            0,
+            nextValues.chance -
+            currentValues.chance
+        ),
+        bonusIncrease: Math.max(
+            0,
+            nextValues.bonusMultiplier -
+            currentValues.bonusMultiplier
+        ),
+        image:
+            LUCKYSHOT_UPGRADES[0]?.img ||
+            "imgs/luckyUpgrade.png"
     };
 }
+
 
 
 // -------------------------------------------------
@@ -3285,47 +4225,38 @@ function getLuckyShotUpgradeData(currentLevel) {
 function calculateLuckyShotValuesFromLevel(
     level
 ) {
-    const safeLevel =
-        Math.min(
-            Math.max(
-                Math.floor(level),
-                0
-            ),
-            LUCKY_SHOT_MAX_LEVEL
-        );
+    const safeLevel = Math.min(
+        Math.max(
+            Math.floor(level),
+            0
+        ),
+        LUCKY_SHOT_MAX_LEVEL
+    );
 
-    let chance = 0;
-    let bonusMultiplier = 0.20;
-
-    for (
-        let currentLevel = 0;
-        currentLevel < safeLevel;
-        currentLevel++
-    ) {
-        const upgradeData =
-            getLuckyShotUpgradeData(
-                currentLevel
-            );
-
-        if (!upgradeData) {
-            break;
-        }
-
-        chance = Math.min(
-            LUCKY_SHOT_MAX_CHANCE,
-            chance +
-            upgradeData.chanceIncrease
-        );
-
-        bonusMultiplier +=
-            upgradeData.bonusIncrease;
+    if (safeLevel <= 0) {
+        return {
+            chance: 0,
+            bonusMultiplier:
+                LUCKY_SHOT_BASE_BONUS
+        };
     }
 
     return {
-        chance,
-        bonusMultiplier
+        chance: Math.min(
+            LUCKY_SHOT_MAX_CHANCE,
+            LUCKY_SHOT_BASE_CHANCE +
+            LUCKY_SHOT_CHANCE_PER_LEVEL *
+            (safeLevel - 1)
+        ),
+        bonusMultiplier: Math.min(
+            LUCKY_SHOT_MAX_BONUS,
+            LUCKY_SHOT_BASE_BONUS +
+            LUCKY_SHOT_BONUS_PER_LEVEL *
+            (safeLevel - 1)
+        )
     };
 }
+
 
 
 // -------------------------------------------------
@@ -3398,16 +4329,18 @@ function updateLuckyShotCard() {
     const chanceText =
         mobileLuckyShotChance >=
         LUCKY_SHOT_MAX_CHANCE
-            ? "Chance is capped; "
+            ? "chance capped"
             : `+${formatChancePercent(
                 nextUpgrade.chanceIncrease
-            )} chance and `;
+            )} chance`;
 
     elements.description.textContent =
-        `${chanceText}+${formatChancePercent(
+        `Current chance: ${formatChancePercent(
+            getCurrentLuckyShotChance()
+        )}. Next level: ${chanceText}, +${formatChancePercent(
             nextUpgrade.bonusIncrease
-        )} bonus reward. Current reward: ${formatChancePercent(
-            mobileLuckyShotBonusMultiplier
+        )} reward. Current reward: ${formatChancePercent(
+            getCurrentLuckyShotBonusMultiplier()
         )}.`;
 
     elements.progressText.textContent =
@@ -3436,76 +4369,9 @@ function updateLuckyShotCard() {
 // -------------------------------------------------
 
 function buyLuckyShotUpgrade() {
-    if (
-        mobileLuckyShotUpgradeIndex >=
-        LUCKY_SHOT_MAX_LEVEL
-    ) {
-        return;
-    }
-
-    const currentUpgrade =
-        getLuckyShotUpgradeData(
-            mobileLuckyShotUpgradeIndex
-        );
-
-    const elements =
-        getLuckyShotElements();
-
-    if (!currentUpgrade) {
-        return;
-    }
-
-    if (mobileEnergy < currentUpgrade.cost) {
-        showPurchaseFailure(elements.card);
-        return;
-    }
-
-    const previousTier =
-        getCurrentUpgradeMilestone(
-            mobileLuckyShotUpgradeIndex,
-            LUCKY_SHOT_TIER_MILESTONES
-        ).tier;
-
-    mobileEnergy -= currentUpgrade.cost;
-
-    mobileLuckyShotChance = Math.min(
-        LUCKY_SHOT_MAX_CHANCE,
-        mobileLuckyShotChance +
-        currentUpgrade.chanceIncrease
+    performBulkUpgradePurchase(
+        "luckyShot"
     );
-
-    mobileLuckyShotBonusMultiplier +=
-        currentUpgrade.bonusIncrease;
-
-    mobileLuckyShotUpgradeIndex++;
-
-    const newTier =
-        getCurrentUpgradeMilestone(
-            mobileLuckyShotUpgradeIndex,
-            LUCKY_SHOT_TIER_MILESTONES
-        ).tier;
-
-    updateShopBalance();
-
-    elements.card.classList.remove(
-        "purchaseSuccess",
-        "scalableTierUnlocked"
-    );
-
-    void elements.card.offsetWidth;
-
-    elements.card.classList.add(
-        newTier > previousTier
-            ? "scalableTierUnlocked"
-            : "purchaseSuccess"
-    );
-
-    setTimeout(() => {
-        elements.card.classList.remove(
-            "purchaseSuccess",
-            "scalableTierUnlocked"
-        );
-    }, 700);
 }
 
 // -------------------------------------------------
@@ -3539,7 +4405,11 @@ function tryLuckyShot() {
     mobileLifetimeEnergy +=
         luckyShotBonus;
 
+    mobileCurrentLifeEnergyProduced +=
+        luckyShotBonus;
+
     mobileLuckyShotsActivated++;
+    mobileCurrentLifeLuckyActivations++;
 
     showLuckyShotMessage(
         luckyShotBonus
@@ -3649,72 +4519,48 @@ function getKineticUpgradeData(currentLevel) {
         return null;
     }
 
-    if (
-        currentLevel <
-        KINETIC_OVERFLOW_UPGRADES.length
-    ) {
-        const originalUpgrade =
-            KINETIC_OVERFLOW_UPGRADES[
-                currentLevel
-            ];
-
-        return {
-            level: currentLevel + 1,
-            cost: originalUpgrade.cost,
-            chance: originalUpgrade.chance,
-            multiplier: originalUpgrade.multiplier,
-            duration: originalUpgrade.duration,
-            image: originalUpgrade.img
-        };
-    }
-
-    const lastOriginalUpgrade =
-        KINETIC_OVERFLOW_UPGRADES[
-            KINETIC_OVERFLOW_UPGRADES.length - 1
-        ];
-
-    if (!lastOriginalUpgrade) {
-        return null;
-    }
-
-    const generatedStep =
-        currentLevel -
-        KINETIC_OVERFLOW_UPGRADES.length +
-        1;
+    const nextLevel = currentLevel + 1;
 
     return {
-        level: currentLevel + 1,
-        cost: Math.floor(
-            lastOriginalUpgrade.cost *
-            Math.pow(
-                KINETIC_COST_GROWTH,
-                generatedStep
+        level: nextLevel,
+        cost: Math.max(
+            1,
+            Math.floor(
+                calculateBandedProgressionValue(
+                    KINETIC_BASE_COST,
+                    currentLevel,
+                    SPECIAL_COST_GROWTH_BANDS
+                )
             )
         ),
         chance: Math.min(
             KINETIC_MAX_CHANCE,
-            lastOriginalUpgrade.chance +
-            KINETIC_GENERATED_CHANCE_GAIN *
-            generatedStep
+            KINETIC_BASE_CHANCE +
+            KINETIC_CHANCE_PER_LEVEL *
+            (nextLevel - 1)
         ),
         multiplier: Number(
-            (
-                lastOriginalUpgrade.multiplier +
-                KINETIC_GENERATED_MULTIPLIER_GAIN *
-                generatedStep
-            ).toFixed(2)
+            Math.min(
+                KINETIC_MAX_MULTIPLIER,
+                KINETIC_BASE_MULTIPLIER +
+                KINETIC_MULTIPLIER_PER_LEVEL *
+                (nextLevel - 1)
+            ).toFixed(3)
         ),
         duration: Number(
             Math.min(
                 KINETIC_MAX_DURATION,
-                lastOriginalUpgrade.duration +
-                KINETIC_GENERATED_DURATION_GAIN *
-                generatedStep
-            ).toFixed(2)
+                KINETIC_BASE_DURATION +
+                KINETIC_DURATION_PER_LEVEL *
+                (nextLevel - 1)
+            ).toFixed(3)
         ),
-        image: lastOriginalUpgrade.img
+        image:
+            KINETIC_OVERFLOW_UPGRADES[0]?.img ||
+            "imgs/firstCan.png"
     };
 }
+
 
 
 // -------------------------------------------------
@@ -3722,14 +4568,13 @@ function getKineticUpgradeData(currentLevel) {
 // -------------------------------------------------
 
 function calculateKineticValuesFromLevel(level) {
-    const safeLevel =
-        Math.min(
-            Math.max(
-                Math.floor(level),
-                0
-            ),
-            KINETIC_MAX_LEVEL
-        );
+    const safeLevel = Math.min(
+        Math.max(
+            Math.floor(level),
+            0
+        ),
+        KINETIC_MAX_LEVEL
+    );
 
     if (safeLevel <= 0) {
         return {
@@ -3749,7 +4594,8 @@ function calculateKineticValuesFromLevel(level) {
             chance: currentUpgrade.chance,
             multiplier:
                 currentUpgrade.multiplier,
-            duration: currentUpgrade.duration
+            duration:
+                currentUpgrade.duration
         }
         : {
             chance: 0,
@@ -3757,6 +4603,7 @@ function calculateKineticValuesFromLevel(level) {
             duration: 0
         };
 }
+
 
 
 // -------------------------------------------------
@@ -3858,76 +4705,9 @@ function updateKineticOverflowCard() {
 // -------------------------------------------------
 
 function buyKineticOverflowUpgrade() {
-    if (
-        mobileKineticUpgradeIndex >=
-        KINETIC_MAX_LEVEL
-    ) {
-        return;
-    }
-
-    const currentUpgrade =
-        getKineticUpgradeData(
-            mobileKineticUpgradeIndex
-        );
-
-    const elements =
-        getKineticOverflowElements();
-
-    if (!currentUpgrade) {
-        return;
-    }
-
-    if (mobileEnergy < currentUpgrade.cost) {
-        showPurchaseFailure(elements.card);
-        return;
-    }
-
-    const previousTier =
-        getCurrentUpgradeMilestone(
-            mobileKineticUpgradeIndex,
-            KINETIC_TIER_MILESTONES
-        ).tier;
-
-    mobileEnergy -= currentUpgrade.cost;
-
-    mobileKineticChance =
-        currentUpgrade.chance;
-
-    mobileKineticMultiplier =
-        currentUpgrade.multiplier;
-
-    mobileKineticDuration =
-        currentUpgrade.duration;
-
-    mobileKineticUpgradeIndex++;
-
-    const newTier =
-        getCurrentUpgradeMilestone(
-            mobileKineticUpgradeIndex,
-            KINETIC_TIER_MILESTONES
-        ).tier;
-
-    updateShopBalance();
-
-    elements.card.classList.remove(
-        "purchaseSuccess",
-        "scalableTierUnlocked"
+    performBulkUpgradePurchase(
+        "kinetic"
     );
-
-    void elements.card.offsetWidth;
-
-    elements.card.classList.add(
-        newTier > previousTier
-            ? "scalableTierUnlocked"
-            : "purchaseSuccess"
-    );
-
-    setTimeout(() => {
-        elements.card.classList.remove(
-            "purchaseSuccess",
-            "scalableTierUnlocked"
-        );
-    }, 700);
 }
 
 // -------------------------------------------------
@@ -3978,10 +4758,21 @@ function tryKineticOverflow() {
 function startKineticOverflow() {
     mobileKineticActive = true;
 
+    /*
+        Use a real end timestamp instead of repeatedly
+        subtracting 1 from a decimal duration. Repeated
+        floating-point subtraction was what caused tiny
+        values such as 0.000000000000001s to briefly show.
+    */
+    kineticOverflowEndTime =
+        performance.now() +
+        mobileKineticDuration * 1000;
+
     mobileKineticTimeLeft =
         mobileKineticDuration;
 
     mobileKineticActivations++;
+    mobileCurrentLifeKineticActivations++;
 
     updateKineticStatus();
     updateShopBalance();
@@ -3992,19 +4783,14 @@ function startKineticOverflow() {
         );
     }
 
+    /*
+        Refresh often enough that short fractional
+        durations still look smooth on a phone.
+    */
     kineticCountdownInterval =
         setInterval(() => {
-            mobileKineticTimeLeft--;
-
-            if (
-                mobileKineticTimeLeft <= 0
-            ) {
-                stopKineticOverflow();
-                return;
-            }
-
             updateKineticStatus();
-        }, 1000);
+        }, 100);
 }
 
 
@@ -4013,11 +4799,40 @@ function startKineticOverflow() {
 // -------------------------------------------------
 
 function updateKineticStatus() {
+    if (!mobileKineticActive) {
+        return;
+    }
+
+    const remainingMilliseconds =
+        kineticOverflowEndTime -
+        performance.now();
+
+    if (remainingMilliseconds <= 0) {
+        stopKineticOverflow();
+        return;
+    }
+
+    mobileKineticTimeLeft =
+        remainingMilliseconds / 1000;
+
+    /*
+        One decimal place is enough feedback for the
+        player and completely avoids floating-point
+        garbage at the end of the countdown.
+    */
+    const displayedSeconds =
+        Math.max(
+            0.1,
+            Math.ceil(
+                mobileKineticTimeLeft * 10
+            ) / 10
+        );
+
     kineticStatus.textContent =
         `KINETIC OVERFLOW ×${Number(
             getCurrentKineticMultiplier()
                 .toFixed(2)
-        )} — ${mobileKineticTimeLeft}s`;
+        )} — ${displayedSeconds.toFixed(1)}s`;
 
     kineticStatus.classList.add(
         "active"
@@ -4032,6 +4847,7 @@ function updateKineticStatus() {
 function stopKineticOverflow() {
     mobileKineticActive = false;
     mobileKineticTimeLeft = 0;
+    kineticOverflowEndTime = 0;
 
     if (kineticCountdownInterval) {
         clearInterval(
@@ -4054,6 +4870,7 @@ function stopKineticOverflow() {
     */
     updateShopBalance();
 }
+
 
 // -------------------------------------------------
 // CREATE THE SKINS SHOP
@@ -4888,6 +5705,70 @@ function createStatsShopContent() {
             <div class="statsSection">
 
                 <h3 class="statsSectionTitle">
+                    PERMANENT BONUSES
+                </h3>
+
+                <div class="statsGrid">
+
+                    <article class="statCard">
+                        <span class="statIcon">💎</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                ALL PRODUCTION
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statAllProductionBonus"
+                            >
+                                +0%
+                            </strong>
+                        </div>
+                    </article>
+
+                    <article class="statCard">
+                        <span class="statIcon">👊</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                TAP BONUS
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statTapBonus"
+                            >
+                                +0%
+                            </strong>
+                        </div>
+                    </article>
+
+                    <article class="statCard">
+                        <span class="statIcon">⚙️</span>
+
+                        <div class="statInformation">
+                            <span class="statLabel">
+                                AUTO BONUS
+                            </span>
+
+                            <strong
+                                class="statValue"
+                                id="statAutoBonus"
+                            >
+                                +0%
+                            </strong>
+                        </div>
+                    </article>
+
+                </div>
+
+            </div>
+
+
+            <div class="statsSection">
+
+                <h3 class="statsSectionTitle">
                     COLLECTION
                 </h3>
 
@@ -4973,6 +5854,16 @@ function renderStatsShop() {
 
     shopList.insertAdjacentHTML(
         "beforeend",
+        createLastLifeSummaryAccessContent()
+    );
+
+    shopList.insertAdjacentHTML(
+        "beforeend",
+        createLifeChallengesAccessContent()
+    );
+
+    shopList.insertAdjacentHTML(
+        "beforeend",
         createPermanentPerksAccessContent()
     );
 
@@ -4991,6 +5882,8 @@ function renderStatsShop() {
 
     attachAchievementsAccessButton();
     attachRebirthAccessButton();
+    attachLastLifeSummaryAccessButton();
+    attachLifeChallengesAccessButton();
     attachPermanentPerksAccessButton();
     attachSaveManagementButtons();
     attachSettingsAccessButton();
@@ -5042,14 +5935,14 @@ function updateStatsDisplay() {
 
     setStatValue(
         "statPerTap",
-        formatGameNumber(
+        formatProductionNumber(
             getCurrentTapPower()
         )
     );
 
     setStatValue(
         "statPerSecond",
-        formatGameNumber(
+        formatProductionNumber(
             getCurrentEnergyPerSecond()
         )
     );
@@ -5100,6 +5993,33 @@ function updateStatsDisplay() {
         formatGameNumber(
             mobileKineticActivations
         )
+    );
+
+    setStatValue(
+        "statAllProductionBonus",
+        `+${formatPerkPercent(
+            getPermanentPerkEffectTotal(
+                "allProductionPercent"
+            )
+        )}`
+    );
+
+    setStatValue(
+        "statTapBonus",
+        `+${formatPerkPercent(
+            getPermanentPerkEffectTotal(
+                "tapProductionPercent"
+            )
+        )}`
+    );
+
+    setStatValue(
+        "statAutoBonus",
+        `+${formatPerkPercent(
+            getPermanentPerkEffectTotal(
+                "autoProductionPercent"
+            )
+        )}`
     );
 
     setStatValue(
@@ -5221,14 +6141,14 @@ function createSaveSlotCard(slotNumber) {
             ? savedData.energy
             : 0;
 
-    const savedCanLevel =
+    const savedLifeLevel =
         Number.isFinite(
-            savedData.drinkUpgradeIndex
+            savedData.lifeLevel
         )
             ? Math.max(
                 0,
                 Math.floor(
-                    savedData.drinkUpgradeIndex
+                    savedData.lifeLevel
                 )
             )
             : 0;
@@ -5277,11 +6197,11 @@ function createSaveSlotCard(slotNumber) {
                 <div class="saveSlotSummaryRow">
 
                     <span>
-                        CAN LEVEL
+                        REBIRTH
                     </span>
 
                     <strong>
-                        ${savedCanLevel}
+                        LIFE ${savedLifeLevel}
                     </strong>
 
                 </div>
@@ -5381,7 +6301,7 @@ function resetRuntimeStateToNewGame() {
     mobileKineticUpgradeIndex = 0;
 
     mobileLuckyShotChance = 0;
-    mobileLuckyShotBonusMultiplier = 0.20;
+    mobileLuckyShotBonusMultiplier = LUCKY_SHOT_BASE_BONUS;
 
     mobileKineticChance = 0;
     mobileKineticMultiplier = 1;
@@ -5389,6 +6309,7 @@ function resetRuntimeStateToNewGame() {
 
     mobileKineticActive = false;
     mobileKineticTimeLeft = 0;
+    kineticOverflowEndTime = 0;
 
     if (kineticCountdownInterval) {
         clearInterval(
@@ -5439,6 +6360,9 @@ function resetRuntimeStateToNewGame() {
     mobileLifeLevel = 0;
     mobilePermanentPerks = {};
     mobilePendingRebirthChoices = [];
+    mobileLastLifeSummary = null;
+
+    resetCurrentLifeChallengeState();
 
     mobileUnlockedAchievementIds = [];
 
@@ -5979,11 +6903,7 @@ function isAchievementUnlocked(
 function getValidAchievementIds(
     savedAchievementIds
 ) {
-    if (
-        !Array.isArray(
-            savedAchievementIds
-        )
-    ) {
+    if (!Array.isArray(savedAchievementIds)) {
         return [];
     }
 
@@ -6009,10 +6929,80 @@ function getValidAchievementIds(
 
 
 // -------------------------------------------------
-// MIGRATE OLDER SAVES SILENTLY
+// GET ACHIEVEMENT PROGRESS
 // -------------------------------------------------
 
-function unlockCurrentAchievementsSilently() {
+function getAchievementProgress(
+    achievement
+) {
+    const currentProgress =
+        Math.max(
+            0,
+            Number(
+                achievement.getProgress()
+            ) || 0
+        );
+
+    const target =
+        Math.max(
+            1,
+            achievement.target
+        );
+
+    return {
+        currentProgress,
+        target,
+        completed:
+            currentProgress >= target,
+        percentage:
+            Math.min(
+                100,
+                (
+                    currentProgress /
+                    target
+                ) * 100
+            )
+    };
+}
+
+
+// -------------------------------------------------
+// TOTAL ACHIEVEMENT REWARD EARNED
+// -------------------------------------------------
+
+function getTotalAchievementRewardEarned() {
+    return PLAYER_ACHIEVEMENTS.reduce(
+        (total, achievement) => {
+            if (
+                !isAchievementUnlocked(
+                    achievement.id
+                )
+            ) {
+                return total;
+            }
+
+            return (
+                total +
+                Math.max(
+                    0,
+                    achievement.rewardEnergy || 0
+                )
+            );
+        },
+        0
+    );
+}
+
+
+// -------------------------------------------------
+// MIGRATE OLDER ACHIEVEMENT SAVES
+// -------------------------------------------------
+
+function migrateAchievementsToCurrentSystem(awardRewards = true) {
+    mobileUnlockedAchievementIds = [];
+
+    let migrationReward = 0;
+
     PLAYER_ACHIEVEMENTS.forEach(
         (achievement) => {
             const progress =
@@ -6020,18 +7010,33 @@ function unlockCurrentAchievementsSilently() {
                     achievement
                 );
 
-            if (
-                progress.completed &&
-                !isAchievementUnlocked(
-                    achievement.id
-                )
-            ) {
-                mobileUnlockedAchievementIds.push(
-                    achievement.id
-                );
+            if (!progress.completed) {
+                return;
             }
+
+            mobileUnlockedAchievementIds.push(
+                achievement.id
+            );
+
+            migrationReward +=
+                Math.max(
+                    0,
+                    achievement.rewardEnergy || 0
+                );
         }
     );
+
+    /*
+        Older saves receive any newly-qualified
+        rewards once, silently, when they migrate.
+    */
+    if (awardRewards) {
+        mobileEnergy += migrationReward;
+    }
+
+    return awardRewards
+        ? migrationReward
+        : 0;
 }
 
 
@@ -6069,6 +7074,17 @@ function checkForNewAchievements() {
                 achievement.id
             );
 
+            /*
+                Achievement rewards add current
+                energy only. They intentionally do
+                not increase lifetime energy.
+            */
+            mobileEnergy +=
+                Math.max(
+                    0,
+                    achievement.rewardEnergy || 0
+                );
+
             newlyUnlockedAchievements.push(
                 achievement
             );
@@ -6081,10 +7097,6 @@ function checkForNewAchievements() {
         return;
     }
 
-    /*
-        Save immediately so a newly unlocked
-        achievement cannot be lost.
-    */
     saveGame();
 
     newlyUnlockedAchievements.forEach(
@@ -6095,10 +7107,6 @@ function checkForNewAchievements() {
         }
     );
 
-    /*
-        Refresh the achievement list if it is
-        currently being viewed.
-    */
     if (
         shopTitle.textContent ===
         "ACHIEVEMENTS"
@@ -6133,6 +7141,13 @@ function showNextAchievementNotification() {
     achievementToastDescription.textContent =
         achievement.description;
 
+    if (achievementToastReward) {
+        achievementToastReward.textContent =
+            `REWARD +${formatGameNumber(
+                achievement.rewardEnergy || 0
+            )} ENERGY`;
+    }
+
     achievementToast.classList.remove(
         "visible"
     );
@@ -6156,45 +7171,7 @@ function showNextAchievementNotification() {
 
                     showNextAchievementNotification();
                 }, 350);
-        }, 2500);
-}
-
-// -------------------------------------------------
-// GET ACHIEVEMENT PROGRESS
-// -------------------------------------------------
-
-function getAchievementProgress(
-    achievement
-) {
-    const currentProgress =
-        Math.max(
-            0,
-            Number(
-                achievement.getProgress()
-            ) || 0
-        );
-
-    const target =
-        Math.max(
-            1,
-            achievement.target
-        );
-
-    const completed =
-        currentProgress >= target;
-
-    const percentage =
-        Math.min(
-            100,
-            (currentProgress / target) * 100
-        );
-
-    return {
-        currentProgress,
-        target,
-        completed,
-        percentage
-    };
+        }, 2800);
 }
 
 
@@ -6204,11 +7181,10 @@ function getAchievementProgress(
 
 function getCompletedAchievementCount() {
     return PLAYER_ACHIEVEMENTS.filter(
-        (achievement) => {
-            return isAchievementUnlocked(
+        (achievement) =>
+            isAchievementUnlocked(
                 achievement.id
-            );
-        }
+            )
     ).length;
 }
 
@@ -6245,7 +7221,11 @@ function createAchievementsAccessContent() {
                         <p>
                             ${completedCount} of
                             ${PLAYER_ACHIEVEMENTS.length}
-                            completed
+                            completed •
+                            ${formatGameNumber(
+                                getTotalAchievementRewardEarned()
+                            )}
+                            reward energy earned
                         </p>
 
                     </div>
@@ -6289,6 +7269,117 @@ function attachAchievementsAccessButton() {
 
 
 // -------------------------------------------------
+// CREATE ONE ACHIEVEMENT CARD
+// -------------------------------------------------
+
+function createAchievementCard(
+    achievement
+) {
+    const progress =
+        getAchievementProgress(
+            achievement
+        );
+
+    const achievementUnlocked =
+        isAchievementUnlocked(
+            achievement.id
+        );
+
+    const displayedProgress =
+        achievementUnlocked
+            ? progress.target
+            : Math.min(
+                progress.currentProgress,
+                progress.target
+            );
+
+    const displayedPercentage =
+        achievementUnlocked
+            ? 100
+            : progress.percentage;
+
+    return `
+        <article
+            class="achievementCard
+            ${
+                achievementUnlocked
+                    ? "completed"
+                    : "locked"
+            }"
+        >
+
+            <div class="achievementIcon">
+                ${
+                    achievementUnlocked
+                        ? achievement.icon
+                        : "🔒"
+                }
+            </div>
+
+            <div class="achievementInformation">
+
+                <div class="achievementHeader">
+
+                    <h3>
+                        ${achievement.name}
+                    </h3>
+
+                    <span class="achievementStatus">
+                        ${
+                            achievementUnlocked
+                                ? "UNLOCKED"
+                                : "LOCKED"
+                        }
+                    </span>
+
+                </div>
+
+                <p>
+                    ${achievement.description}
+                </p>
+
+                <div class="achievementProgressText">
+
+                    <span>
+                        PROGRESS
+                    </span>
+
+                    <strong>
+                        ${formatGameNumber(displayedProgress)}
+                        /
+                        ${formatGameNumber(progress.target)}
+                    </strong>
+
+                </div>
+
+                <div class="achievementProgressBar">
+
+                    <div
+                        class="achievementProgressFill"
+                        style="width: ${displayedPercentage}%"
+                    ></div>
+
+                </div>
+
+                <div class="achievementRewardRow">
+                    <span>REWARD</span>
+
+                    <strong>
+                        +${formatGameNumber(
+                            achievement.rewardEnergy || 0
+                        )}
+                        ENERGY
+                    </strong>
+                </div>
+
+            </div>
+
+        </article>
+    `;
+}
+
+
+// -------------------------------------------------
 // CREATE THE ACHIEVEMENTS SCREEN
 // -------------------------------------------------
 
@@ -6296,105 +7387,57 @@ function createAchievementsContent() {
     const completedCount =
         getCompletedAchievementCount();
 
-    const achievementCards =
-        PLAYER_ACHIEVEMENTS.map(
-            (achievement) => {
-                const progress =
-                    getAchievementProgress(
-                        achievement
-                    );
+    const categories = [
+        ...new Set(
+            PLAYER_ACHIEVEMENTS.map(
+                (achievement) =>
+                    achievement.category
+            )
+        )
+    ];
 
-                const achievementUnlocked =
-                    isAchievementUnlocked(
-                        achievement.id
-                    );
+    const categorySections =
+        categories.map((category) => {
+            const categoryAchievements =
+                PLAYER_ACHIEVEMENTS.filter(
+                    (achievement) =>
+                        achievement.category ===
+                        category
+                );
 
-                /*
-                    Permanently unlocked achievements
-                    always display a completed bar.
-                */
-                const displayedProgress =
-                    achievementUnlocked
-                        ? progress.target
-                        : Math.min(
-                            progress.currentProgress,
-                            progress.target
-                        );
+            const completedInCategory =
+                categoryAchievements.filter(
+                    (achievement) =>
+                        isAchievementUnlocked(
+                            achievement.id
+                        )
+                ).length;
 
-                const displayedPercentage =
-                    achievementUnlocked
-                        ? 100
-                        : progress.percentage;
+            const cards =
+                categoryAchievements
+                    .map(createAchievementCard)
+                    .join("");
 
-                return `
-                    <article
-                        class="achievementCard
-                        ${
-                    achievementUnlocked
-                        ? "completed"
-                        : "locked"
-                }"
-                    >
+            return `
+                <section class="achievementCategorySection">
 
-                        <div class="achievementIcon">
-                            ${
-                    achievementUnlocked
-                        ? achievement.icon
-                        : "🔒"
-                }
-                        </div>
+                    <div class="achievementCategoryHeader">
+                        <h3>${category}</h3>
 
-                        <div class="achievementInformation">
+                        <span>
+                            ${completedInCategory}
+                            /
+                            ${categoryAchievements.length}
+                        </span>
+                    </div>
 
-                            <div class="achievementHeader">
+                    <div class="achievementsList">
+                        ${cards}
+                    </div>
 
-                                <h3>
-                                    ${achievement.name}
-                                </h3>
-
-                                <span class="achievementStatus">
-                                    ${
-                    achievementUnlocked
-                        ? "UNLOCKED"
-                        : "LOCKED"
-                }
-                                </span>
-
-                            </div>
-
-                            <p>
-                                ${achievement.description}
-                            </p>
-
-                            <div class="achievementProgressText">
-
-                                <span>
-                                    PROGRESS
-                                </span>
-
-                                <strong>
-                                    ${formatGameNumber(displayedProgress)}
-                                    /
-                                    ${formatGameNumber(progress.target)}
-                                </strong>
-
-                            </div>
-
-                            <div class="achievementProgressBar">
-
-                                <div
-                                    class="achievementProgressFill"
-                                    style="width: ${displayedPercentage}%"
-                                ></div>
-
-                            </div>
-
-                        </div>
-
-                    </article>
-                `;
-            }
-        ).join("");
+                </section>
+            `;
+        }).join("");
 
     return `
         <section class="achievementsScreen">
@@ -6406,7 +7449,6 @@ function createAchievementsContent() {
                 </span>
 
                 <div>
-
                     <span>
                         COMPLETED
                     </span>
@@ -6416,14 +7458,23 @@ function createAchievementsContent() {
                         /
                         ${PLAYER_ACHIEVEMENTS.length}
                     </strong>
+                </div>
 
+                <div class="achievementRewardSummary">
+                    <span>
+                        REWARDS EARNED
+                    </span>
+
+                    <strong>
+                        ${formatGameNumber(
+                            getTotalAchievementRewardEarned()
+                        )}
+                    </strong>
                 </div>
 
             </article>
 
-            <div class="achievementsList">
-                ${achievementCards}
-            </div>
+            ${categorySections}
 
             <button
                 class="backToHubButton"
@@ -6477,7 +7528,6 @@ function attachAchievementsButtons() {
         }
     );
 }
-
 
 // -------------------------------------------------
 // PLAYER HUB: REBIRTH ACCESS
@@ -6563,6 +7613,262 @@ function attachRebirthAccessButton() {
             renderRebirthMenu
         );
     }
+}
+
+
+// -------------------------------------------------
+// PLAYER HUB: LAST LIFE SUMMARY
+// -------------------------------------------------
+
+function createLastLifeSummaryAccessContent() {
+    if (!mobileLastLifeSummary) {
+        return `
+            <div class="statsSection lastLifeAccessSection">
+
+                <h3 class="statsSectionTitle">
+                    LAST LIFE
+                </h3>
+
+                <article class="lastLifeAccessCard empty">
+                    <span class="lastLifeAccessIcon">📋</span>
+
+                    <div>
+                        <strong>NO COMPLETED LIFE YET</strong>
+                        <p>
+                            Your next Rebirth will automatically
+                            save the completed Life's stats here.
+                        </p>
+                    </div>
+                </article>
+
+            </div>
+        `;
+    }
+
+    return `
+        <div class="statsSection lastLifeAccessSection">
+
+            <h3 class="statsSectionTitle">
+                LAST LIFE
+            </h3>
+
+            <article class="lastLifeAccessCard">
+
+                <div class="lastLifeAccessHeader">
+                    <span class="lastLifeAccessIcon">📋</span>
+
+                    <div>
+                        <strong>
+                            LIFE ${mobileLastLifeSummary.lifeLevel}
+                            COMPLETE
+                        </strong>
+
+                        <p>
+                            ${formatGameTime(
+                                mobileLastLifeSummary.secondsPlayed
+                            )}
+                            •
+                            ${formatGameNumber(
+                                mobileLastLifeSummary.energyProduced
+                            )}
+                            energy produced
+                        </p>
+                    </div>
+                </div>
+
+                <button
+                    class="viewLastLifeButton"
+                    id="viewLastLifeButton"
+                    type="button"
+                >
+                    VIEW LAST LIFE STATS
+                </button>
+
+            </article>
+
+        </div>
+    `;
+}
+
+
+function attachLastLifeSummaryAccessButton() {
+    const button =
+        document.getElementById(
+            "viewLastLifeButton"
+        );
+
+    if (button) {
+        button.addEventListener(
+            "click",
+            renderLastLifeSummaryMenu
+        );
+    }
+}
+
+
+function renderLastLifeSummaryMenu() {
+    if (!mobileLastLifeSummary) {
+        return;
+    }
+
+    const summary =
+        mobileLastLifeSummary;
+
+    shopTitle.textContent =
+        "LAST LIFE";
+
+    shopList.innerHTML = `
+        <section class="lastLifeSummaryScreen">
+
+            <article class="lastLifeHeroCard">
+                <span>🏁</span>
+
+                <div>
+                    <small>COMPLETED RUN</small>
+                    <h3>
+                        LIFE ${summary.lifeLevel}
+                    </h3>
+                    <p>
+                        Rebirth reached in
+                        ${formatGameTime(
+                            summary.secondsPlayed
+                        )}
+                    </p>
+                </div>
+            </article>
+
+            <div class="lastLifeSummaryGrid">
+
+                ${createLastLifeSummaryStat(
+                    "⚡",
+                    "ENERGY PRODUCED",
+                    formatGameNumber(
+                        summary.energyProduced
+                    )
+                )}
+
+                ${createLastLifeSummaryStat(
+                    "👆",
+                    "TAPS",
+                    formatGameNumber(
+                        summary.taps
+                    )
+                )}
+
+                ${createLastLifeSummaryStat(
+                    "💥",
+                    "FINAL / TAP",
+                    formatProductionNumber(
+                        summary.finalPerTap
+                    )
+                )}
+
+                ${createLastLifeSummaryStat(
+                    "🏭",
+                    "FINAL / SEC",
+                    formatProductionNumber(
+                        summary.finalPerSecond
+                    )
+                )}
+
+                ${createLastLifeSummaryStat(
+                    "🥤",
+                    "DRINK POWER",
+                    `LV ${summary.drinkLevel}`
+                )}
+
+                ${createLastLifeSummaryStat(
+                    "🏗️",
+                    "FACTORY",
+                    `LV ${summary.factoryLevel}`
+                )}
+
+                ${createLastLifeSummaryStat(
+                    "🚚",
+                    "DELIVERY",
+                    `LV ${summary.deliveryLevel}`
+                )}
+
+                ${createLastLifeSummaryStat(
+                    "💪",
+                    "PRE-WORKOUT",
+                    `LV ${summary.preWorkoutLevel}`
+                )}
+
+                ${createLastLifeSummaryStat(
+                    "🍀",
+                    "LUCKY SHOT",
+                    `LV ${summary.luckyShotLevel}`
+                )}
+
+                ${createLastLifeSummaryStat(
+                    "🌩️",
+                    "KINETIC",
+                    `LV ${summary.kineticLevel}`
+                )}
+
+                ${createLastLifeSummaryStat(
+                    "🎯",
+                    "LUCKY ACTIVATIONS",
+                    formatGameNumber(
+                        summary.luckyActivations
+                    )
+                )}
+
+                ${createLastLifeSummaryStat(
+                    "🔥",
+                    "KINETIC ACTIVATIONS",
+                    formatGameNumber(
+                        summary.kineticActivations
+                    )
+                )}
+
+            </div>
+
+            <button
+                class="backToHubButton"
+                id="backFromLastLifeButton"
+                type="button"
+            >
+                BACK TO PLAYER HUB
+            </button>
+
+        </section>
+    `;
+
+    document
+        .getElementById(
+            "backFromLastLifeButton"
+        )
+        .addEventListener(
+            "click",
+            () => {
+                shopTitle.textContent =
+                    menuTitles.stats;
+
+                renderStatsShop();
+            }
+        );
+}
+
+
+function createLastLifeSummaryStat(
+    icon,
+    label,
+    value
+) {
+    return `
+        <article class="lastLifeSummaryStat">
+            <span class="lastLifeSummaryStatIcon">
+                ${icon}
+            </span>
+
+            <div>
+                <span>${label}</span>
+                <strong>${value}</strong>
+            </div>
+        </article>
+    `;
 }
 
 
@@ -6943,11 +8249,178 @@ function renderRebirthConfirmation() {
 
 
 // -------------------------------------------------
+// CAPTURE THE COMPLETED LIFE
+// -------------------------------------------------
+
+function captureLastLifeSummary() {
+    mobileLastLifeSummary = {
+        lifeLevel:
+            mobileLifeLevel,
+
+        secondsPlayed:
+            mobileCurrentLifeSecondsPlayed,
+
+        energyProduced:
+            mobileCurrentLifeEnergyProduced,
+
+        taps:
+            mobileCurrentLifeTaps,
+
+        finalPerTap:
+            getCurrentTapPower(),
+
+        finalPerSecond:
+            getCurrentEnergyPerSecond(),
+
+        drinkLevel:
+            mobileDrinkUpgradeIndex,
+
+        factoryLevel:
+            mobileFactoryUpgradeIndex,
+
+        deliveryLevel:
+            mobileDeliveryUpgradeIndex,
+
+        preWorkoutLevel:
+            mobilePreWorkoutUpgradeIndex,
+
+        luckyShotLevel:
+            mobileLuckyShotUpgradeIndex,
+
+        kineticLevel:
+            mobileKineticUpgradeIndex,
+
+        luckyActivations:
+            mobileCurrentLifeLuckyActivations,
+
+        kineticActivations:
+            mobileCurrentLifeKineticActivations
+    };
+}
+
+
+function getValidLastLifeSummary(savedSummary) {
+    if (
+        !savedSummary ||
+        typeof savedSummary !== "object" ||
+        Array.isArray(savedSummary)
+    ) {
+        return null;
+    }
+
+    const safeNumber = (
+        value,
+        fallback = 0
+    ) =>
+        Number.isFinite(value)
+            ? Math.max(0, value)
+            : fallback;
+
+    return {
+        lifeLevel:
+            Math.floor(
+                safeNumber(
+                    savedSummary.lifeLevel
+                )
+            ),
+
+        secondsPlayed:
+            Math.floor(
+                safeNumber(
+                    savedSummary.secondsPlayed
+                )
+            ),
+
+        energyProduced:
+            safeNumber(
+                savedSummary.energyProduced
+            ),
+
+        taps:
+            Math.floor(
+                safeNumber(
+                    savedSummary.taps
+                )
+            ),
+
+        finalPerTap:
+            safeNumber(
+                savedSummary.finalPerTap,
+                1
+            ),
+
+        finalPerSecond:
+            safeNumber(
+                savedSummary.finalPerSecond
+            ),
+
+        drinkLevel:
+            Math.floor(
+                safeNumber(
+                    savedSummary.drinkLevel
+                )
+            ),
+
+        factoryLevel:
+            Math.floor(
+                safeNumber(
+                    savedSummary.factoryLevel
+                )
+            ),
+
+        deliveryLevel:
+            Math.floor(
+                safeNumber(
+                    savedSummary.deliveryLevel
+                )
+            ),
+
+        preWorkoutLevel:
+            Math.floor(
+                safeNumber(
+                    savedSummary.preWorkoutLevel
+                )
+            ),
+
+        luckyShotLevel:
+            Math.floor(
+                safeNumber(
+                    savedSummary.luckyShotLevel
+                )
+            ),
+
+        kineticLevel:
+            Math.floor(
+                safeNumber(
+                    savedSummary.kineticLevel
+                )
+            ),
+
+        luckyActivations:
+            Math.floor(
+                safeNumber(
+                    savedSummary.luckyActivations
+                )
+            ),
+
+        kineticActivations:
+            Math.floor(
+                safeNumber(
+                    savedSummary.kineticActivations
+                )
+            )
+    };
+}
+
+
+// -------------------------------------------------
 // RESET ONLY THE CURRENT LIFE
 // -------------------------------------------------
 
 function resetProgressForRebirth() {
     mobileEnergy = 0;
+
+    resetCurrentLifeChallengeState();
 
     mobileDrinkUpgradeIndex = 0;
     mobileFactoryUpgradeIndex = 0;
@@ -6973,6 +8446,7 @@ function resetProgressForRebirth() {
 
     mobileKineticActive = false;
     mobileKineticTimeLeft = 0;
+    kineticOverflowEndTime = 0;
     kineticStatus.textContent = "";
     kineticStatus.classList.remove("active");
     mobilePerTapRow.classList.remove(
@@ -6988,6 +8462,12 @@ function performRebirth() {
         renderRebirthMenu();
         return;
     }
+
+    /*
+        Save the completed run BEFORE incrementing Life
+        or clearing any current-Life statistics.
+    */
+    captureLastLifeSummary();
 
     mobileLifeLevel++;
 
@@ -7244,6 +8724,52 @@ function renderRebirthPerkAwarded(perk) {
                 <ul>${totalEffectLines}</ul>
             </article>
 
+            ${
+                mobileLastLifeSummary
+                    ? `
+                        <article class="rebirthLastLifeMini">
+                            <span>LAST LIFE COMPLETE</span>
+
+                            <strong>
+                                LIFE ${mobileLastLifeSummary.lifeLevel}
+                                •
+                                ${formatGameTime(
+                                    mobileLastLifeSummary.secondsPlayed
+                                )}
+                            </strong>
+
+                            <p>
+                                ${formatGameNumber(
+                                    mobileLastLifeSummary.energyProduced
+                                )}
+                                energy •
+                                ${formatGameNumber(
+                                    mobileLastLifeSummary.taps
+                                )}
+                                taps •
+                                ${formatProductionNumber(
+                                    mobileLastLifeSummary.finalPerTap
+                                )}
+                                / tap •
+                                ${formatProductionNumber(
+                                    mobileLastLifeSummary.finalPerSecond
+                                )}
+                                / sec
+                            </p>
+                        </article>
+                    `
+                    : ""
+            }
+
+            <div class="newLifeEnergySummary">
+                <span>NEW LIFE ENERGY</span>
+                <strong>${formatGameNumber(mobileEnergy)}</strong>
+                <p>
+                    Rebirth reset your old Energy first. Permanent starting bonuses
+                    and any achievements unlocked by this Rebirth are applied afterward.
+                </p>
+            </div>
+
             <p class="rebirthNewLifeMessage">
                 LIFE ${mobileLifeLevel} HAS BEGUN
             </p>
@@ -7398,6 +8924,966 @@ function renderPermanentPerksMenu() {
             }
         );
 }
+
+// -------------------------------------------------
+// LIFE CHALLENGE DEFINITIONS
+// -------------------------------------------------
+
+function getLifeChallengeDefinitions() {
+    const requirement =
+        Math.max(
+            1,
+            getRebirthRequirement()
+        );
+
+    const lifeNumber =
+        mobileLifeLevel + 1;
+
+    const startingLevels =
+        getRebirthStartingLevels();
+
+    const rewardFor =
+        (fraction) =>
+            Math.max(
+                100,
+                Math.floor(
+                    requirement * fraction
+                )
+            );
+
+    const tapTargetOne =
+        Math.floor(
+            300 +
+            mobileLifeLevel * 40
+        );
+
+    const tapTargetTwo =
+        tapTargetOne * 3;
+
+    const drinkTarget =
+        Math.min(
+            DRINK_POWER_MAX_LEVEL,
+            Math.max(
+                startingLevels.drink + 15,
+                35 + mobileLifeLevel * 5
+            )
+        );
+
+    const factoryTarget =
+        Math.min(
+            FACTORY_MAX_LEVEL,
+            Math.max(
+                startingLevels.factory + 12,
+                25 + mobileLifeLevel * 5
+            )
+        );
+
+    const deliveryTarget =
+        Math.min(
+            DELIVERY_MAX_LEVEL,
+            Math.max(
+                startingLevels.delivery + 12,
+                20 + Math.floor(mobileLifeLevel * 4.5)
+            )
+        );
+
+    const preWorkoutTarget =
+        Math.min(
+            PREWORKOUT_MAX_LEVEL,
+            Math.max(
+                startingLevels.preWorkout + 10,
+                15 + mobileLifeLevel * 4
+            )
+        );
+
+    const luckyTarget =
+        Math.min(
+            LUCKY_SHOT_MAX_LEVEL,
+            Math.max(
+                startingLevels.luckyShot + 8,
+                12 + mobileLifeLevel * 3
+            )
+        );
+
+    const kineticTarget =
+        Math.min(
+            KINETIC_MAX_LEVEL,
+            Math.max(
+                startingLevels.kinetic + 8,
+                12 + mobileLifeLevel * 3
+            )
+        );
+
+    const passiveBalanceTarget =
+        Math.min(
+            FACTORY_MAX_LEVEL,
+            15 + mobileLifeLevel * 4
+        );
+
+    const specialBalanceTarget =
+        Math.min(
+            LUCKY_SHOT_MAX_LEVEL,
+            10 + Math.floor(mobileLifeLevel * 2.5)
+        );
+
+    const soloTapTarget =
+        Math.min(
+            DRINK_POWER_MAX_LEVEL,
+            Math.max(
+                startingLevels.drink + 20,
+                45 + Math.floor(mobileLifeLevel * 4.5)
+            )
+        );
+
+    return [
+        {
+            id: "lifeEnergy1",
+            icon: "⚡",
+            name: "ENERGY RUN I",
+            description:
+                `Produce ${formatGameNumber(
+                    requirement * 0.10
+                )} energy during this Life.`,
+            target:
+                requirement * 0.10,
+            rewardEnergy:
+                rewardFor(0.003),
+            getProgress: () =>
+                mobileCurrentLifeEnergyProduced
+        },
+        {
+            id: "lifeEnergy2",
+            icon: "⚡",
+            name: "ENERGY RUN II",
+            description:
+                `Produce ${formatGameNumber(
+                    requirement * 0.40
+                )} energy during this Life.`,
+            target:
+                requirement * 0.40,
+            rewardEnergy:
+                rewardFor(0.008),
+            getProgress: () =>
+                mobileCurrentLifeEnergyProduced
+        },
+        {
+            id: "lifeEnergy3",
+            icon: "🔥",
+            name: "ENERGY RUN III",
+            description:
+                `Produce ${formatGameNumber(
+                    requirement * 0.80
+                )} energy during this Life.`,
+            target:
+                requirement * 0.80,
+            rewardEnergy:
+                rewardFor(0.015),
+            getProgress: () =>
+                mobileCurrentLifeEnergyProduced
+        },
+        {
+            id: "lifeTaps1",
+            icon: "👆",
+            name: "HANDS ON",
+            description:
+                `Tap ${formatGameNumber(
+                    tapTargetOne
+                )} times during this Life.`,
+            target:
+                tapTargetOne,
+            rewardEnergy:
+                rewardFor(0.003),
+            getProgress: () =>
+                mobileCurrentLifeTaps
+        },
+        {
+            id: "lifeTaps2",
+            icon: "🥊",
+            name: "NO BREAKS",
+            description:
+                `Tap ${formatGameNumber(
+                    tapTargetTwo
+                )} times during this Life.`,
+            target:
+                tapTargetTwo,
+            rewardEnergy:
+                rewardFor(0.006),
+            getProgress: () =>
+                mobileCurrentLifeTaps
+        },
+        {
+            id: "lifeDrink",
+            icon: "🥤",
+            name: "POWER CLIMB",
+            description:
+                `Reach Drink Power Level ${drinkTarget} this Life.`,
+            target:
+                drinkTarget,
+            rewardEnergy:
+                rewardFor(0.004),
+            getProgress: () =>
+                mobileDrinkUpgradeIndex
+        },
+        {
+            id: "lifeFactory",
+            icon: "🏭",
+            name: "FACTORY SHIFT",
+            description:
+                `Reach Factory Level ${factoryTarget} this Life.`,
+            target:
+                factoryTarget,
+            rewardEnergy:
+                rewardFor(0.004),
+            getProgress: () =>
+                mobileFactoryUpgradeIndex
+        },
+        {
+            id: "lifeDelivery",
+            icon: "🚚",
+            name: "DELIVERY ROUTE",
+            description:
+                `Reach Delivery Level ${deliveryTarget} this Life.`,
+            target:
+                deliveryTarget,
+            rewardEnergy:
+                rewardFor(0.004),
+            getProgress: () =>
+                mobileDeliveryUpgradeIndex
+        },
+        {
+            id: "lifePreWorkout",
+            icon: "💪",
+            name: "FULL SCOOP",
+            description:
+                `Reach Pre-Workout Level ${preWorkoutTarget} this Life.`,
+            target:
+                preWorkoutTarget,
+            rewardEnergy:
+                rewardFor(0.004),
+            getProgress: () =>
+                mobilePreWorkoutUpgradeIndex
+        },
+        {
+            id: "lifeLuckyLevel",
+            icon: "🍀",
+            name: "PUSH YOUR LUCK",
+            description:
+                `Reach Lucky Shot Level ${luckyTarget} this Life.`,
+            target:
+                luckyTarget,
+            rewardEnergy:
+                rewardFor(0.004),
+            getProgress: () =>
+                mobileLuckyShotUpgradeIndex
+        },
+        {
+            id: "lifeKineticLevel",
+            icon: "🌩️",
+            name: "CONTROL THE OVERFLOW",
+            description:
+                `Reach Kinetic Overflow Level ${kineticTarget} this Life.`,
+            target:
+                kineticTarget,
+            rewardEnergy:
+                rewardFor(0.004),
+            getProgress: () =>
+                mobileKineticUpgradeIndex
+        },
+        {
+            id: "lifeLuckyActivations",
+            icon: "🎯",
+            name: "LUCKY LIFE",
+            description:
+                `Activate Lucky Shot ${5 + mobileLifeLevel} times this Life.`,
+            target:
+                5 + mobileLifeLevel,
+            rewardEnergy:
+                rewardFor(0.004),
+            getProgress: () =>
+                mobileCurrentLifeLuckyActivations
+        },
+        {
+            id: "lifeKineticActivations",
+            icon: "💥",
+            name: "OVERFLOW LIFE",
+            description:
+                `Activate Kinetic Overflow ${3 + Math.floor(mobileLifeLevel / 2)} times this Life.`,
+            target:
+                3 + Math.floor(mobileLifeLevel / 2),
+            rewardEnergy:
+                rewardFor(0.004),
+            getProgress: () =>
+                mobileCurrentLifeKineticActivations
+        },
+        {
+            id: "lifePassiveBalance",
+            icon: "🏗️",
+            name: "BALANCED BUSINESS",
+            description:
+                `Reach Level ${passiveBalanceTarget} in Factory, Delivery, and Pre-Workout.`,
+            target:
+                passiveBalanceTarget,
+            rewardEnergy:
+                rewardFor(0.006),
+            getProgress: () =>
+                Math.min(
+                    mobileFactoryUpgradeIndex,
+                    mobileDeliveryUpgradeIndex,
+                    mobilePreWorkoutUpgradeIndex
+                )
+        },
+        {
+            id: "lifeSpecialBalance",
+            icon: "🧪",
+            name: "SPECIALIST",
+            description:
+                `Reach Level ${specialBalanceTarget} in both Lucky Shot and Kinetic Overflow.`,
+            target:
+                specialBalanceTarget,
+            rewardEnergy:
+                rewardFor(0.006),
+            getProgress: () =>
+                Math.min(
+                    mobileLuckyShotUpgradeIndex,
+                    mobileKineticUpgradeIndex
+                )
+        },
+        {
+            id: "lifePureTap",
+            icon: "👊",
+            name: "PURE TAP RUN",
+            description:
+                `Reach Drink Power Level ${soloTapTarget} without buying Factory, Delivery, or Pre-Workout this Life.`,
+            target:
+                soloTapTarget,
+            rewardEnergy:
+                rewardFor(0.010),
+            getProgress: () =>
+                mobileDrinkUpgradeIndex,
+            isFailed: () => {
+                const currentStart =
+                    getRebirthStartingLevels();
+
+                return (
+                    mobileFactoryUpgradeIndex >
+                        currentStart.factory ||
+                    mobileDeliveryUpgradeIndex >
+                        currentStart.delivery ||
+                    mobilePreWorkoutUpgradeIndex >
+                        currentStart.preWorkout
+                );
+            }
+        }
+    ];
+}
+
+
+// -------------------------------------------------
+// RESET CURRENT-LIFE CHALLENGE PROGRESS
+// -------------------------------------------------
+
+function resetCurrentLifeChallengeState() {
+    mobileCurrentLifeEnergyProduced = 0;
+    mobileCurrentLifeTaps = 0;
+    mobileCurrentLifeLuckyActivations = 0;
+    mobileCurrentLifeKineticActivations = 0;
+    mobileCurrentLifeSecondsPlayed = 0;
+
+    mobileCompletedLifeChallengeIds = [];
+
+    lifeChallengeNotificationQueue = [];
+    lifeChallengeNotificationActive = false;
+
+    if (lifeChallengeNotificationTimer) {
+        clearTimeout(
+            lifeChallengeNotificationTimer
+        );
+
+        lifeChallengeNotificationTimer = null;
+    }
+
+    if (lifeChallengeToast) {
+        lifeChallengeToast.classList.remove(
+            "visible"
+        );
+    }
+}
+
+
+// -------------------------------------------------
+// VALIDATE SAVED LIFE CHALLENGES
+// -------------------------------------------------
+
+function getValidLifeChallengeIds(
+    savedIds
+) {
+    if (!Array.isArray(savedIds)) {
+        return [];
+    }
+
+    const validIds =
+        new Set(
+            getLifeChallengeDefinitions()
+                .map(
+                    (challenge) =>
+                        challenge.id
+                )
+        );
+
+    return [
+        ...new Set(
+            savedIds.filter(
+                (challengeId) =>
+                    validIds.has(
+                        challengeId
+                    )
+            )
+        )
+    ];
+}
+
+
+// -------------------------------------------------
+// GET ONE LIFE CHALLENGE'S PROGRESS
+// -------------------------------------------------
+
+function getLifeChallengeProgress(
+    challenge
+) {
+    const completed =
+        mobileCompletedLifeChallengeIds.includes(
+            challenge.id
+        );
+
+    const failed =
+        !completed &&
+        typeof challenge.isFailed ===
+            "function" &&
+        challenge.isFailed();
+
+    const currentProgress =
+        Math.max(
+            0,
+            Number(
+                challenge.getProgress()
+            ) || 0
+        );
+
+    const target =
+        Math.max(
+            1,
+            challenge.target
+        );
+
+    return {
+        completed,
+        failed,
+        currentProgress,
+        target,
+        percentage:
+            completed
+                ? 100
+                : Math.min(
+                    100,
+                    (
+                        currentProgress /
+                        target
+                    ) * 100
+                )
+    };
+}
+
+
+// -------------------------------------------------
+// COUNT COMPLETED LIFE CHALLENGES
+// -------------------------------------------------
+
+function getCompletedLifeChallengeCount() {
+    return getLifeChallengeDefinitions()
+        .filter(
+            (challenge) =>
+                mobileCompletedLifeChallengeIds
+                    .includes(
+                        challenge.id
+                    )
+        )
+        .length;
+}
+
+
+// -------------------------------------------------
+// CHECK FOR COMPLETED LIFE CHALLENGES
+// -------------------------------------------------
+
+function checkForCompletedLifeChallenges() {
+    if (
+        !hasSelectedSaveSlot ||
+        mobilePendingRebirthChoices.length > 0
+    ) {
+        return;
+    }
+
+    const completedNow = [];
+
+    getLifeChallengeDefinitions()
+        .forEach((challenge) => {
+            if (
+                mobileCompletedLifeChallengeIds
+                    .includes(
+                        challenge.id
+                    )
+            ) {
+                return;
+            }
+
+            const progress =
+                getLifeChallengeProgress(
+                    challenge
+                );
+
+            if (
+                progress.failed ||
+                progress.currentProgress <
+                    progress.target
+            ) {
+                return;
+            }
+
+            mobileCompletedLifeChallengeIds.push(
+                challenge.id
+            );
+
+            /*
+                Challenge rewards add current energy
+                only. They do not count as produced
+                or lifetime energy.
+            */
+            mobileEnergy +=
+                challenge.rewardEnergy;
+
+            completedNow.push(
+                challenge
+            );
+        });
+
+    if (completedNow.length === 0) {
+        return;
+    }
+
+    saveGame();
+
+    completedNow.forEach(
+        (challenge) => {
+            lifeChallengeNotificationQueue.push(
+                challenge
+            );
+        }
+    );
+
+    showNextLifeChallengeNotification();
+}
+
+
+// -------------------------------------------------
+// SHOW LIFE CHALLENGE COMPLETION POPUPS
+// -------------------------------------------------
+
+function showNextLifeChallengeNotification() {
+    if (
+        lifeChallengeNotificationActive ||
+        lifeChallengeNotificationQueue.length === 0 ||
+        !lifeChallengeToast
+    ) {
+        return;
+    }
+
+    const challenge =
+        lifeChallengeNotificationQueue.shift();
+
+    lifeChallengeNotificationActive =
+        true;
+
+    lifeChallengeToastTitle.textContent =
+        challenge.name;
+
+    lifeChallengeToastDescription.textContent =
+        challenge.description;
+
+    lifeChallengeToastReward.textContent =
+        `REWARD +${formatGameNumber(
+            challenge.rewardEnergy
+        )} ENERGY`;
+
+    lifeChallengeToast.classList.remove(
+        "visible"
+    );
+
+    void lifeChallengeToast.offsetWidth;
+
+    lifeChallengeToast.classList.add(
+        "visible"
+    );
+
+    lifeChallengeNotificationTimer =
+        setTimeout(() => {
+            lifeChallengeToast.classList.remove(
+                "visible"
+            );
+
+            lifeChallengeNotificationTimer =
+                setTimeout(() => {
+                    lifeChallengeNotificationActive =
+                        false;
+
+                    showNextLifeChallengeNotification();
+                }, 350);
+        }, 2800);
+}
+
+
+// -------------------------------------------------
+// PLAYER HUB: LIFE CHALLENGES ACCESS
+// -------------------------------------------------
+
+function createLifeChallengesAccessContent() {
+    const challenges =
+        getLifeChallengeDefinitions();
+
+    const completedCount =
+        getCompletedLifeChallengeCount();
+
+    return `
+        <div class="statsSection lifeChallengesAccessSection">
+
+            <h3 class="statsSectionTitle">
+                LIFE CHALLENGES
+            </h3>
+
+            <article class="lifeChallengesAccessCard">
+
+                <div class="lifeChallengesAccessHeader">
+                    <span class="lifeChallengesAccessIcon">
+                        🎯
+                    </span>
+
+                    <div>
+                        <strong>
+                            LIFE ${mobileLifeLevel} CHALLENGES
+                        </strong>
+
+                        <p id="hubLifeChallengeStatus">
+                            ${completedCount}
+                            /
+                            ${challenges.length}
+                            complete • resets on Rebirth
+                        </p>
+                    </div>
+                </div>
+
+                <button
+                    class="viewLifeChallengesButton"
+                    id="viewLifeChallengesButton"
+                    type="button"
+                >
+                    VIEW LIFE CHALLENGES
+                </button>
+
+            </article>
+
+        </div>
+    `;
+}
+
+
+function attachLifeChallengesAccessButton() {
+    const button =
+        document.getElementById(
+            "viewLifeChallengesButton"
+        );
+
+    if (button) {
+        button.addEventListener(
+            "click",
+            renderLifeChallengesMenu
+        );
+    }
+}
+
+
+// -------------------------------------------------
+// CREATE LIFE CHALLENGES SCREEN
+// -------------------------------------------------
+
+function createLifeChallengesMenuContent() {
+    const challenges =
+        getLifeChallengeDefinitions();
+
+    const cards =
+        challenges.map((challenge) => {
+            const progress =
+                getLifeChallengeProgress(
+                    challenge
+                );
+
+            const statusText =
+                progress.completed
+                    ? "COMPLETED"
+                    : progress.failed
+                        ? "MISSED THIS LIFE"
+                        : "IN PROGRESS";
+
+            return `
+                <article
+                    class="lifeChallengeCard
+                    ${
+                        progress.completed
+                            ? "completed"
+                            : progress.failed
+                                ? "failed"
+                                : ""
+                    }"
+                    id="lifeChallengeCard-${challenge.id}"
+                >
+                    <div class="lifeChallengeIcon">
+                        ${
+                            progress.completed
+                                ? "✅"
+                                : progress.failed
+                                    ? "❌"
+                                    : challenge.icon
+                        }
+                    </div>
+
+                    <div class="lifeChallengeInfo">
+                        <div class="lifeChallengeHeader">
+                            <h3>${challenge.name}</h3>
+
+                            <span
+                                class="lifeChallengeStatus"
+                                id="lifeChallengeStatus-${challenge.id}"
+                            >
+                                ${statusText}
+                            </span>
+                        </div>
+
+                        <p>${challenge.description}</p>
+
+                        <div class="lifeChallengeProgressText">
+                            <span>PROGRESS</span>
+
+                            <strong
+                                id="lifeChallengeProgressText-${challenge.id}"
+                            >
+                                ${formatGameNumber(
+                                    Math.min(
+                                        progress.currentProgress,
+                                        progress.target
+                                    )
+                                )}
+                                /
+                                ${formatGameNumber(
+                                    progress.target
+                                )}
+                            </strong>
+                        </div>
+
+                        <div class="lifeChallengeProgressBar">
+                            <div
+                                class="lifeChallengeProgressFill"
+                                id="lifeChallengeProgressFill-${challenge.id}"
+                                style="width: ${progress.percentage}%"
+                            ></div>
+                        </div>
+
+                        <div class="lifeChallengeReward">
+                            <span>REWARD</span>
+                            <strong>
+                                +${formatGameNumber(
+                                    challenge.rewardEnergy
+                                )}
+                                ENERGY
+                            </strong>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }).join("");
+
+    return `
+        <section class="lifeChallengesScreen">
+
+            <article class="lifeChallengesSummary">
+                <span class="lifeChallengesSummaryIcon">🎯</span>
+
+                <div>
+                    <small>CURRENT LIFE</small>
+                    <strong>
+                        LIFE ${mobileLifeLevel}
+                    </strong>
+                </div>
+
+                <div>
+                    <small>COMPLETED</small>
+                    <strong
+                        id="lifeChallengesCompletedSummary"
+                    >
+                        ${getCompletedLifeChallengeCount()}
+                        /
+                        ${challenges.length}
+                    </strong>
+                </div>
+            </article>
+
+            <article class="lifeChallengeRuleCard">
+                <strong>
+                    THESE RESET EVERY REBIRTH
+                </strong>
+
+                <p>
+                    Challenge rewards add current energy,
+                    but never increase lifetime energy.
+                </p>
+            </article>
+
+            <div class="lifeChallengesList">
+                ${cards}
+            </div>
+
+            <button
+                class="backToHubButton"
+                id="backFromLifeChallengesButton"
+                type="button"
+            >
+                BACK TO PLAYER HUB
+            </button>
+
+        </section>
+    `;
+}
+
+
+function renderLifeChallengesMenu() {
+    shopTitle.textContent =
+        "LIFE CHALLENGES";
+
+    shopList.innerHTML =
+        createLifeChallengesMenuContent();
+
+    const backButton =
+        document.getElementById(
+            "backFromLifeChallengesButton"
+        );
+
+    if (backButton) {
+        backButton.addEventListener(
+            "click",
+            () => {
+                shopTitle.textContent =
+                    menuTitles.stats;
+
+                renderStatsShop();
+            }
+        );
+    }
+}
+
+
+// -------------------------------------------------
+// LIVE LIFE CHALLENGE DISPLAY UPDATES
+// -------------------------------------------------
+
+function updateLifeChallengeDisplays() {
+    const challenges =
+        getLifeChallengeDefinitions();
+
+    const hubStatus =
+        document.getElementById(
+            "hubLifeChallengeStatus"
+        );
+
+    if (hubStatus) {
+        hubStatus.textContent =
+            `${getCompletedLifeChallengeCount()}/${challenges.length} complete • resets on Rebirth`;
+    }
+
+    const summary =
+        document.getElementById(
+            "lifeChallengesCompletedSummary"
+        );
+
+    if (summary) {
+        summary.textContent =
+            `${getCompletedLifeChallengeCount()}/${challenges.length}`;
+    }
+
+    challenges.forEach((challenge) => {
+        const card =
+            document.getElementById(
+                `lifeChallengeCard-${challenge.id}`
+            );
+
+        if (!card) {
+            return;
+        }
+
+        const status =
+            document.getElementById(
+                `lifeChallengeStatus-${challenge.id}`
+            );
+
+        const text =
+            document.getElementById(
+                `lifeChallengeProgressText-${challenge.id}`
+            );
+
+        const fill =
+            document.getElementById(
+                `lifeChallengeProgressFill-${challenge.id}`
+            );
+
+        const progress =
+            getLifeChallengeProgress(
+                challenge
+            );
+
+        card.classList.toggle(
+            "completed",
+            progress.completed
+        );
+
+        card.classList.toggle(
+            "failed",
+            progress.failed
+        );
+
+        if (status) {
+            status.textContent =
+                progress.completed
+                    ? "COMPLETED"
+                    : progress.failed
+                        ? "MISSED THIS LIFE"
+                        : "IN PROGRESS";
+        }
+
+        if (text) {
+            text.textContent =
+                `${formatGameNumber(
+                    Math.min(
+                        progress.currentProgress,
+                        progress.target
+                    )
+                )}/${formatGameNumber(
+                    progress.target
+                )}`;
+        }
+
+        if (fill) {
+            fill.style.width =
+                `${progress.percentage}%`;
+        }
+    });
+}
+
 
 // -------------------------------------------------
 // GET OR CREATE THE AUDIO CONTEXT
@@ -7855,73 +10341,9 @@ function showPurchaseFailure(upgradeCard) {
 // -------------------------------------------------
 
 function buyDrinkUpgrade() {
-    const nextUpgrade =
-        getDrinkPowerUpgradeData(
-            mobileDrinkUpgradeIndex
-        );
-
-    if (!nextUpgrade) {
-        return;
-    }
-
-    const elements =
-        getDrinkUpgradeElements();
-
-    if (
-        mobileEnergy <
-        nextUpgrade.cost
-    ) {
-        showPurchaseFailure(
-            elements.card
-        );
-
-        return;
-    }
-
-    const previousCanTier =
-        getCurrentCanMilestone(
-            mobileDrinkUpgradeIndex
-        ).tier;
-
-    mobileEnergy -=
-        nextUpgrade.cost;
-
-    mobileEnergyPerTap +=
-        nextUpgrade.gain;
-
-    mobileDrinkUpgradeIndex++;
-
-    const newCanTier =
-        getCurrentCanMilestone(
-            mobileDrinkUpgradeIndex
-        ).tier;
-
-    updateShopBalance();
-    saveGame();
-
-    elements.card.classList.remove(
-        "purchaseSuccess",
-        "canTierUnlocked"
+    performBulkUpgradePurchase(
+        "drink"
     );
-
-    void elements.card.offsetWidth;
-
-    if (newCanTier > previousCanTier) {
-        elements.card.classList.add(
-            "canTierUnlocked"
-        );
-    } else {
-        elements.card.classList.add(
-            "purchaseSuccess"
-        );
-    }
-
-    setTimeout(() => {
-        elements.card.classList.remove(
-            "purchaseSuccess",
-            "canTierUnlocked"
-        );
-    }, 700);
 }
 // -------------------------------------------------
 // SHOW THE ENERGY EARNED FROM ONE TAP
@@ -7982,7 +10404,7 @@ function showTapEnergyFloat(
     );
 
     floatingNumber.textContent =
-        `+${formatGameNumber(energyAmount)}`;
+        `+${formatProductionNumber(energyAmount)}`;
 
     floatingNumber.style.left =
         `${positionX}px`;
@@ -8040,6 +10462,7 @@ function showTapEnergyFloat(
 
 function produceEnergyFromTap(tapEvent) {
     mobileTotalTaps++;
+    mobileCurrentLifeTaps++;
 
     /*
         Kinetic Overflow may activate before the
@@ -8054,6 +10477,9 @@ function produceEnergyFromTap(tapEvent) {
         energyEarnedFromTap;
 
     mobileLifetimeEnergy +=
+        energyEarnedFromTap;
+
+    mobileCurrentLifeEnergyProduced +=
         energyEarnedFromTap;
 
     /*
@@ -8245,6 +10671,12 @@ document.addEventListener("keydown", (event) => {
 // -------------------------------------------------
 
 function attachTestBuyButtons() {
+    /*
+        Reconnect the ×1 / ×10 / ×25 / MAX selector
+        whenever the Upgrades shop is rebuilt.
+    */
+    attachUpgradeBuyModeButtons();
+
     const drinkUpgradeBuyButton =
         document.getElementById(
             "drinkUpgradeBuyButton"
@@ -8386,6 +10818,7 @@ function calculateOfflineProduction(savedAt) {
 
     const energyEarned =
         currentEnergyPerSecond *
+        OFFLINE_PRODUCTION_EFFICIENCY *
         getOfflineProductionMultiplier() *
         countedSecondsAway;
 
@@ -8424,6 +10857,9 @@ function applyOfflineProduction(savedAt) {
         offlineResult.energyEarned;
 
     mobileLifetimeEnergy +=
+        offlineResult.energyEarned;
+
+    mobileCurrentLifeEnergyProduced +=
         offlineResult.energyEarned;
 
     showOfflineReward(
@@ -8485,11 +10921,15 @@ offlineContinueButton.addEventListener(
 // -------------------------------------------------
 
 function produceAutomaticEnergy() {
-    if (!hasSelectedSaveSlot) {
+    if (
+        !hasSelectedSaveSlot ||
+        mobilePendingRebirthChoices.length > 0
+    ) {
         return;
     }
 
     mobileSecondsPlayed++;
+    mobileCurrentLifeSecondsPlayed++;
 
     const currentEnergyPerSecond =
         getCurrentEnergyPerSecond();
@@ -8499,6 +10939,9 @@ function produceAutomaticEnergy() {
             currentEnergyPerSecond;
 
         mobileLifetimeEnergy +=
+            currentEnergyPerSecond;
+
+        mobileCurrentLifeEnergyProduced +=
             currentEnergyPerSecond;
 
         updateShopBalance();
@@ -8524,7 +10967,7 @@ const devEnergyButton =
 
 
 function addDeveloperEnergy() {
-    mobileEnergy += 1_000_000_000;
+    mobileEnergy += 1_000_000_000_000_000;
 
     /*
         Immediately updates both the home score
@@ -8543,7 +10986,7 @@ devEnergyButton.addEventListener(
 // SAVE SYSTEM
 // -------------------------------------------------
 
-const SAVE_VERSION = 4;
+const SAVE_VERSION = 8;
 
 /*
     No slot is active until the player selects one
@@ -8590,6 +11033,7 @@ function saveGame() {
 
     const saveData = {
         version: SAVE_VERSION,
+        economyVersion: GAME_BALANCE_VERSION,
         savedAt: Date.now(),
 
         energy:
@@ -8642,6 +11086,9 @@ function saveGame() {
         secondsPlayed:
             mobileSecondsPlayed,
 
+        achievementSystemVersion:
+            ACHIEVEMENT_SYSTEM_VERSION,
+
         unlockedAchievementIds: [
             ...mobileUnlockedAchievementIds
         ],
@@ -8655,6 +11102,32 @@ function saveGame() {
 
         pendingRebirthChoices: [
             ...mobilePendingRebirthChoices
+        ],
+
+        currentLifeEnergyProduced:
+            mobileCurrentLifeEnergyProduced,
+
+        currentLifeTaps:
+            mobileCurrentLifeTaps,
+
+        currentLifeLuckyActivations:
+            mobileCurrentLifeLuckyActivations,
+
+        currentLifeKineticActivations:
+            mobileCurrentLifeKineticActivations,
+
+        currentLifeSecondsPlayed:
+            mobileCurrentLifeSecondsPlayed,
+
+        lastLifeSummary:
+            mobileLastLifeSummary
+                ? {
+                    ...mobileLastLifeSummary
+                }
+                : null,
+
+        completedLifeChallengeIds: [
+            ...mobileCompletedLifeChallengeIds
         ]
     };
 
@@ -8812,6 +11285,7 @@ function rebuildDerivedGameValues() {
     */
     mobileKineticActive = false;
     mobileKineticTimeLeft = 0;
+    kineticOverflowEndTime = 0;
 
     if (kineticCountdownInterval) {
         clearInterval(
@@ -9024,20 +11498,109 @@ function loadGame() {
                 savedData.pendingRebirthChoices
             );
 
-        const saveHasAchievementData =
-            Array.isArray(
-                savedData.unlockedAchievementIds
+        /*
+            Restore current-Life Challenge progress.
+            Saves created before this system can only
+            be reconstructed perfectly if they have
+            never Rebirth'd. For Life 0, lifetime
+            values are also the current-Life values.
+        */
+        const saveHasCurrentLifeData =
+            Number.isFinite(
+                savedData.currentLifeEnergyProduced
+            ) &&
+            Number.isFinite(
+                savedData.currentLifeTaps
             );
 
-        mobileUnlockedAchievementIds =
-            getValidAchievementIds(
-                savedData.unlockedAchievementIds
+        if (saveHasCurrentLifeData) {
+            mobileCurrentLifeEnergyProduced =
+                getSafeSavedNumber(
+                    savedData.currentLifeEnergyProduced
+                );
+
+            mobileCurrentLifeTaps =
+                Math.floor(
+                    getSafeSavedNumber(
+                        savedData.currentLifeTaps
+                    )
+                );
+
+            mobileCurrentLifeLuckyActivations =
+                Math.floor(
+                    getSafeSavedNumber(
+                        savedData.currentLifeLuckyActivations
+                    )
+                );
+
+            mobileCurrentLifeKineticActivations =
+                Math.floor(
+                    getSafeSavedNumber(
+                        savedData.currentLifeKineticActivations
+                    )
+                );
+        } else if (mobileLifeLevel === 0) {
+            mobileCurrentLifeEnergyProduced =
+                mobileLifetimeEnergy;
+
+            mobileCurrentLifeTaps =
+                mobileTotalTaps;
+
+            mobileCurrentLifeLuckyActivations =
+                mobileLuckyShotsActivated;
+
+            mobileCurrentLifeKineticActivations =
+                mobileKineticActivations;
+        } else {
+            mobileCurrentLifeEnergyProduced = 0;
+            mobileCurrentLifeTaps = 0;
+            mobileCurrentLifeLuckyActivations = 0;
+            mobileCurrentLifeKineticActivations = 0;
+        }
+
+        mobileCurrentLifeSecondsPlayed =
+            Math.floor(
+                getSafeSavedNumber(
+                    savedData.currentLifeSecondsPlayed
+                )
+            );
+
+        mobileLastLifeSummary =
+            getValidLastLifeSummary(
+                savedData.lastLifeSummary
+            );
+
+        mobileCompletedLifeChallengeIds =
+            getValidLifeChallengeIds(
+                savedData.completedLifeChallengeIds
             );
 
         rebuildDerivedGameValues();
 
-        if (!saveHasAchievementData) {
-            unlockCurrentAchievementsSilently();
+        /*
+            Achievement V3 rebalances targets and rewards for the final
+            economy. V2 saves are re-evaluated without paying the same
+            achievement rewards a second time. Very old saves can still
+            receive one migration reward for achievements they qualify for.
+        */
+        if (
+            savedData.achievementSystemVersion ===
+            ACHIEVEMENT_SYSTEM_VERSION
+        ) {
+            mobileUnlockedAchievementIds =
+                getValidAchievementIds(
+                    savedData.unlockedAchievementIds
+                );
+        } else if (
+            savedData.achievementSystemVersion === 2
+        ) {
+            migrateAchievementsToCurrentSystem(
+                false
+            );
+        } else {
+            migrateAchievementsToCurrentSystem(
+                true
+            );
         }
 
         /*
