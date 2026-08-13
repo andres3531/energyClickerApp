@@ -22,30 +22,52 @@
     <!-- MAIN GAME SCREEN -->
     <main class="gameScreen">
 
-        <!-- TOP SCORE SECTION -->
-        <header class="scoreSection">
+        <!-- FIGMA HOME SCREEN V1 -->
+        <section class="homeDecorations" aria-hidden="true">
+            <span class="homeCloud homeCloudOne"></span>
+            <span class="homeCloud homeCloudTwo"></span>
+            <span class="homeSpark homeSparkOne">✦</span>
+            <span class="homeSpark homeSparkTwo">✧</span>
+            <span class="homeSpark homeSparkThree">✦</span>
+            <span class="homeSpark homeSparkFour">✧</span>
+        </section>
 
-            <h1 class="gameTitle">ENERGY DRINKS</h1>
+        <!-- TOP HOME / SCORE SECTION -->
+        <header class="scoreSection homeScoreSection">
 
-            <div class="scoreNumber" id="mobileScore">
-                0
+            <!-- Replaces the unwanted hearts counter from the Figma mockup -->
+            <div class="lifeBadge" aria-label="Current life">
+                <span class="lifeBadgeSpark">✦</span>
+                <span id="mobileLifeBadge">LIFE 0</span>
             </div>
 
-            <p class="productionText">
-                PRODUCTION:
-                <span id="mobilePerTap">1</span>
-                PER TAP
-            </p>
+            <div class="gameLogo" aria-label="Energy Clicker">
+                <span class="gameLogoEnergy">ENERGY</span>
+                <span class="gameLogoClicker">CLICKER</span>
+            </div>
 
-            <!-- Hidden until passive production is unlocked -->
-            <p
-                    class="productionText hidden"
-                    id="mobilePerSecondRow"
-            >
-                PRODUCTION:
-                <span id="mobilePerSecond">0</span>
-                / SEC
-            </p>
+            <div class="homeScoreBlock">
+                <div class="scoreNumber" id="mobileScore">0</div>
+                <p class="currentEnergyLabel">CURRENT ENERGY</p>
+            </div>
+
+            <div class="productionPills" aria-label="Current production">
+                <p class="productionText productionPill tapProductionPill">
+                    <span class="productionPillIcon" aria-hidden="true">⚡</span>
+                    <strong id="mobilePerTap">1</strong>
+                    <span class="productionPillSuffix">/ CLICK</span>
+                </p>
+
+                <!-- Hidden until passive production is unlocked -->
+                <p
+                        class="productionText productionPill secondProductionPill hidden"
+                        id="mobilePerSecondRow"
+                >
+                    <span class="productionPillIcon productionPillClock" aria-hidden="true">◷</span>
+                    <strong id="mobilePerSecond">0</strong>
+                    <span class="productionPillSuffix">/ SEC</span>
+                </p>
+            </div>
 
         </header>
 
@@ -62,25 +84,36 @@
                     id="mobileGameMessage"
                     aria-live="polite"
             ></div>
-            <!-- TEMPORARY KINETIC OVERFLOW COUNTDOWN -->
-            <div
-                    class="kineticStatus"
-                    id="kineticStatus"
-                    aria-live="polite"
-            ></div>
 
             <button
                     class="canButton"
                     id="mobileCanButton"
                     type="button"
-                    aria-label="Crack an energy drink can"
+                    aria-label="Tap the energy drink can"
             >
                 <img
                         id="mobileCanImage"
-                        src="imgs/firstCan.png"
-                        alt="Energy drink can"
+                        src="assets/upgrades/drink-power/tier-1.png"
+                        alt="Current Energy Clicker can tier"
                 >
             </button>
+
+            <!-- Shared status area: beginner hint first, Kinetic countdown later -->
+            <div class="homeStatusSlot">
+                <div
+                        class="tapHint"
+                        id="homeTapHint"
+                        aria-hidden="true"
+                >
+                    TAP CAN FOR ENERGY!
+                </div>
+
+                <div
+                        class="kineticStatus"
+                        id="kineticStatus"
+                        aria-live="polite"
+                ></div>
+            </div>
 
         </section>
 
@@ -92,7 +125,13 @@
                     type="button"
                     data-menu="upgrades"
             >
-                <span class="navigationIcon">⚡</span>
+                <span class="navigationIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <circle cx="12" cy="12" r="8"></circle>
+                        <path d="M12 16V8"></path>
+                        <path d="m8.8 11.2 3.2-3.2 3.2 3.2"></path>
+                    </svg>
+                </span>
                 <span class="navigationText">UPGRADES</span>
             </button>
 
@@ -101,7 +140,13 @@
                     type="button"
                     data-menu="skins"
             >
-                <span class="navigationIcon">🥤</span>
+                <span class="navigationIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M8 4h8l1 3H7l1-3Z"></path>
+                        <rect x="7" y="7" width="10" height="13" rx="3"></rect>
+                        <path d="M9.5 11.5h5"></path>
+                    </svg>
+                </span>
                 <span class="navigationText">SKINS</span>
             </button>
 
@@ -110,7 +155,11 @@
                     type="button"
                     data-menu="colors"
             >
-                <span class="navigationIcon">🎨</span>
+                <span class="navigationIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M12 3.5c2.7 3.2 5.2 6 5.2 9.3A5.2 5.2 0 0 1 12 18a5.2 5.2 0 0 1-5.2-5.2C6.8 9.5 9.3 6.7 12 3.5Z"></path>
+                    </svg>
+                </span>
                 <span class="navigationText">COLORS</span>
             </button>
 
@@ -119,7 +168,13 @@
                     type="button"
                     data-menu="stats"
             >
-                <span class="navigationIcon">☰</span>
+                <span class="navigationIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M5 7h14"></path>
+                        <path d="M5 12h14"></path>
+                        <path d="M5 17h14"></path>
+                    </svg>
+                </span>
                 <span class="navigationText">MORE</span>
             </button>
 
@@ -228,7 +283,7 @@
                     <img
                             class="upgradeCardImage"
                             id="drinkUpgradeImage"
-                            src="imgs/firstCan.png"
+                            src="assets/upgrades/drink-power/tier-1.png"
                             alt="Current Drink Power can tier"
                     >
 
@@ -308,7 +363,7 @@
                     <img
                             class="upgradeCardImage"
                             id="luckyShotUpgradeImage"
-                            src="imgs/luckyUpgrade.png"
+                            src="assets/upgrades/luckyshot/tier-1.png"
                             alt="Current Lucky Shot tier"
                     >
 
@@ -369,7 +424,7 @@
                     <img
                             class="upgradeCardImage"
                             id="factoryUpgradeImage"
-                            src="imgs/firstFactory.png"
+                            src="assets/upgrades/factory/tier-1.png"
                             alt="Current factory tier"
                     >
 
@@ -450,7 +505,7 @@
                     <img
                             class="upgradeCardImage"
                             id="kineticUpgradeImage"
-                            src="imgs/firstCan.png"
+                            src="assets/upgrades/kinetic-overflow/tier-1.png"
                             alt="Current Kinetic Overflow tier"
                     >
 
@@ -509,7 +564,7 @@
                     <img
                             class="upgradeCardImage"
                             id="deliveryUpgradeImage"
-                            src="imgs/firstCan.png"
+                            src="assets/upgrades/delivery-truck/tier-1.png"
                             alt="Current Delivery tier"
                     >
 
@@ -568,7 +623,7 @@
                     <img
                             class="upgradeCardImage"
                             id="preWorkoutUpgradeImage"
-                            src="imgs/firstCan.png"
+                            src="assets/upgrades/preworkout/tier-1.png"
                             alt="Current Pre-Workout formula tier"
                     >
 
@@ -627,11 +682,11 @@
                     <img
                             class="shopBalanceImage"
                             id="shopBalanceImage"
-                            src="imgs/firstCan.png"
+                            src="assets/upgrades/drink-power/tier-1.png"
                             alt="Current energy drink can"
                     >
 
-                    <span>ENERGY DRINKS</span>
+                    <span>MY ENERGY</span>
 
                 </div>
 
@@ -733,12 +788,13 @@
             aria-modal="true"
             aria-labelledby="saveSlotTitle"
     >
-        <div class="saveSlotLogo">
-            ⚡
+        <div class="saveSlotLogo" aria-hidden="true">
+            ✦
         </div>
 
-        <h1 id="saveSlotTitle">
-            ENERGY CLICKER
+        <h1 id="saveSlotTitle" class="saveSlotGameLogo">
+            <span class="saveSlotLogoEnergy">ENERGY</span>
+            <span class="saveSlotLogoClicker">CLICKER</span>
         </h1>
 
         <p class="saveSlotSubtitle">
@@ -764,44 +820,34 @@
             aria-modal="true"
             aria-labelledby="offlineRewardTitle"
     >
-        <div class="offlineRewardIcon">
+        <h2 id="offlineRewardTitle">
+            WELCOME BACK! <span aria-hidden="true">🎉</span>
+        </h2>
+
+        <div class="offlineRewardIcon" aria-hidden="true">
             ⚡
         </div>
 
-        <h2 id="offlineRewardTitle">
-            WELCOME BACK!
-        </h2>
+        <div class="offlineTimeSummary">
+            <span>You were away for:</span>
+            <strong id="offlineTimeAway">0s</strong>
+        </div>
+
+        <div class="offlineEnergyCard">
+            <span>ENERGY EARNED</span>
+            <strong id="offlineEnergyEarned">0</strong>
+        </div>
 
         <p class="offlineRewardMessage">
-            Your production continued while you were away.
+            Your production kept running while you were away.
         </p>
-
-        <div class="offlineRewardDetails">
-
-            <div class="offlineRewardRow">
-                <span>TIME AWAY</span>
-
-                <strong id="offlineTimeAway">
-                    0s
-                </strong>
-            </div>
-
-            <div class="offlineRewardRow">
-                <span>ENERGY EARNED</span>
-
-                <strong id="offlineEnergyEarned">
-                    0
-                </strong>
-            </div>
-
-        </div>
 
         <button
                 class="offlineContinueButton"
                 id="offlineContinueButton"
                 type="button"
         >
-            CONTINUE
+            CLAIM &amp; CONTINUE
         </button>
     </section>
 </div>

@@ -21,6 +21,8 @@ const upgradesShopContent = shopList.innerHTML;
 
 
 const mobileScoreDisplay = document.getElementById("mobileScore");
+const mobileLifeBadgeDisplay = document.getElementById("mobileLifeBadge");
+const homeTapHint = document.getElementById("homeTapHint");
 const shopBalanceAmount = document.getElementById("shopBalanceAmount");
 
 // -------------------------------------------------
@@ -199,12 +201,12 @@ const DRINK_POWER_MAX_LEVEL = 1000;
     Drink Power milestones.
 */
 const CAN_LEVEL_IMAGES = [
-    "imgs/firstCan.png",
-    "imgs/secondCan.png",
-    "imgs/thirdCan.png",
-    "imgs/fourthCan.png",
-    "imgs/fifthCan.png",
-    "imgs/sixthCan.png"
+    "assets/upgrades/drink-power/tier-1.png",
+    "assets/upgrades/drink-power/tier-2.png",
+    "assets/upgrades/drink-power/tier-3.png",
+    "assets/upgrades/drink-power/tier-4.png",
+    "assets/upgrades/drink-power/tier-5.png",
+    "assets/upgrades/drink-power/tier-6.png"
 ];
 
 const DRINK_CAN_MILESTONES = [
@@ -246,7 +248,7 @@ const DRINK_CAN_MILESTONES = [
 */
 let equippedSkinImage = null;
 
-const MAXED_OUT_IMAGE = "imgs/maxedOut.png";
+const MAXED_OUT_IMAGE = "assets/ui/maxedOut.png";
 
 const mobileCanImage =
     document.getElementById("mobileCanImage");
@@ -269,42 +271,15 @@ const FACTORY_MAX_LEVEL = 1000;
 
 /*
     Factory artwork changes at major level milestones.
-
-    sourceIndex selects artwork from the existing
-    FACTORY_UPGRADES array. If fewer images exist,
-    the final available image is reused safely.
+    Every milestone points directly to the new asset folder.
 */
 const FACTORY_TIER_MILESTONES = [
-    {
-        level: 0,
-        tier: 1,
-        sourceIndex: 0
-    },
-    {
-        level: 10,
-        tier: 2,
-        sourceIndex: 1
-    },
-    {
-        level: 25,
-        tier: 3,
-        sourceIndex: 2
-    },
-    {
-        level: 50,
-        tier: 4,
-        sourceIndex: 3
-    },
-    {
-        level: 100,
-        tier: 5,
-        sourceIndex: 4
-    },
-    {
-        level: 200,
-        tier: 6,
-        sourceIndex: 5
-    }
+    { level: 0, tier: 1, image: "assets/upgrades/factory/tier-1.png" },
+    { level: 10, tier: 2, image: "assets/upgrades/factory/tier-2.png" },
+    { level: 25, tier: 3, image: "assets/upgrades/factory/tier-3.png" },
+    { level: 50, tier: 4, image: "assets/upgrades/factory/tier-4.png" },
+    { level: 100, tier: 5, image: "assets/upgrades/factory/tier-5.png" },
+    { level: 200, tier: 6, image: "assets/upgrades/factory/tier-6.png" }
 ];
 
 const mobilePerSecondRow =
@@ -325,12 +300,12 @@ let mobileDeliveryUpgradeIndex = 0;
 const DELIVERY_MAX_LEVEL = 1000;
 
 const DELIVERY_TIER_MILESTONES = [
-    { level: 0, tier: 1, sourceIndex: 0 },
-    { level: 10, tier: 2, sourceIndex: 1 },
-    { level: 25, tier: 3, sourceIndex: 2 },
-    { level: 50, tier: 4, sourceIndex: 3 },
-    { level: 100, tier: 5, sourceIndex: 4 },
-    { level: 200, tier: 6, sourceIndex: 5 }
+    { level: 0, tier: 1, image: "assets/upgrades/delivery-truck/tier-1.png" },
+    { level: 10, tier: 2, image: "assets/upgrades/delivery-truck/tier-2.png" },
+    { level: 25, tier: 3, image: "assets/upgrades/delivery-truck/tier-3.png" },
+    { level: 50, tier: 4, image: "assets/upgrades/delivery-truck/tier-4.png" },
+    { level: 100, tier: 5, image: "assets/upgrades/delivery-truck/tier-5.png" },
+    { level: 200, tier: 6, image: "assets/upgrades/delivery-truck/tier-6.png" }
 ];
 
 
@@ -346,12 +321,12 @@ let mobilePreWorkoutUpgradeIndex = 0;
 const PREWORKOUT_MAX_LEVEL = 1000;
 
 const PREWORKOUT_TIER_MILESTONES = [
-    { level: 0, tier: 1, sourceIndex: 0 },
-    { level: 10, tier: 2, sourceIndex: 1 },
-    { level: 25, tier: 3, sourceIndex: 2 },
-    { level: 50, tier: 4, sourceIndex: 2 },
-    { level: 100, tier: 5, sourceIndex: 2 },
-    { level: 200, tier: 6, sourceIndex: 2 }
+    { level: 0, tier: 1, image: "assets/upgrades/preworkout/tier-1.png" },
+    { level: 10, tier: 2, image: "assets/upgrades/preworkout/tier-2.png" },
+    { level: 25, tier: 3, image: "assets/upgrades/preworkout/tier-3.png" },
+    { level: 50, tier: 4, image: "assets/upgrades/preworkout/tier-4.png" },
+    { level: 100, tier: 5, image: "assets/upgrades/preworkout/tier-5.png" },
+    { level: 200, tier: 6, image: "assets/upgrades/preworkout/tier-6.png" }
 ];
 
 // -------------------------------------------------
@@ -365,12 +340,12 @@ let mobileLuckyShotBonusMultiplier = LUCKY_SHOT_BASE_BONUS;
 const LUCKY_SHOT_MAX_LEVEL = 1000;
 
 const LUCKY_SHOT_TIER_MILESTONES = [
-    { level: 0, tier: 1 },
-    { level: 10, tier: 2 },
-    { level: 25, tier: 3 },
-    { level: 50, tier: 4 },
-    { level: 100, tier: 5 },
-    { level: 200, tier: 6 }
+    { level: 0, tier: 1, image: "assets/upgrades/luckyshot/tier-1.png" },
+    { level: 10, tier: 2, image: "assets/upgrades/luckyshot/tier-2.png" },
+    { level: 25, tier: 3, image: "assets/upgrades/luckyshot/tier-3.png" },
+    { level: 50, tier: 4, image: "assets/upgrades/luckyshot/tier-4.png" },
+    { level: 100, tier: 5, image: "assets/upgrades/luckyshot/tier-5.png" },
+    { level: 200, tier: 6, image: "assets/upgrades/luckyshot/tier-6.png" }
 ];
 
 const mobileGameMessage =
@@ -387,12 +362,12 @@ let mobileKineticUpgradeIndex = 0;
 const KINETIC_MAX_LEVEL = 1000;
 
 const KINETIC_TIER_MILESTONES = [
-    { level: 0, tier: 1, sourceIndex: 0 },
-    { level: 10, tier: 2, sourceIndex: 1 },
-    { level: 25, tier: 3, sourceIndex: 2 },
-    { level: 50, tier: 4, sourceIndex: 2 },
-    { level: 100, tier: 5, sourceIndex: 2 },
-    { level: 200, tier: 6, sourceIndex: 2 }
+    { level: 0, tier: 1, image: "assets/upgrades/kinetic-overflow/tier-1.png" },
+    { level: 10, tier: 2, image: "assets/upgrades/kinetic-overflow/tier-2.png" },
+    { level: 25, tier: 3, image: "assets/upgrades/kinetic-overflow/tier-3.png" },
+    { level: 50, tier: 4, image: "assets/upgrades/kinetic-overflow/tier-4.png" },
+    { level: 100, tier: 5, image: "assets/upgrades/kinetic-overflow/tier-5.png" },
+    { level: 200, tier: 6, image: "assets/upgrades/kinetic-overflow/tier-6.png" }
 ];
 
 let mobileKineticChance = 0;
@@ -1893,7 +1868,7 @@ const menuTitles = {
     upgrades: "UPGRADES SHOP",
     skins: "SKINS SHOP",
     colors: "COLORS SHOP",
-    stats: "PLAYER HUB"
+    stats: "MORE"
 };
 
 
@@ -2613,6 +2588,8 @@ function performBulkUpgradePurchase(
         newLevel
     );
 
+    playUISound("purchase");
+
     const newTier =
         configuration.getTier(
             newLevel
@@ -2753,6 +2730,96 @@ function updateCosmeticAffordabilityStates() {
 
 
 // -------------------------------------------------
+// CARTOON HOME SCORE RENDERING
+// -------------------------------------------------
+
+/*
+    The main score is split into individual characters so the
+    rainbow can move like a cartoon wave instead of simply
+    sliding left and right across one flat line of text.
+
+    When the formatted score stays the same length, the existing
+    spans are reused so rapid tapping does not constantly restart
+    the animation.
+*/
+function renderHomeScore(formattedEnergy) {
+    if (!mobileScoreDisplay) {
+        return;
+    }
+
+    const characters =
+        Array.from(String(formattedEnergy));
+
+    const existingCharacters =
+        Array.from(
+            mobileScoreDisplay.querySelectorAll(
+                ".scoreWaveChar"
+            )
+        );
+
+    if (existingCharacters.length !== characters.length) {
+        mobileScoreDisplay.replaceChildren();
+
+        characters.forEach((character, index) => {
+            const characterSpan =
+                document.createElement("span");
+
+            characterSpan.className =
+                "scoreWaveChar";
+
+            characterSpan.textContent = character;
+
+            characterSpan.style.setProperty(
+                "--score-wave-index",
+                String(index)
+            );
+
+            mobileScoreDisplay.appendChild(
+                characterSpan
+            );
+        });
+    } else {
+        existingCharacters.forEach(
+            (characterSpan, index) => {
+                characterSpan.textContent =
+                    characters[index];
+            }
+        );
+    }
+
+    mobileScoreDisplay.setAttribute(
+        "aria-label",
+        formattedEnergy
+    );
+}
+
+
+// -------------------------------------------------
+// BEGINNER TAP HINT / HOME STATUS SLOT
+// -------------------------------------------------
+
+/*
+    The tutorial hint disappears permanently for the save after
+    the player's first 10 taps. Kinetic Overflow temporarily uses
+    the same small status area at the bottom of the tapping zone.
+*/
+function updateHomeStatusSlot() {
+    if (!homeTapHint) {
+        return;
+    }
+
+    const showBeginnerHint =
+        mobileTotalTaps < 10 &&
+        !mobileKineticActive;
+
+    homeTapHint.classList.toggle(
+        "hiddenAfterIntro",
+        !showBeginnerHint
+    );
+}
+
+
+// -------------------------------------------------
 // SHOP BALANCE
 // -------------------------------------------------
 function updateShopBalance() {
@@ -2767,8 +2834,16 @@ function updateShopBalance() {
     const formattedEnergy =
         formatGameNumber(mobileEnergy);
 
-    mobileScoreDisplay.textContent =
-        formattedEnergy;
+    renderHomeScore(
+        formattedEnergy
+    );
+
+    if (mobileLifeBadgeDisplay) {
+        mobileLifeBadgeDisplay.textContent =
+            `LIFE ${mobileLifeLevel}`;
+    }
+
+    updateHomeStatusSlot();
 
     shopBalanceAmount.textContent =
         formattedEnergy;
@@ -3247,10 +3322,7 @@ function getFactoryUpgradeData(currentLevel) {
                     PASSIVE_GAIN_GROWTH_BANDS
                 )
             )
-        ),
-        image:
-            FACTORY_UPGRADES[0]?.img ||
-            "imgs/firstFactory.png"
+        )
     };
 }
 
@@ -3380,29 +3452,9 @@ function getFactoryMilestoneProgress(level) {
 function getFactoryMilestoneImage(
     milestone
 ) {
-    const finalUpgradeIndex =
-        Math.max(
-            0,
-            FACTORY_UPGRADES.length - 1
-        );
-
-    const safeSourceIndex =
-        Math.min(
-            Math.max(
-                milestone.sourceIndex,
-                0
-            ),
-            finalUpgradeIndex
-        );
-
-    const artworkUpgrade =
-        FACTORY_UPGRADES[
-            safeSourceIndex
-        ];
-
     return (
-        artworkUpgrade?.img ||
-        "imgs/firstFactory.png"
+        milestone?.image ||
+        "assets/upgrades/factory/tier-1.png"
     );
 }
 
@@ -3607,27 +3659,10 @@ function getUpgradeMilestoneProgress(
 
 function getUpgradeMilestoneImage(
     milestone,
-    upgradeArray,
     fallbackImage
 ) {
-    if (!upgradeArray.length) {
-        return fallbackImage;
-    }
-
-    const finalUpgradeIndex =
-        upgradeArray.length - 1;
-
-    const safeSourceIndex =
-        Math.min(
-            Math.max(
-                milestone.sourceIndex || 0,
-                0
-            ),
-            finalUpgradeIndex
-        );
-
     return (
-        upgradeArray[safeSourceIndex]?.img ||
+        milestone?.image ||
         fallbackImage
     );
 }
@@ -3721,10 +3756,7 @@ function getDeliveryUpgradeData(currentLevel) {
                     PASSIVE_GAIN_GROWTH_BANDS
                 )
             )
-        ),
-        image:
-            DELIVERY_UPGRADES[0]?.img ||
-            "imgs/firstCan.png"
+        )
     };
 }
 
@@ -3797,8 +3829,7 @@ function updateDeliveryTruckCard() {
     elements.image.src =
         getUpgradeMilestoneImage(
             currentMilestone,
-            DELIVERY_UPGRADES,
-            "imgs/firstCan.png"
+            "assets/upgrades/delivery-truck/tier-1.png"
         );
 
     elements.name.textContent =
@@ -3960,10 +3991,7 @@ function getPreWorkoutUpgradeData(currentLevel) {
                     PASSIVE_GAIN_GROWTH_BANDS
                 )
             )
-        ),
-        image:
-            PREWORKOUT_UPGRADES[0]?.img ||
-            "imgs/firstCan.png"
+        )
     };
 }
 
@@ -4036,8 +4064,7 @@ function updatePreWorkoutCard() {
     elements.image.src =
         getUpgradeMilestoneImage(
             currentMilestone,
-            PREWORKOUT_UPGRADES,
-            "imgs/firstCan.png"
+            "assets/upgrades/preworkout/tier-1.png"
         );
 
     elements.name.textContent =
@@ -4209,10 +4236,7 @@ function getLuckyShotUpgradeData(currentLevel) {
             0,
             nextValues.bonusMultiplier -
             currentValues.bonusMultiplier
-        ),
-        image:
-            LUCKYSHOT_UPGRADES[0]?.img ||
-            "imgs/luckyUpgrade.png"
+        )
     };
 }
 
@@ -4284,8 +4308,8 @@ function updateLuckyShotCard() {
         );
 
     elements.image.src =
-        LUCKYSHOT_UPGRADES[0]?.img ||
-        "imgs/luckyUpgrade.png";
+        currentMilestone.image ||
+        "assets/upgrades/luckyshot/tier-1.png";
 
     elements.name.textContent =
         "LUCKY SHOT";
@@ -4554,10 +4578,7 @@ function getKineticUpgradeData(currentLevel) {
                 KINETIC_DURATION_PER_LEVEL *
                 (nextLevel - 1)
             ).toFixed(3)
-        ),
-        image:
-            KINETIC_OVERFLOW_UPGRADES[0]?.img ||
-            "imgs/firstCan.png"
+        )
     };
 }
 
@@ -4633,8 +4654,7 @@ function updateKineticOverflowCard() {
     elements.image.src =
         getUpgradeMilestoneImage(
             currentMilestone,
-            KINETIC_OVERFLOW_UPGRADES,
-            "imgs/firstCan.png"
+            "assets/upgrades/kinetic-overflow/tier-1.png"
         );
 
     elements.name.textContent =
@@ -4829,14 +4849,16 @@ function updateKineticStatus() {
         );
 
     kineticStatus.textContent =
-        `KINETIC OVERFLOW ×${Number(
+        `⚡ KINETIC ×${Number(
             getCurrentKineticMultiplier()
                 .toFixed(2)
-        )} — ${displayedSeconds.toFixed(1)}s`;
+        )} • ${displayedSeconds.toFixed(1)}s`;
 
     kineticStatus.classList.add(
         "active"
     );
+
+    updateHomeStatusSlot();
 }
 
 
@@ -4964,14 +4986,14 @@ function createSkinsShopContent() {
 
                     <img
                         class="upgradeCardImage"
-                        src="${skin.buttonImg || skin.img}"
+                        src="${skin.img}"
                         alt="Can skin ${index + 1}"
                     >
 
                     <div class="upgradeCardInformation">
 
                         <h3 class="upgradeCardName">
-                            SKIN ${index + 1}
+                            ${skin.name}
                         </h3>
 
                         <p class="upgradeCardLevel">
@@ -5050,6 +5072,8 @@ function attachSkinButtons() {
                 Return to the normal Drink Power can.
             */
             if (selectedSkin === "default") {
+                playUISound("equip");
+
                 mobileEquippedSkinIndex = null;
                 equippedSkinImage = null;
 
@@ -5064,6 +5088,9 @@ function attachSkinButtons() {
 
             const skin =
                 COSMETIC_UPGRADES[skinIndex];
+
+            const skinWasOwned =
+                Boolean(mobileOwnedSkins[skinIndex]);
 
             const skinCard =
                 document.getElementById(
@@ -5102,7 +5129,11 @@ function attachSkinButtons() {
                 skinIndex;
 
             equippedSkinImage =
-                skin.buttonImg || skin.img;
+                skin.img;
+
+            playUISound(
+                skinWasOwned ? "equip" : "purchase"
+            );
 
             renderSkinsShop();
             updateShopBalance();
@@ -5159,75 +5190,37 @@ function createColorsShopContent() {
     const defaultColorEquipped =
         mobileEquippedColorIndex === null;
 
-    /*
-        The first card represents the original
-        rainbow score that the player starts with.
-    */
     const defaultColorCard = `
         <article
-            class="upgradeCard colorCard"
+            class="upgradeCard colorCard colorOptionCard"
             id="defaultColorCard"
         >
+            <div class="colorShopSwatch colorShopSwatchRainbow">
+                <span>RGB</span>
+            </div>
 
-            <div class="colorPreview">
+            <div class="colorShopInformation">
+                <h3>ORIGINAL RAINBOW</h3>
+                <p>Animated candy-rainbow main score.</p>
+            </div>
 
-                <span
-                    class="colorPreviewNumber defaultScoreColor"
-                >
-                    123
+            <div class="colorShopAction">
+                <span class="colorShopState">
+                    ${defaultColorEquipped ? "ACTIVE" : "OWNED"}
                 </span>
 
+                <button
+                    class="buyButton colorActionButton"
+                    type="button"
+                    data-color-index="default"
+                    ${defaultColorEquipped ? "disabled" : ""}
+                >
+                    ${defaultColorEquipped ? "ACTIVE" : "EQUIP"}
+                </button>
             </div>
-
-            <div class="upgradeCardInformation">
-
-                <h3 class="upgradeCardName">
-                    ORIGINAL RAINBOW
-                </h3>
-
-                <p class="upgradeCardLevel">
-                    ${
-        defaultColorEquipped
-            ? "CURRENTLY EQUIPPED"
-            : "OWNED"
-    }
-                </p>
-
-                <p class="upgradeCardDescription">
-                    Uses the original animated rainbow
-                    score color.
-                </p>
-
-                <div class="upgradeCardBottom">
-
-                    <p class="upgradeCardCost">
-                        OWNED
-                    </p>
-
-                    <button
-                        class="buyButton colorActionButton"
-                        type="button"
-                        data-color-index="default"
-                        ${defaultColorEquipped ? "disabled" : ""}
-                    >
-                        ${
-        defaultColorEquipped
-            ? "EQUIPPED"
-            : "EQUIP"
-    }
-                    </button>
-
-                </div>
-
-            </div>
-
         </article>
     `;
 
-    /*
-        Create one card for every entry inside
-        CHANGECOLOR_UPGRADES.
-    */
     const purchasedColorCards =
         CHANGECOLOR_UPGRADES.map(
             (color, index) => {
@@ -5244,90 +5237,54 @@ function createColorsShopContent() {
                 let buttonText = "BUY";
 
                 if (colorEquipped) {
-                    buttonText = "EQUIPPED";
+                    buttonText = "ACTIVE";
                 } else if (colorOwned) {
                     buttonText = "EQUIP";
                 }
 
-                const costText =
-                    colorOwned
-                        ? "OWNED"
-                        : `
-                            COST:
-                            <span>
-                                ${formatGameNumber(color.cost)}
-                            </span>
-                        `;
+                const stateText =
+                    colorEquipped
+                        ? "ACTIVE"
+                        : colorOwned
+                            ? "OWNED"
+                            : formatGameNumber(color.cost);
 
                 return `
                     <article
-                        class="upgradeCard colorCard"
+                        class="upgradeCard colorCard colorOptionCard"
                         id="colorCard-${index}"
                     >
+                        <div class="colorShopSwatch colorShopSwatch${index}"></div>
 
-                        <div class="colorPreview">
+                        <div class="colorShopInformation">
+                            <h3>${colorName}</h3>
+                            <p>Changes your main Energy score effect.</p>
+                        </div>
 
-                            <span
-                                class="colorPreviewNumber ${color.cssClass}"
-                            >
-                                123
+                        <div class="colorShopAction">
+                            <span class="colorShopState ${(!colorEquipped && !colorOwned) ? "colorShopPrice" : ""}">
+                                ${stateText}
                             </span>
 
+                            <button
+                                class="buyButton colorActionButton"
+                                type="button"
+                                data-color-index="${index}"
+                                ${colorEquipped ? "disabled" : ""}
+                            >
+                                ${buttonText}
+                            </button>
                         </div>
 
-                        <div class="upgradeCardInformation">
-
-                            <h3 class="upgradeCardName">
-                                ${colorName}
-                            </h3>
-
-                            <p class="upgradeCardLevel">
-                                ${
-                    colorEquipped
-                        ? "CURRENTLY EQUIPPED"
-                        : colorOwned
-                            ? "UNLOCKED"
-                            : "LOCKED"
-                }
-                            </p>
-
-                            <p class="upgradeCardDescription">
-                                Changes the main score to
-                                ${colorName}.
-                            </p>
-
-                            <div class="upgradeCardBottom">
-
-                                <p class="upgradeCardCost">
-                                    ${costText}
-                                </p>
-
-                                <button
-                                    class="buyButton colorActionButton"
-                                    type="button"
-                                    data-color-index="${index}"
-                                    ${colorEquipped ? "disabled" : ""}
-                                >
-                                    ${buttonText}
-                                </button>
-
-                            </div>
-
-                            <p class="purchaseError">
-                                NOT ENOUGH ENERGY
-                            </p>
-
-                        </div>
-
+                        <p class="purchaseError">
+                            NOT ENOUGH ENERGY
+                        </p>
                     </article>
                 `;
             }
         ).join("");
 
-    return (
-        defaultColorCard +
-        purchasedColorCards
-    );
+    return defaultColorCard + purchasedColorCards;
 }
 
 
@@ -5362,6 +5319,8 @@ function attachColorButtons() {
                 Return to the original rainbow score.
             */
             if (selectedColor === "default") {
+                playUISound("equip");
+
                 mobileEquippedColorIndex =
                     null;
 
@@ -5378,6 +5337,9 @@ function attachColorButtons() {
                 CHANGECOLOR_UPGRADES[
                     colorIndex
                     ];
+
+            const colorWasOwned =
+                Boolean(mobileOwnedColors[colorIndex]);
 
             const colorCard =
                 document.getElementById(
@@ -5415,6 +5377,10 @@ function attachColorButtons() {
             */
             mobileEquippedColorIndex =
                 colorIndex;
+
+            playUISound(
+                colorWasOwned ? "equip" : "purchase"
+            );
 
             renderColorsShop();
             updateShopBalance();
@@ -5838,55 +5804,215 @@ function createStatsShopContent() {
 // DISPLAY THE STATS SCREEN
 // -------------------------------------------------
 
+function createMoreMenuContent() {
+    const completedAchievements =
+        getCompletedAchievementCount();
+
+    const challenges =
+        getLifeChallengeDefinitions();
+
+    const completedChallenges =
+        getCompletedLifeChallengeCount();
+
+    const lastLifeText =
+        mobileLastLifeSummary
+            ? `Life ${mobileLastLifeSummary.lifeLevel} • ${formatGameTime(mobileLastLifeSummary.secondsPlayed)}`
+            : "No completed Life yet";
+
+    return `
+        <section class="moreMenuScreen">
+
+            <p class="moreMenuIntro">
+                Progress, challenges, stats, and game settings.
+            </p>
+
+            <div class="moreMenuList">
+
+                ${createMoreMenuButton(
+                    "moreRebirthButton",
+                    "♻️",
+                    "REBIRTH",
+                    `Life ${mobileLifeLevel} → Life ${mobileLifeLevel + 1}`
+                )}
+
+                ${createMoreMenuButton(
+                    "morePermanentPerksButton",
+                    "⭐",
+                    "PERMANENT PERKS",
+                    `${getUnlockedPermanentPerkCount()} unlocked • ${getTotalPermanentPerkRanks()} total ranks`
+                )}
+
+                ${createMoreMenuButton(
+                    "moreLifeChallengesButton",
+                    "🎯",
+                    "LIFE CHALLENGES",
+                    `${completedChallenges}/${challenges.length} complete this Life`
+                )}
+
+                ${createMoreMenuButton(
+                    "moreAchievementsButton",
+                    "🏆",
+                    "ACHIEVEMENTS",
+                    `${completedAchievements}/${PLAYER_ACHIEVEMENTS.length} completed`
+                )}
+
+                ${createMoreMenuButton(
+                    "moreStatisticsButton",
+                    "📊",
+                    "STATISTICS",
+                    "View your gameplay stats"
+                )}
+
+                ${createMoreMenuButton(
+                    "moreLastLifeButton",
+                    "📋",
+                    "LAST LIFE",
+                    lastLifeText
+                )}
+
+                ${createMoreMenuButton(
+                    "moreSettingsButton",
+                    "⚙️",
+                    "SETTINGS",
+                    "Sound, haptics, visuals & more"
+                )}
+
+                ${createMoreMenuButton(
+                    "moreSaveManagementButton",
+                    "💾",
+                    "SAVE MANAGEMENT",
+                    `Current save: Slot ${activeSaveSlot}`
+                )}
+
+            </div>
+        </section>
+    `;
+}
+
+
+function createMoreMenuButton(
+    id,
+    icon,
+    title,
+    description
+) {
+    return `
+        <button
+            class="moreMenuButton"
+            id="${id}"
+            type="button"
+        >
+            <span class="moreMenuIcon">${icon}</span>
+
+            <span class="moreMenuButtonText">
+                <strong>${title}</strong>
+                <small>${description}</small>
+            </span>
+
+            <span class="moreMenuArrow">›</span>
+        </button>
+    `;
+}
+
+
 function renderStatsShop() {
+    shopTitle.textContent = "MORE";
     shopList.innerHTML =
-        createStatsShopContent();
+        createMoreMenuContent();
 
-    shopList.insertAdjacentHTML(
-        "beforeend",
-        createAchievementsAccessContent()
-    );
+    attachMoreMenuButtons();
+}
 
-    shopList.insertAdjacentHTML(
-        "beforeend",
-        createRebirthAccessContent()
-    );
 
-    shopList.insertAdjacentHTML(
-        "beforeend",
-        createLastLifeSummaryAccessContent()
-    );
+function attachMoreMenuButtons() {
+    const connect = (id, handler) => {
+        const button = document.getElementById(id);
 
-    shopList.insertAdjacentHTML(
-        "beforeend",
-        createLifeChallengesAccessContent()
-    );
+        if (button) {
+            button.addEventListener("click", handler);
+        }
+    };
 
-    shopList.insertAdjacentHTML(
-        "beforeend",
-        createPermanentPerksAccessContent()
-    );
+    connect("moreRebirthButton", renderRebirthMenu);
+    connect("morePermanentPerksButton", renderPermanentPerksMenu);
+    connect("moreLifeChallengesButton", renderLifeChallengesMenu);
+    connect("moreAchievementsButton", renderAchievementsMenu);
+    connect("moreStatisticsButton", renderStatisticsMenu);
+    connect("moreSettingsButton", renderSettingsMenu);
+    connect("moreSaveManagementButton", renderSaveManagementMenu);
 
-    shopList.insertAdjacentHTML(
-        "beforeend",
-        createSaveManagementContent()
+    connect(
+        "moreLastLifeButton",
+        () => {
+            if (mobileLastLifeSummary) {
+                renderLastLifeSummaryMenu();
+            } else {
+                renderEmptyLastLifeMenu();
+            }
+        }
     );
+}
 
-    shopList.insertAdjacentHTML(
-        "beforeend",
-        createSettingsAccessContent()
-    );
+
+function createBackToMoreButton(id) {
+    return `
+        <button
+            class="backToMoreButton"
+            id="${id}"
+            type="button"
+        >
+            ‹ BACK TO MORE
+        </button>
+    `;
+}
+
+
+function renderStatisticsMenu() {
+    shopTitle.textContent = "STATISTICS";
+    shopList.innerHTML =
+        createStatsShopContent() +
+        createBackToMoreButton("backFromStatisticsButton");
 
     updateStatsDisplay();
-    updateRebirthDynamicDisplays();
 
-    attachAchievementsAccessButton();
-    attachRebirthAccessButton();
-    attachLastLifeSummaryAccessButton();
-    attachLifeChallengesAccessButton();
-    attachPermanentPerksAccessButton();
+    document
+        .getElementById("backFromStatisticsButton")
+        ?.addEventListener("click", renderStatsShop);
+}
+
+
+function renderSaveManagementMenu() {
+    shopTitle.textContent = "SAVE MANAGEMENT";
+    shopList.innerHTML =
+        createSaveManagementContent() +
+        createBackToMoreButton("backFromSaveManagementButton");
+
     attachSaveManagementButtons();
-    attachSettingsAccessButton();
+
+    document
+        .getElementById("backFromSaveManagementButton")
+        ?.addEventListener("click", renderStatsShop);
+}
+
+
+function renderEmptyLastLifeMenu() {
+    shopTitle.textContent = "LAST LIFE";
+    shopList.innerHTML = `
+        <section class="moreEmptyScreen">
+            <span>📋</span>
+            <h3>NO COMPLETED LIFE YET</h3>
+            <p>
+                Finish your first Rebirth and the completed
+                run summary will appear here automatically.
+            </p>
+        </section>
+
+        ${createBackToMoreButton("backFromEmptyLastLifeButton")}
+    `;
+
+    document
+        .getElementById("backFromEmptyLastLifeButton")
+        ?.addEventListener("click", renderStatsShop);
 }
 
 
@@ -6129,7 +6255,7 @@ function createSaveSlotCard(slotNumber) {
                     type="button"
                     data-save-slot="${slotNumber}"
                 >
-                    NEW GAME
+                    START NEW GAME
                 </button>
 
             </article>
@@ -6197,7 +6323,7 @@ function createSaveSlotCard(slotNumber) {
                 <div class="saveSlotSummaryRow">
 
                     <span>
-                        REBIRTH
+                        LIFE LEVEL
                     </span>
 
                     <strong>
@@ -7134,6 +7260,8 @@ function showNextAchievementNotification() {
         achievementNotificationQueue.shift();
 
     achievementNotificationActive = true;
+
+    playUISound("achievement");
 
     achievementToastTitle.textContent =
         achievement.name;
@@ -9987,6 +10115,171 @@ function playTapSound() {
 }
 
 
+
+// -------------------------------------------------
+// PLAY SHORT UI SOUND EFFECTS
+// -------------------------------------------------
+
+/*
+    These lightweight sounds are generated with the Web Audio API,
+    so the prototype does not need separate audio files yet.
+    Later, these can be replaced with final .wav/.mp3 assets without
+    changing the rest of the game logic.
+*/
+function playUISound(soundType = "menu") {
+    const audioContext =
+        getGameAudioContext();
+
+    if (!audioContext) {
+        return;
+    }
+
+    const now = audioContext.currentTime;
+
+    function playTone({
+        frequency,
+        endFrequency = frequency,
+        startOffset = 0,
+        duration = 0.08,
+        volume = 0.035,
+        type = "sine"
+    }) {
+        const oscillator =
+            audioContext.createOscillator();
+
+        const gain =
+            audioContext.createGain();
+
+        const startTime =
+            now + startOffset;
+
+        const endTime =
+            startTime + duration;
+
+        oscillator.type = type;
+
+        oscillator.frequency.setValueAtTime(
+            Math.max(1, frequency),
+            startTime
+        );
+
+        oscillator.frequency.exponentialRampToValueAtTime(
+            Math.max(1, endFrequency),
+            endTime
+        );
+
+        gain.gain.setValueAtTime(
+            volume,
+            startTime
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.001,
+            endTime
+        );
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        oscillator.start(startTime);
+        oscillator.stop(endTime + 0.01);
+    }
+
+    if (soundType === "purchase") {
+        playTone({
+            frequency: 430,
+            endFrequency: 540,
+            duration: 0.07,
+            volume: 0.032,
+            type: "triangle"
+        });
+
+        playTone({
+            frequency: 650,
+            endFrequency: 760,
+            startOffset: 0.065,
+            duration: 0.09,
+            volume: 0.035,
+            type: "triangle"
+        });
+
+        return;
+    }
+
+    if (soundType === "equip") {
+        playTone({
+            frequency: 510,
+            endFrequency: 690,
+            duration: 0.085,
+            volume: 0.028,
+            type: "sine"
+        });
+
+        return;
+    }
+
+    if (soundType === "achievement") {
+        [
+            [523.25, 0],
+            [659.25, 0.075],
+            [783.99, 0.15]
+        ].forEach(([frequency, startOffset]) => {
+            playTone({
+                frequency,
+                endFrequency: frequency * 1.02,
+                startOffset,
+                duration: 0.16,
+                volume: 0.032,
+                type: "triangle"
+            });
+        });
+
+        return;
+    }
+
+    if (soundType === "challenge") {
+        playTone({
+            frequency: 392,
+            endFrequency: 523.25,
+            duration: 0.11,
+            volume: 0.03,
+            type: "triangle"
+        });
+
+        playTone({
+            frequency: 659.25,
+            endFrequency: 783.99,
+            startOffset: 0.09,
+            duration: 0.13,
+            volume: 0.032,
+            type: "triangle"
+        });
+
+        return;
+    }
+
+    if (soundType === "error") {
+        playTone({
+            frequency: 175,
+            endFrequency: 105,
+            duration: 0.16,
+            volume: 0.025,
+            type: "square"
+        });
+
+        return;
+    }
+
+    /* Default menu/open sound. */
+    playTone({
+        frequency: 300,
+        endFrequency: 410,
+        duration: 0.065,
+        volume: 0.022,
+        type: "sine"
+    });
+}
+
 // -------------------------------------------------
 // TRIGGER A LIGHT TAP VIBRATION
 // -------------------------------------------------
@@ -10318,6 +10611,8 @@ function showPurchaseFailure(upgradeCard) {
         return;
     }
 
+    playUISound("error");
+
     upgradeCard.classList.remove(
         "purchaseFailed"
     );
@@ -10581,6 +10876,8 @@ function getMenuIcon(menuName) {
 // -------------------------------------------------
 
 function openMenu(menuName) {
+    playUISound("menu");
+
     shopTitle.textContent =
         menuTitles[menuName];
 
@@ -11319,7 +11616,6 @@ function rebuildDerivedGameValues() {
             ];
 
         equippedSkinImage =
-            equippedSkin.buttonImg ||
             equippedSkin.img;
     } else {
         mobileEquippedSkinIndex = null;
