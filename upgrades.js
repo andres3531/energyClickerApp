@@ -2,8 +2,8 @@
 // ENERGY CLICKER — MOBILE SUPPORT DATA
 // -------------------------------------------------
 //
-// The six gameplay upgrade trees are now fully formula-driven
-// inside mobile.js, including their Tier I–VI artwork paths.
+// All seven gameplay upgrade trees are formula-driven inside mobile.js,
+// including their Tier I–X artwork paths.
 // This file only stores data that is still genuinely list-based:
 // cosmetic skins and purchasable score colors.
 
@@ -53,6 +53,18 @@ const COSMETIC_UPGRADES = [
         cost: 1_000_000_000,
         img: "assets/skins/sixthCosmetic.png",
         description: "A 30 something year old man"
+    },
+    {
+        name: "Graden",
+        cost: 10_000_000_000,
+        img: "assets/skins/seventhCosmetic.png",
+        description: "2008 Toyota"
+    },
+    {
+        name: "Brohan Is Boss",
+        cost: 100_000_000_000,
+        img: "assets/skins/eigthCosmetic.png",
+        description: "What more is there to say"
     }
 ];
 
@@ -105,5 +117,35 @@ const CHANGECOLOR_UPGRADES = [
         cost: 250_000_000,
         cssClass: "scoreColor8",
         description: "Changes the main score to Royal Purple."
+    },
+    {
+        name: "Orange Crush",
+        cost: 1_000_000_000,
+        cssClass: "scoreColor9",
+        description: "A bright orange-to-gold Energy score."
+    },
+    {
+        name: "USA",
+        cost: 5_000_000_000,
+        cssClass: "scoreColor10",
+        description: "Animated red, white, and blue Energy."
+    },
+    {
+        name: "Cotton Candy",
+        cost: 25_000_000_000,
+        cssClass: "scoreColor11",
+        description: "Soft pink, lavender, and cyan candy colors."
+    },
+    {
+        name: "Black Ice",
+        cost: 100_000_000_000,
+        cssClass: "scoreColor12",
+        description: "Dark black and navy with icy silver-blue highlights."
+    },
+    {
+        name: "Neon Red",
+        cost: 500_000_000_000,
+        cssClass: "scoreColor13",
+        description: "A hot neon-red Energy score with bright highlights."
     }
 ];

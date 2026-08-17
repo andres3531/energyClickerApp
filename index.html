@@ -1,0 +1,987 @@
+<!-- VERIFIED BUILD: ACHIEVEMENTS V2 + LIFE CHALLENGES -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Makes the layout fit correctly on an iPhone -->
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    >
+
+    <title>Energy Clicker Mobile</title>
+
+    <link rel="stylesheet" href="css/mobile.css">
+</head>
+
+<body>
+
+<div class="appShell">
+
+    <!-- MAIN GAME SCREEN -->
+    <main class="gameScreen">
+
+        <!-- FIGMA HOME SCREEN V1 -->
+        <section class="homeDecorations" aria-hidden="true">
+            <span class="homeCloud homeCloudOne"></span>
+            <span class="homeCloud homeCloudTwo"></span>
+            <span class="homeSpark homeSparkOne">✦</span>
+            <span class="homeSpark homeSparkTwo">✧</span>
+            <span class="homeSpark homeSparkThree">✦</span>
+            <span class="homeSpark homeSparkFour">✧</span>
+        </section>
+
+        <!-- TOP HOME / SCORE SECTION -->
+        <header class="scoreSection homeScoreSection">
+
+            <!-- Replaces the unwanted hearts counter from the Figma mockup -->
+            <div class="lifeBadge" aria-label="Current life">
+                <span class="lifeBadgeSpark">✦</span>
+                <span id="mobileLifeBadge">LIFE 0</span>
+            </div>
+
+            <div class="gameLogo" aria-label="Energy Clicker">
+                <span class="gameLogoEnergy">ENERGY</span>
+                <span class="gameLogoClicker">CLICKER</span>
+            </div>
+
+            <div class="homeScoreBlock">
+                <div class="scoreNumber" id="mobileScore">0</div>
+                <p class="currentEnergyLabel">CURRENT ENERGY</p>
+            </div>
+
+            <div class="productionPills" aria-label="Current production">
+                <p class="productionText productionPill tapProductionPill">
+                    <span class="productionPillIcon" aria-hidden="true">⚡</span>
+                    <strong id="mobilePerTap">1</strong>
+                    <span class="productionPillSuffix">/ CLICK</span>
+                </p>
+
+                <!-- Hidden until passive production is unlocked -->
+                <p
+                        class="productionText productionPill secondProductionPill hidden"
+                        id="mobilePerSecondRow"
+                >
+                    <span class="productionPillIcon productionPillClock" aria-hidden="true">◷</span>
+                    <strong id="mobilePerSecond">0</strong>
+                    <span class="productionPillSuffix">/ SEC</span>
+                </p>
+            </div>
+
+        </header>
+
+        <!-- MAIN TAPPING SECTION -->
+        <section
+                class="tapSection"
+                id="mobileTapSection"
+                aria-label="Tap to produce energy"
+        >
+
+            <!-- Temporary messages can appear here -->
+            <div
+                    class="gameMessage"
+                    id="mobileGameMessage"
+                    aria-live="polite"
+            ></div>
+
+            <button
+                    class="canButton"
+                    id="mobileCanButton"
+                    type="button"
+                    aria-label="Tap the energy drink can"
+            >
+                <img
+                        id="mobileCanImage"
+                        src="assets/upgrades/drink-power/tier-1.png"
+                        alt="Current Energy Clicker can tier"
+                >
+            </button>
+
+            <!-- Shared status area: beginner hint first, Kinetic countdown later -->
+            <div class="homeStatusSlot">
+                <div
+                        class="tapHint"
+                        id="homeTapHint"
+                        aria-hidden="true"
+                >
+                    TAP CAN FOR ENERGY!
+                </div>
+
+                <div
+                        class="kineticStatus"
+                        id="kineticStatus"
+                        aria-live="polite"
+                ></div>
+            </div>
+
+        </section>
+
+        <!-- SUPPLY DROP EVENT — SCREEN-LEVEL OVERLAY -->
+        <button
+                class="supplyDropButton"
+                id="supplyDropButton"
+                type="button"
+                aria-label="Collect Supply Drop"
+                disabled
+        >
+            <img
+                    class="supplyDropCrateImage"
+                    id="supplyDropEventImage"
+                    src="assets/upgrades/supply-drop/tier-1.png"
+                    alt=""
+                    aria-hidden="true"
+            >
+        </button>
+
+        <div
+                class="supplyDropRewardPopup"
+                id="supplyDropRewardPopup"
+                aria-live="polite"
+        ></div>
+
+        <!-- BOTTOM NAVIGATION -->
+        <nav class="bottomNavigation" aria-label="Game menu">
+
+            <button
+                    class="navigationButton"
+                    type="button"
+                    data-menu="upgrades"
+            >
+                <span class="navigationIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <circle cx="12" cy="12" r="8"></circle>
+                        <path d="M12 16V8"></path>
+                        <path d="m8.8 11.2 3.2-3.2 3.2 3.2"></path>
+                    </svg>
+                </span>
+                <span class="navigationText">UPGRADES</span>
+            </button>
+
+            <button
+                    class="navigationButton"
+                    type="button"
+                    data-menu="skins"
+            >
+                <span class="navigationIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M8 4h8l1 3H7l1-3Z"></path>
+                        <rect x="7" y="7" width="10" height="13" rx="3"></rect>
+                        <path d="M9.5 11.5h5"></path>
+                    </svg>
+                </span>
+                <span class="navigationText">SKINS</span>
+            </button>
+
+            <button
+                    class="navigationButton"
+                    type="button"
+                    data-menu="colors"
+            >
+                <span class="navigationIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M12 3.5c2.7 3.2 5.2 6 5.2 9.3A5.2 5.2 0 0 1 12 18a5.2 5.2 0 0 1-5.2-5.2C6.8 9.5 9.3 6.7 12 3.5Z"></path>
+                    </svg>
+                </span>
+                <span class="navigationText">COLORS</span>
+            </button>
+
+            <button
+                    class="navigationButton"
+                    type="button"
+                    data-menu="stats"
+            >
+                <span class="navigationIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M5 7h14"></path>
+                        <path d="M5 12h14"></path>
+                        <path d="M5 17h14"></path>
+                    </svg>
+                </span>
+                <span class="navigationText">MORE</span>
+            </button>
+
+        </nav>
+
+    </main>
+
+
+    <!-- DARK BACKGROUND BEHIND THE OPEN SHOP -->
+    <div
+            class="menuOverlay"
+            id="menuOverlay"
+            aria-hidden="true"
+    >
+
+        <button
+                class="overlayBackground"
+                id="overlayBackground"
+                type="button"
+                aria-label="Close menu"
+        ></button>
+
+
+        <!-- SLIDING SHOP PANEL -->
+        <section
+                class="shopPanel"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="shopTitle"
+        >
+
+            <!-- SHOP HEADER -->
+            <header class="shopHeader">
+
+                <h2 id="shopTitle">UPGRADES SHOP</h2>
+
+                <button
+                        class="closeShopButton"
+                        id="closeShopButton"
+                        type="button"
+                        aria-label="Close shop"
+                >
+                    ×
+                </button>
+
+            </header>
+
+
+            <!-- SCROLLABLE SHOP CONTENT -->
+            <div class="shopList" id="shopList">
+
+                <!-- BULK UPGRADE PURCHASE CONTROLS -->
+                <section
+                        class="upgradeBuyModeBar"
+                        id="upgradeBuyModeBar"
+                        aria-label="Choose how many upgrade levels to buy"
+                >
+                    <span class="upgradeBuyModeLabel">
+                        BUY AMOUNT
+                    </span>
+
+                    <div class="upgradeBuyModeButtons">
+
+                        <button
+                                class="upgradeBuyModeButton active"
+                                type="button"
+                                data-buy-mode="1"
+                        >
+                            ×1
+                        </button>
+
+                        <button
+                                class="upgradeBuyModeButton"
+                                type="button"
+                                data-buy-mode="10"
+                        >
+                            ×10
+                        </button>
+
+                        <button
+                                class="upgradeBuyModeButton"
+                                type="button"
+                                data-buy-mode="25"
+                        >
+                            ×25
+                        </button>
+
+                        <button
+                                class="upgradeBuyModeButton"
+                                type="button"
+                                data-buy-mode="max"
+                        >
+                            MAX
+                        </button>
+
+                    </div>
+
+                </section>
+
+                <!-- REAL SCALABLE DRINK POWER UPGRADE -->
+                <article
+                        class="upgradeCard drinkPowerCard"
+                        id="drinkUpgradeCard"
+                >
+
+                    <img
+                            class="upgradeCardImage"
+                            id="drinkUpgradeImage"
+                            src="assets/upgrades/drink-power/tier-1.png"
+                            alt="Current Drink Power can tier"
+                    >
+
+                    <div class="upgradeCardInformation">
+
+                        <h3
+                                class="upgradeCardName"
+                                id="drinkUpgradeName"
+                        >
+                            DRINK POWER
+                        </h3>
+
+                        <p
+                                class="upgradeCardLevel"
+                                id="drinkUpgradeLevel"
+                        >
+                            LEVEL 0 • CAN TIER 1
+                        </p>
+
+                        <p
+                                class="upgradeCardDescription"
+                                id="drinkUpgradeDescription"
+                        >
+                            Next level adds +1 energy per tap.
+                        </p>
+
+                        <div class="drinkCanProgress">
+
+                            <div class="drinkCanProgressText">
+                                <span>CURRENT CAN</span>
+
+                                <strong id="drinkCanProgressText">
+                                    NEXT CAN AT LEVEL 10
+                                </strong>
+                            </div>
+
+                            <div class="drinkCanProgressBar">
+                                <div
+                                        class="drinkCanProgressFill"
+                                        id="drinkCanProgressFill"
+                                ></div>
+                            </div>
+
+                        </div>
+
+                        <div class="upgradeCardBottom">
+
+                            <p class="upgradeCardCost">
+                                COST:
+                                <span id="drinkUpgradeCost">15</span>
+                            </p>
+
+                            <button
+                                    class="buyButton"
+                                    id="drinkUpgradeBuyButton"
+                                    type="button"
+                            >
+                                BUY
+                            </button>
+
+                        </div>
+
+                        <p class="purchaseError">
+                            NOT ENOUGH ENERGY
+                        </p>
+
+                    </div>
+
+                </article>
+
+                <!-- REAL SCALABLE LUCKY SHOT UPGRADE -->
+                <article
+                        class="upgradeCard scalableUpgradeCard luckyShotPowerCard"
+                        id="luckyShotUpgradeCard"
+                >
+
+                    <img
+                            class="upgradeCardImage"
+                            id="luckyShotUpgradeImage"
+                            src="assets/upgrades/luckyshot/tier-1.png"
+                            alt="Current Lucky Shot tier"
+                    >
+
+                    <div class="upgradeCardInformation">
+
+                        <h3 class="upgradeCardName" id="luckyShotUpgradeName">
+                            LUCKY SHOT
+                        </h3>
+
+                        <p class="upgradeCardLevel" id="luckyShotUpgradeLevel">
+                            LEVEL 0 • LUCK TIER 1
+                        </p>
+
+                        <p class="upgradeCardDescription specialUpgradeDescription" id="luckyShotUpgradeDescription">
+                            Chance to trigger bonus Energy when you tap. The payout scales with your current Energy.
+                        </p>
+
+                        <div class="specialUpgradeStats specialUpgradeStatsTwo" aria-label="Lucky Shot current stats">
+                            <div class="specialUpgradeStat">
+                                <span>CHANCE</span>
+                                <strong id="luckyShotCurrentChance">0%</strong>
+                            </div>
+
+                            <div class="specialUpgradeStat">
+                                <span>REWARD</span>
+                                <strong id="luckyShotCurrentReward">3%</strong>
+                            </div>
+                        </div>
+
+                        <div class="scalableUpgradeProgress luckyShotTierProgress">
+                            <div class="scalableUpgradeProgressText">
+                                <span>CURRENT LUCK</span>
+                                <strong id="luckyShotTierProgressText">
+                                    NEXT LUCK TIER AT LEVEL 10
+                                </strong>
+                            </div>
+
+                            <div class="scalableUpgradeProgressBar">
+                                <div
+                                        class="scalableUpgradeProgressFill luckyShotTierProgressFill"
+                                        id="luckyShotTierProgressFill"
+                                ></div>
+                            </div>
+                        </div>
+
+                        <div class="upgradeCardBottom">
+                            <p class="upgradeCardCost">
+                                COST:
+                                <span id="luckyShotUpgradeCost">2,000</span>
+                            </p>
+
+                            <button class="buyButton" id="luckyShotUpgradeBuyButton" type="button">
+                                BUY
+                            </button>
+                        </div>
+
+                        <p class="purchaseError">NOT ENOUGH ENERGY</p>
+                    </div>
+                </article>
+
+
+
+                <!-- EXAMPLE UPGRADE CARD 3 -->
+                <!-- REAL SCALABLE FACTORY UPGRADE -->
+                <article
+                        class="upgradeCard factoryPowerCard"
+                        id="factoryUpgradeCard"
+                >
+
+                    <img
+                            class="upgradeCardImage"
+                            id="factoryUpgradeImage"
+                            src="assets/upgrades/factory/tier-1.png"
+                            alt="Current factory tier"
+                    >
+
+                    <div class="upgradeCardInformation">
+
+                        <h3
+                                class="upgradeCardName"
+                                id="factoryUpgradeName"
+                        >
+                            FACTORY
+                        </h3>
+
+                        <p
+                                class="upgradeCardLevel"
+                                id="factoryUpgradeLevel"
+                        >
+                            LEVEL 0 • FACTORY TIER 1
+                        </p>
+
+                        <p
+                                class="upgradeCardDescription"
+                                id="factoryUpgradeDescription"
+                        >
+                            Next level adds +1 energy per second.
+                        </p>
+
+                        <div class="factoryTierProgress">
+
+                            <div class="factoryTierProgressText">
+                                <span>CURRENT FACTORY</span>
+
+                                <strong id="factoryTierProgressText">
+                                    NEXT FACTORY AT LEVEL 10
+                                </strong>
+                            </div>
+
+                            <div class="factoryTierProgressBar">
+                                <div
+                                        class="factoryTierProgressFill"
+                                        id="factoryTierProgressFill"
+                                ></div>
+                            </div>
+
+                        </div>
+
+                        <div class="upgradeCardBottom">
+
+                            <p class="upgradeCardCost">
+                                COST:
+                                <span id="factoryUpgradeCost">1,000</span>
+                            </p>
+
+                            <button
+                                    class="buyButton"
+                                    id="factoryUpgradeBuyButton"
+                                    type="button"
+                            >
+                                BUY
+                            </button>
+
+                        </div>
+
+                        <p class="purchaseError">
+                            NOT ENOUGH ENERGY
+                        </p>
+
+                    </div>
+
+                </article>
+
+
+                <!-- REAL SCALABLE KINETIC OVERFLOW UPGRADE -->
+                <article
+                        class="upgradeCard scalableUpgradeCard kineticPowerCard"
+                        id="kineticUpgradeCard"
+                >
+
+                    <img
+                            class="upgradeCardImage"
+                            id="kineticUpgradeImage"
+                            src="assets/upgrades/kinetic-overflow/tier-1.png"
+                            alt="Current Kinetic Overflow tier"
+                    >
+
+                    <div class="upgradeCardInformation">
+                        <h3 class="upgradeCardName" id="kineticUpgradeName">
+                            KINETIC OVERFLOW
+                        </h3>
+
+                        <p class="upgradeCardLevel" id="kineticUpgradeLevel">
+                            LEVEL 0 • OVERFLOW TIER 1
+                        </p>
+
+                        <p class="upgradeCardDescription specialUpgradeDescription" id="kineticUpgradeDescription">
+                            Chance to trigger a short boost that multiplies every tap for a few seconds.
+                        </p>
+
+                        <div class="specialUpgradeStats specialUpgradeStatsThree" aria-label="Kinetic Overflow current stats">
+                            <div class="specialUpgradeStat">
+                                <span>CHANCE</span>
+                                <strong id="kineticCurrentChance">0%</strong>
+                            </div>
+
+                            <div class="specialUpgradeStat">
+                                <span>POWER</span>
+                                <strong id="kineticCurrentPower">×1</strong>
+                            </div>
+
+                            <div class="specialUpgradeStat">
+                                <span>TIME</span>
+                                <strong id="kineticCurrentDuration">0s</strong>
+                            </div>
+                        </div>
+
+                        <div class="scalableUpgradeProgress kineticTierProgress">
+                            <div class="scalableUpgradeProgressText">
+                                <span>CURRENT OVERFLOW</span>
+                                <strong id="kineticTierProgressText">
+                                    NEXT OVERFLOW TIER AT LEVEL 10
+                                </strong>
+                            </div>
+
+                            <div class="scalableUpgradeProgressBar">
+                                <div
+                                        class="scalableUpgradeProgressFill kineticTierProgressFill"
+                                        id="kineticTierProgressFill"
+                                ></div>
+                            </div>
+                        </div>
+
+                        <div class="upgradeCardBottom">
+                            <p class="upgradeCardCost">
+                                COST:
+                                <span id="kineticUpgradeCost">8,000</span>
+                            </p>
+
+                            <button class="buyButton" id="kineticUpgradeBuyButton" type="button">
+                                BUY
+                            </button>
+                        </div>
+
+                        <p class="purchaseError">NOT ENOUGH ENERGY</p>
+                    </div>
+                </article>
+
+                <!-- SUPPLY DROP UPGRADE -->
+                <article
+                        class="upgradeCard scalableUpgradeCard supplyDropPowerCard"
+                        id="supplyDropUpgradeCard"
+                >
+
+                    <img
+                            class="upgradeCardImage supplyDropUpgradeImage"
+                            id="supplyDropUpgradeImage"
+                            src="assets/upgrades/supply-drop/tier-1.png"
+                            alt="Current Supply Drop tier"
+                    >
+
+                    <div class="upgradeCardInformation">
+                        <h3 class="upgradeCardName" id="supplyDropUpgradeName">
+                            SUPPLY DROP
+                        </h3>
+
+                        <p class="upgradeCardLevel" id="supplyDropUpgradeLevel">
+                            LEVEL 0 • DROP TIER 1
+                        </p>
+
+                        <p class="upgradeCardDescription specialUpgradeDescription" id="supplyDropUpgradeDescription">
+                            Buy Level 1 to unlock falling Supply Drops during active play.
+                        </p>
+
+                        <div class="specialUpgradeStats specialUpgradeStatsTwo" aria-label="Supply Drop current stats">
+                            <div class="specialUpgradeStat">
+                                <span>FREQUENCY</span>
+                                <strong id="supplyDropCurrentFrequency">UNLOCK L1</strong>
+                            </div>
+
+                            <div class="specialUpgradeStat">
+                                <span>REWARD</span>
+                                <strong id="supplyDropCurrentReward">UNLOCK L1</strong>
+                            </div>
+                        </div>
+
+                        <div class="scalableUpgradeProgress supplyDropTierProgress">
+                            <div class="scalableUpgradeProgressText">
+                                <span>CURRENT DROP</span>
+                                <strong id="supplyDropTierProgressText">
+                                    NEXT DROP TIER AT LEVEL 10
+                                </strong>
+                            </div>
+
+                            <div class="scalableUpgradeProgressBar">
+                                <div
+                                        class="scalableUpgradeProgressFill supplyDropTierProgressFill"
+                                        id="supplyDropTierProgressFill"
+                                ></div>
+                            </div>
+                        </div>
+
+                        <div class="upgradeCardBottom">
+                            <p class="upgradeCardCost">
+                                COST:
+                                <span id="supplyDropUpgradeCost">12K</span>
+                            </p>
+
+                            <button class="buyButton" id="supplyDropUpgradeBuyButton" type="button">
+                                UNLOCK
+                            </button>
+                        </div>
+
+                        <p class="purchaseError">NOT ENOUGH ENERGY</p>
+                    </div>
+                </article>
+
+
+
+                <!-- REAL SCALABLE DELIVERY TRUCK UPGRADE -->
+                <article
+                        class="upgradeCard scalableUpgradeCard deliveryPowerCard"
+                        id="deliveryUpgradeCard"
+                >
+
+                    <img
+                            class="upgradeCardImage"
+                            id="deliveryUpgradeImage"
+                            src="assets/upgrades/delivery-truck/tier-1.png"
+                            alt="Current Delivery tier"
+                    >
+
+                    <div class="upgradeCardInformation">
+                        <h3 class="upgradeCardName" id="deliveryUpgradeName">
+                            DELIVERY TRUCK
+                        </h3>
+
+                        <p class="upgradeCardLevel" id="deliveryUpgradeLevel">
+                            LEVEL 0 • DELIVERY TIER 1
+                        </p>
+
+                        <p class="upgradeCardDescription" id="deliveryUpgradeDescription">
+                            Next level adds +2 energy per second.
+                        </p>
+
+                        <div class="scalableUpgradeProgress deliveryTierProgress">
+                            <div class="scalableUpgradeProgressText">
+                                <span>CURRENT DELIVERY</span>
+                                <strong id="deliveryTierProgressText">
+                                    NEXT DELIVERY TIER AT LEVEL 10
+                                </strong>
+                            </div>
+
+                            <div class="scalableUpgradeProgressBar">
+                                <div
+                                        class="scalableUpgradeProgressFill deliveryTierProgressFill"
+                                        id="deliveryTierProgressFill"
+                                ></div>
+                            </div>
+                        </div>
+
+                        <div class="upgradeCardBottom">
+                            <p class="upgradeCardCost">
+                                COST:
+                                <span id="deliveryUpgradeCost">3,000</span>
+                            </p>
+
+                            <button class="buyButton" id="deliveryUpgradeBuyButton" type="button">
+                                BUY
+                            </button>
+                        </div>
+
+                        <p class="purchaseError">NOT ENOUGH ENERGY</p>
+                    </div>
+                </article>
+
+
+
+                <!-- REAL SCALABLE PRE-WORKOUT UPGRADE -->
+                <article
+                        class="upgradeCard scalableUpgradeCard preWorkoutPowerCard"
+                        id="preWorkoutUpgradeCard"
+                >
+
+                    <img
+                            class="upgradeCardImage"
+                            id="preWorkoutUpgradeImage"
+                            src="assets/upgrades/preworkout/tier-1.png"
+                            alt="Current Pre-Workout formula tier"
+                    >
+
+                    <div class="upgradeCardInformation">
+                        <h3 class="upgradeCardName" id="preWorkoutUpgradeName">
+                            PRE-WORKOUT
+                        </h3>
+
+                        <p class="upgradeCardLevel" id="preWorkoutUpgradeLevel">
+                            LEVEL 0 • FORMULA TIER 1
+                        </p>
+
+                        <p class="upgradeCardDescription" id="preWorkoutUpgradeDescription">
+                            Next level adds +3 energy per second.
+                        </p>
+
+                        <div class="scalableUpgradeProgress preWorkoutTierProgress">
+                            <div class="scalableUpgradeProgressText">
+                                <span>CURRENT FORMULA</span>
+                                <strong id="preWorkoutTierProgressText">
+                                    NEXT FORMULA TIER AT LEVEL 10
+                                </strong>
+                            </div>
+
+                            <div class="scalableUpgradeProgressBar">
+                                <div
+                                        class="scalableUpgradeProgressFill preWorkoutTierProgressFill"
+                                        id="preWorkoutTierProgressFill"
+                                ></div>
+                            </div>
+                        </div>
+
+                        <div class="upgradeCardBottom">
+                            <p class="upgradeCardCost">
+                                COST:
+                                <span id="preWorkoutUpgradeCost">20,000</span>
+                            </p>
+
+                            <button class="buyButton" id="preWorkoutUpgradeBuyButton" type="button">
+                                BUY
+                            </button>
+                        </div>
+
+                        <p class="purchaseError">NOT ENOUGH ENERGY</p>
+                    </div>
+                </article>
+
+
+
+            </div>
+            <!-- PLAYER BALANCE AT THE BOTTOM OF THE SHOP -->
+            <footer class="shopBalanceBar">
+
+                <div class="shopBalanceLabel">
+
+                    <img
+                            class="shopBalanceImage"
+                            id="shopBalanceImage"
+                            src="assets/upgrades/drink-power/tier-1.png"
+                            alt="Current energy drink can"
+                    >
+
+                    <span>MY ENERGY</span>
+
+                </div>
+
+                <strong
+                        class="shopBalanceAmount"
+                        id="shopBalanceAmount"
+                        aria-live="polite"
+                >
+                    0
+                </strong>
+
+            </footer>
+        </section>
+
+    </div>
+
+</div>
+
+
+<!-- ACHIEVEMENT UNLOCKED POPUP -->
+<div
+        class="achievementToast"
+        id="achievementToast"
+        aria-live="polite"
+        aria-atomic="true"
+>
+    <div class="achievementToastIcon">
+        🏆
+    </div>
+
+    <div class="achievementToastInformation">
+
+        <span>
+            ACHIEVEMENT UNLOCKED
+        </span>
+
+        <strong id="achievementToastTitle">
+            FIRST CRACK
+        </strong>
+
+        <p id="achievementToastDescription">
+            Tap the energy can for the first time.
+        </p>
+
+        <strong
+                class="achievementToastReward"
+                id="achievementToastReward"
+        >
+            REWARD +0 ENERGY
+        </strong>
+
+    </div>
+</div>
+
+<!-- LIFE CHALLENGE COMPLETE POPUP -->
+<div
+        class="lifeChallengeToast"
+        id="lifeChallengeToast"
+        aria-live="polite"
+        aria-atomic="true"
+>
+    <div class="lifeChallengeToastIcon">
+        🎯
+    </div>
+
+    <div class="lifeChallengeToastInformation">
+
+        <span>
+            LIFE CHALLENGE COMPLETE
+        </span>
+
+        <strong id="lifeChallengeToastTitle">
+            ENERGY RUN I
+        </strong>
+
+        <p id="lifeChallengeToastDescription">
+            Complete a challenge during this Life.
+        </p>
+
+        <strong
+                class="lifeChallengeToastReward"
+                id="lifeChallengeToastReward"
+        >
+            REWARD +0 ENERGY
+        </strong>
+
+    </div>
+</div>
+
+<!-- SAVE SLOT SELECTION SCREEN -->
+<div
+        class="saveSlotOverlay open"
+        id="saveSlotOverlay"
+        aria-hidden="false"
+>
+    <section
+            class="saveSlotPanel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="saveSlotTitle"
+    >
+        <div class="saveSlotLogo" aria-hidden="true">
+            ✦
+        </div>
+
+        <h1 id="saveSlotTitle" class="saveSlotGameLogo">
+            <span class="saveSlotLogoEnergy">ENERGY</span>
+            <span class="saveSlotLogoClicker">CLICKER</span>
+        </h1>
+
+        <p class="saveSlotSubtitle">
+            SELECT A SAVE SLOT
+        </p>
+
+        <div
+                class="saveSlotList"
+                id="saveSlotList"
+        ></div>
+    </section>
+</div>
+
+<!-- OFFLINE PRODUCTION REWARD -->
+<div
+        class="offlineRewardOverlay"
+        id="offlineRewardOverlay"
+        aria-hidden="true"
+>
+    <section
+            class="offlineRewardPanel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="offlineRewardTitle"
+    >
+        <h2 id="offlineRewardTitle">
+            WELCOME BACK! <span aria-hidden="true">🎉</span>
+        </h2>
+
+        <div class="offlineRewardIcon" aria-hidden="true">
+            ⚡
+        </div>
+
+        <div class="offlineTimeSummary">
+            <span>You were away for:</span>
+            <strong id="offlineTimeAway">0s</strong>
+        </div>
+
+        <div class="offlineEnergyCard">
+            <span>ENERGY EARNED</span>
+            <strong id="offlineEnergyEarned">0</strong>
+        </div>
+
+        <p class="offlineRewardMessage" id="offlineRewardMessage">
+            Your production kept running while you were away.
+        </p>
+
+        <button
+                class="offlineContinueButton"
+                id="offlineContinueButton"
+                type="button"
+        >
+            CLAIM &amp; CONTINUE
+        </button>
+    </section>
+</div>
+
+<!-- TEMPORARY DEVELOPER TEST BUTTON -->
+<button
+        class="devEnergyButton"
+        id="devEnergyButton"
+        type="button"
+>
+    DEV +1B
+</button>
+<script src="js/upgrades.js"></script>
+<script src="js/mobile.js"></script>
+</body>
+</html>

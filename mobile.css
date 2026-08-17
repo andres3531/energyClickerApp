@@ -9342,3 +9342,622 @@ body.reducedMotion .offlineRewardIcon {
 .doRebirthButton {
     border-color: var(--home-navy);
 }
+/* =================================================
+   PHONE POLISH — SHOP HEADER SPACING
+================================================= */
+
+.shopHeader {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    column-gap: 8px;
+    align-items: start;
+
+    padding: 16px 16px 10px;
+}
+
+.shopHeader h2 {
+    grid-column: 2;
+
+    width: 100%;
+    max-width: none;
+}
+
+.closeShopButton {
+    position: static;
+
+    grid-column: 3;
+
+    align-self: start;
+    justify-self: end;
+}
+/* =================================================
+   PHONE POLISH — PREVENT DOUBLE-TAP ZOOM
+================================================= */
+
+html,
+body,
+.appShell {
+    touch-action: manipulation;
+}
+/* =================================================
+   SPECIAL UPGRADES — CLEAN STAT PRESENTATION
+================================================= */
+
+.specialUpgradeDescription {
+    margin-top: 9px;
+
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.35;
+
+    color: #5f657f;
+}
+
+.specialUpgradeStats {
+    display: grid;
+    gap: 7px;
+
+    margin-top: 10px;
+}
+
+.specialUpgradeStatsTwo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.specialUpgradeStatsThree {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.specialUpgradeStat {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 2px;
+    padding: 7px 5px;
+
+    border: 2px solid rgba(32, 37, 77, 0.18);
+    border-radius: 10px;
+
+    background: #f3efff;
+
+    text-align: center;
+}
+
+.specialUpgradeStat span {
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: 0.7px;
+
+    color: #777d98;
+}
+
+.specialUpgradeStat strong {
+    max-width: 100%;
+
+    overflow: hidden;
+
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1.1;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    color: var(--home-navy);
+}
+
+.luckyShotPowerCard .specialUpgradeStat strong {
+    color: #17a75b;
+}
+
+.kineticPowerCard .specialUpgradeStat strong {
+    color: #7c4ed8;
+}
+
+.specialUpgradeNext {
+    margin-top: 7px;
+    padding: 6px 8px;
+
+    border-radius: 8px;
+
+    background: #fff3c9;
+
+    text-align: center;
+
+    font-size: 9px;
+    font-weight: 900;
+    line-height: 1.25;
+    letter-spacing: 0.25px;
+
+    color: #6b5b25;
+}
+
+/* Keep Lucky Shot / Kinetic progress compact after the stat boxes. */
+.luckyShotPowerCard .scalableUpgradeProgress,
+.kineticPowerCard .scalableUpgradeProgress {
+    margin-top: 8px;
+}
+
+
+/* =================================================
+   SUPPLY DROP — RANDOM ACTIVE-PLAY EVENT
+================================================= */
+
+.supplyDropButton {
+    --supply-drop-left: 50%;
+
+    position: absolute;
+    z-index: 18;
+
+    top: -92px;
+    left: var(--supply-drop-left);
+
+    width: 78px;
+    min-height: 88px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 3px;
+
+    padding: 0;
+
+    background: transparent;
+
+    opacity: 0;
+    pointer-events: none;
+
+    transform: translateX(-50%);
+
+    filter:
+        drop-shadow(0 8px 7px rgba(32, 37, 77, 0.28));
+}
+
+.supplyDropButton.active {
+    opacity: 1;
+    pointer-events: auto;
+
+    animation:
+        supplyDropFall 5s linear forwards;
+}
+
+.supplyDropButton:disabled {
+    cursor: default;
+}
+
+.supplyDropCrate {
+    width: 62px;
+    height: 58px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border: 4px solid var(--home-navy);
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffe56d,
+            #ffb92f
+        );
+
+    box-shadow:
+        0 6px 0 rgba(32, 37, 77, 0.18),
+        0 0 22px rgba(255, 210, 66, 0.6);
+
+    animation:
+        supplyDropCrateWobble 0.48s ease-in-out infinite alternate;
+}
+
+.supplyDropBolt {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.supplyDropLabel {
+    padding: 4px 8px;
+
+    border: 2px solid var(--home-navy);
+    border-radius: 999px;
+
+    background: #ff4b87;
+
+    color: #ffffff;
+
+    font-family: "EnergyUI", sans-serif;
+    font-size: 9px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.6px;
+
+    box-shadow: 0 3px 0 rgba(32, 37, 77, 0.16);
+}
+
+.supplyDropButton.collected {
+    animation: supplyDropCollected 0.22s ease forwards;
+}
+
+@keyframes supplyDropFall {
+    0% {
+        top: -92px;
+        transform:
+            translateX(-50%)
+            rotate(-5deg);
+    }
+
+    25% {
+        transform:
+            translateX(-50%)
+            rotate(5deg);
+    }
+
+    50% {
+        transform:
+            translateX(-50%)
+            rotate(-4deg);
+    }
+
+    75% {
+        transform:
+            translateX(-50%)
+            rotate(4deg);
+    }
+
+    100% {
+        top: 72%;
+        transform:
+            translateX(-50%)
+            rotate(0deg);
+    }
+}
+
+@keyframes supplyDropCrateWobble {
+    from {
+        transform: scale(0.97);
+        filter: brightness(1);
+    }
+
+    to {
+        transform: scale(1.04);
+        filter: brightness(1.12);
+    }
+}
+
+@keyframes supplyDropCollected {
+    from {
+        opacity: 1;
+        transform:
+            translateX(-50%)
+            scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform:
+            translateX(-50%)
+            scale(1.45)
+            rotate(8deg);
+    }
+}
+
+.supplyDropRewardPopup {
+    position: absolute;
+    z-index: 19;
+
+    top: 40%;
+    left: 50%;
+
+    max-width: 88%;
+
+    padding: 9px 13px;
+
+    border: 3px solid var(--home-navy);
+    border-radius: 12px;
+
+    background: #fff7d7;
+
+    color: #ff4b87;
+
+    font-family: "EnergyUI", sans-serif;
+    font-size: clamp(14px, 4vw, 18px);
+    font-weight: 900;
+    line-height: 1.1;
+    text-align: center;
+
+    box-shadow:
+        0 5px 0 rgba(32, 37, 77, 0.17),
+        0 10px 22px rgba(32, 37, 77, 0.18);
+
+    opacity: 0;
+    pointer-events: none;
+
+    transform:
+        translate(-50%, 12px)
+        scale(0.9);
+}
+
+.supplyDropRewardPopup.visible {
+    animation:
+        supplyDropRewardPop 1.05s ease forwards;
+}
+
+@keyframes supplyDropRewardPop {
+    0% {
+        opacity: 0;
+        transform:
+            translate(-50%, 15px)
+            scale(0.86);
+    }
+
+    18%,
+    70% {
+        opacity: 1;
+        transform:
+            translate(-50%, 0)
+            scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translate(-50%, -35px)
+            scale(0.96);
+    }
+}
+
+body.reducedMotion .supplyDropCrate {
+    animation: none !important;
+}
+
+/* =================================================
+   SUPPLY DROP V2 — SHOP UPGRADE + SCREEN FALL
+================================================= */
+
+/* Supply Drop's shop artwork uses the same crate style as the event. */
+.supplyDropUpgradeImage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: #fff2bf;
+}
+
+.supplyDropMiniCrate {
+    width: 58px;
+    height: 54px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border: 4px solid var(--home-navy);
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffe56d,
+            #ffb92f
+        );
+
+    box-shadow:
+        0 5px 0 rgba(32, 37, 77, 0.17),
+        0 0 18px rgba(255, 210, 66, 0.48);
+
+    font-size: 25px;
+}
+
+.supplyDropPowerCard .specialUpgradeStat strong {
+    color: #d78b00;
+}
+
+/*
+   The event is now positioned against the full game screen instead
+   of only the can area, so it visibly enters from the top of the phone.
+*/
+.supplyDropButton {
+    --supply-drop-left: 50%;
+    --supply-drop-fall-duration: 6200ms;
+
+    top: -72px;
+
+    width: 74px;
+    min-height: 64px;
+
+    gap: 0;
+}
+
+.supplyDropButton.active {
+    animation:
+        supplyDropFall
+        var(--supply-drop-fall-duration)
+        linear
+        forwards;
+}
+
+/* There is intentionally no DROP! label under the crate. */
+.supplyDropLabel {
+    display: none !important;
+}
+
+@keyframes supplyDropFall {
+    0% {
+        top: -72px;
+        transform:
+            translateX(-50%)
+            rotate(-5deg);
+    }
+
+    25% {
+        transform:
+            translateX(-50%)
+            rotate(5deg);
+    }
+
+    50% {
+        transform:
+            translateX(-50%)
+            rotate(-4deg);
+    }
+
+    75% {
+        transform:
+            translateX(-50%)
+            rotate(4deg);
+    }
+
+    100% {
+        top: calc(100% - 175px);
+        transform:
+            translateX(-50%)
+            rotate(0deg);
+    }
+}
+
+/* =================================================
+   TIER PROGRESS TEXT — NEVER CUT OFF THE NEXT TIER
+================================================= */
+
+.scalableUpgradeProgressText,
+.factoryTierProgressText,
+.drinkCanProgressText {
+    align-items: flex-start;
+}
+
+.scalableUpgradeProgressText span,
+.factoryTierProgressText span,
+.drinkCanProgressText span {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.scalableUpgradeProgressText strong,
+.factoryTierProgressText strong,
+.drinkCanProgressText strong {
+    min-width: 0;
+    max-width: 58%;
+
+    overflow: visible;
+
+    white-space: normal;
+    text-overflow: clip;
+
+    line-height: 1.15;
+    text-align: right;
+}
+
+/* The yellow NEXT LEVEL summary is no longer part of Lucky/Kinetic. */
+.specialUpgradeNext {
+    display: none !important;
+}
+
+
+/* =================================================
+   CONTENT EXPANSION — TIERS 7–10 + NEW COLORS
+================================================= */
+
+/* Supply Drop now uses the exported tier artwork in both the shop
+   and the falling active-play event. */
+.supplyDropUpgradeImage {
+    display: block;
+    object-fit: contain;
+    background: #fff2bf;
+}
+
+.supplyDropCrateImage {
+    width: 74px;
+    height: 74px;
+    object-fit: contain;
+    pointer-events: none;
+
+    filter:
+        drop-shadow(0 7px 6px rgba(32, 37, 77, 0.25));
+
+    animation:
+        supplyDropCrateWobble 0.48s ease-in-out infinite alternate;
+}
+
+body.reducedMotion .supplyDropCrateImage {
+    animation: none !important;
+}
+
+.supplyDropTierProgressFill {
+    background:
+        linear-gradient(
+            90deg,
+            #ffb92f,
+            #ff4b87,
+            #63efff
+        );
+}
+
+/* New Colors Shop swatches. Existing colors remain indexes 0–6;
+   the five new colors are appended so old save data stays compatible. */
+.colorShopSwatch7 {
+    background: linear-gradient(135deg, #ff6a00, #ff9f1c, #ffd447);
+}
+
+.colorShopSwatch8 {
+    background: linear-gradient(135deg, #e31b23 0 32%, #ffffff 32% 66%, #2457d6 66% 100%);
+}
+
+.colorShopSwatch9 {
+    background: linear-gradient(135deg, #ff8fcf, #d9a7ff, #70e7ff, #ffb6df);
+}
+
+.colorShopSwatch10 {
+    background: linear-gradient(135deg, #090b14, #20284a, #b8d4e8, #effbff, #11172b);
+}
+
+.colorShopSwatch11 {
+    background: linear-gradient(135deg, #68000c, #ff1538, #ff6a7f, #fff1f3, #ff1538);
+}
+
+/* Fallback gradients for any legacy score rendering path. */
+.scoreColor9 {
+    background-image: linear-gradient(90deg, #ff6a00, #ff9f1c, #ffd447, #ff7a00, #ff6a00);
+}
+
+.scoreColor10 {
+    background-image: linear-gradient(90deg, #d71920, #ffffff, #2457d6, #ffffff, #d71920);
+}
+
+.scoreColor11 {
+    background-image: linear-gradient(90deg, #ff8fcf, #d9a7ff, #70e7ff, #ffb6df, #ff8fcf);
+}
+
+.scoreColor12 {
+    background-image: linear-gradient(90deg, #06070c, #1c2542, #9ebbd1, #f2fdff, #182039, #06070c);
+}
+
+.scoreColor13 {
+    background-image: linear-gradient(90deg, #5c0009, #ff0f35, #ff6075, #fff0f2, #ff0f35, #5c0009);
+}
+
+/* Current Figma home-score system: the class lives on .scoreNumber
+   and supplies the gradient used by each animated character. */
+.gameScreen .scoreNumber.scoreColor9 {
+    --home-score-gradient: linear-gradient(90deg, #ff6a00, #ff9f1c, #ffd447, #ff7a00, #ff6a00);
+}
+
+.gameScreen .scoreNumber.scoreColor10 {
+    --home-score-gradient: linear-gradient(90deg, #d71920, #ffffff, #2457d6, #ffffff, #d71920);
+}
+
+.gameScreen .scoreNumber.scoreColor11 {
+    --home-score-gradient: linear-gradient(90deg, #ff8fcf, #d9a7ff, #70e7ff, #ffb6df, #ff8fcf);
+}
+
+.gameScreen .scoreNumber.scoreColor12 {
+    --home-score-gradient: linear-gradient(90deg, #06070c, #1c2542, #9ebbd1, #f2fdff, #182039, #06070c);
+}
+
+.gameScreen .scoreNumber.scoreColor13 {
+    --home-score-gradient: linear-gradient(90deg, #5c0009, #ff0f35, #ff6075, #fff0f2, #ff0f35, #5c0009);
+}

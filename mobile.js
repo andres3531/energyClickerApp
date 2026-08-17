@@ -206,7 +206,11 @@ const CAN_LEVEL_IMAGES = [
     "assets/upgrades/drink-power/tier-3.png",
     "assets/upgrades/drink-power/tier-4.png",
     "assets/upgrades/drink-power/tier-5.png",
-    "assets/upgrades/drink-power/tier-6.png"
+    "assets/upgrades/drink-power/tier-6.png",
+    "assets/upgrades/drink-power/tier-7.png",
+    "assets/upgrades/drink-power/tier-8.png",
+    "assets/upgrades/drink-power/tier-9.png",
+    "assets/upgrades/drink-power/tier-10.png"
 ];
 
 const DRINK_CAN_MILESTONES = [
@@ -239,6 +243,26 @@ const DRINK_CAN_MILESTONES = [
         level: 200,
         tier: 6,
         image: CAN_LEVEL_IMAGES[5]
+    },
+    {
+        level: 350,
+        tier: 7,
+        image: CAN_LEVEL_IMAGES[6]
+    },
+    {
+        level: 500,
+        tier: 8,
+        image: CAN_LEVEL_IMAGES[7]
+    },
+    {
+        level: 700,
+        tier: 9,
+        image: CAN_LEVEL_IMAGES[8]
+    },
+    {
+        level: 900,
+        tier: 10,
+        image: CAN_LEVEL_IMAGES[9]
     }
 ];
 
@@ -279,7 +303,11 @@ const FACTORY_TIER_MILESTONES = [
     { level: 25, tier: 3, image: "assets/upgrades/factory/tier-3.png" },
     { level: 50, tier: 4, image: "assets/upgrades/factory/tier-4.png" },
     { level: 100, tier: 5, image: "assets/upgrades/factory/tier-5.png" },
-    { level: 200, tier: 6, image: "assets/upgrades/factory/tier-6.png" }
+    { level: 200, tier: 6, image: "assets/upgrades/factory/tier-6.png" },
+    { level: 350, tier: 7, image: "assets/upgrades/factory/tier-7.png" },
+    { level: 500, tier: 8, image: "assets/upgrades/factory/tier-8.png" },
+    { level: 700, tier: 9, image: "assets/upgrades/factory/tier-9.png" },
+    { level: 900, tier: 10, image: "assets/upgrades/factory/tier-10.png" }
 ];
 
 const mobilePerSecondRow =
@@ -305,7 +333,11 @@ const DELIVERY_TIER_MILESTONES = [
     { level: 25, tier: 3, image: "assets/upgrades/delivery-truck/tier-3.png" },
     { level: 50, tier: 4, image: "assets/upgrades/delivery-truck/tier-4.png" },
     { level: 100, tier: 5, image: "assets/upgrades/delivery-truck/tier-5.png" },
-    { level: 200, tier: 6, image: "assets/upgrades/delivery-truck/tier-6.png" }
+    { level: 200, tier: 6, image: "assets/upgrades/delivery-truck/tier-6.png" },
+    { level: 350, tier: 7, image: "assets/upgrades/delivery-truck/tier-7.png" },
+    { level: 500, tier: 8, image: "assets/upgrades/delivery-truck/tier-8.png" },
+    { level: 700, tier: 9, image: "assets/upgrades/delivery-truck/tier-9.png" },
+    { level: 900, tier: 10, image: "assets/upgrades/delivery-truck/tier-10.png" }
 ];
 
 
@@ -326,7 +358,11 @@ const PREWORKOUT_TIER_MILESTONES = [
     { level: 25, tier: 3, image: "assets/upgrades/preworkout/tier-3.png" },
     { level: 50, tier: 4, image: "assets/upgrades/preworkout/tier-4.png" },
     { level: 100, tier: 5, image: "assets/upgrades/preworkout/tier-5.png" },
-    { level: 200, tier: 6, image: "assets/upgrades/preworkout/tier-6.png" }
+    { level: 200, tier: 6, image: "assets/upgrades/preworkout/tier-6.png" },
+    { level: 350, tier: 7, image: "assets/upgrades/preworkout/tier-7.png" },
+    { level: 500, tier: 8, image: "assets/upgrades/preworkout/tier-8.png" },
+    { level: 700, tier: 9, image: "assets/upgrades/preworkout/tier-9.png" },
+    { level: 900, tier: 10, image: "assets/upgrades/preworkout/tier-10.png" }
 ];
 
 // -------------------------------------------------
@@ -345,7 +381,11 @@ const LUCKY_SHOT_TIER_MILESTONES = [
     { level: 25, tier: 3, image: "assets/upgrades/luckyshot/tier-3.png" },
     { level: 50, tier: 4, image: "assets/upgrades/luckyshot/tier-4.png" },
     { level: 100, tier: 5, image: "assets/upgrades/luckyshot/tier-5.png" },
-    { level: 200, tier: 6, image: "assets/upgrades/luckyshot/tier-6.png" }
+    { level: 200, tier: 6, image: "assets/upgrades/luckyshot/tier-6.png" },
+    { level: 350, tier: 7, image: "assets/upgrades/luckyshot/tier-7.png" },
+    { level: 500, tier: 8, image: "assets/upgrades/luckyshot/tier-8.png" },
+    { level: 700, tier: 9, image: "assets/upgrades/luckyshot/tier-9.png" },
+    { level: 900, tier: 10, image: "assets/upgrades/luckyshot/tier-10.png" }
 ];
 
 const mobileGameMessage =
@@ -367,7 +407,11 @@ const KINETIC_TIER_MILESTONES = [
     { level: 25, tier: 3, image: "assets/upgrades/kinetic-overflow/tier-3.png" },
     { level: 50, tier: 4, image: "assets/upgrades/kinetic-overflow/tier-4.png" },
     { level: 100, tier: 5, image: "assets/upgrades/kinetic-overflow/tier-5.png" },
-    { level: 200, tier: 6, image: "assets/upgrades/kinetic-overflow/tier-6.png" }
+    { level: 200, tier: 6, image: "assets/upgrades/kinetic-overflow/tier-6.png" },
+    { level: 350, tier: 7, image: "assets/upgrades/kinetic-overflow/tier-7.png" },
+    { level: 500, tier: 8, image: "assets/upgrades/kinetic-overflow/tier-8.png" },
+    { level: 700, tier: 9, image: "assets/upgrades/kinetic-overflow/tier-9.png" },
+    { level: 900, tier: 10, image: "assets/upgrades/kinetic-overflow/tier-10.png" }
 ];
 
 let mobileKineticChance = 0;
@@ -388,6 +432,60 @@ const mobilePerTapRow =
 
 
 // -------------------------------------------------
+// SUPPLY DROP UPGRADE + EVENT STATE
+// -------------------------------------------------
+
+/*
+    Supply Drop is a real resettable gameplay upgrade.
+
+    Level 0 = locked, so no drops can appear.
+    Buying Level 1 unlocks the falling-crate event.
+    Higher levels make drops appear more consistently
+    and increase the reward without letting the system
+    overpower normal tapping.
+*/
+const SUPPLY_DROP_BASE_COST = 12_000;
+const SUPPLY_DROP_MAX_LEVEL = 1000;
+
+const SUPPLY_DROP_TIER_MILESTONES = [
+    { level: 0, tier: 1, image: "assets/upgrades/supply-drop/tier-1.png" },
+    { level: 10, tier: 2, image: "assets/upgrades/supply-drop/tier-2.png" },
+    { level: 25, tier: 3, image: "assets/upgrades/supply-drop/tier-3.png" },
+    { level: 50, tier: 4, image: "assets/upgrades/supply-drop/tier-4.png" },
+    { level: 100, tier: 5, image: "assets/upgrades/supply-drop/tier-5.png" },
+    { level: 200, tier: 6, image: "assets/upgrades/supply-drop/tier-6.png" },
+    { level: 350, tier: 7, image: "assets/upgrades/supply-drop/tier-7.png" },
+    { level: 500, tier: 8, image: "assets/upgrades/supply-drop/tier-8.png" },
+    { level: 700, tier: 9, image: "assets/upgrades/supply-drop/tier-9.png" },
+    { level: 900, tier: 10, image: "assets/upgrades/supply-drop/tier-10.png" }
+];
+
+const SUPPLY_DROP_FIRST_MIN_DELAY_MS = 20_000;
+const SUPPLY_DROP_FIRST_MAX_DELAY_MS = 35_000;
+const SUPPLY_DROP_FALL_DURATION_MS = 6_200;
+const SUPPLY_DROP_RETRY_DELAY_MS = 8_000;
+const SUPPLY_DROP_MIN_REWARD = 100;
+
+const SUPPLY_DROP_TAP_EQUIVALENT = 6;
+const SUPPLY_DROP_PASSIVE_SECONDS = 5;
+
+let mobileSupplyDropUpgradeIndex = 0;
+
+let supplyDropSpawnTimer = null;
+let supplyDropExpireTimer = null;
+let supplyDropActive = false;
+
+const supplyDropButton =
+    document.getElementById("supplyDropButton");
+
+const supplyDropEventImage =
+    document.getElementById("supplyDropEventImage");
+
+const supplyDropRewardPopup =
+    document.getElementById("supplyDropRewardPopup");
+
+
+// -------------------------------------------------
 // BULK UPGRADE PURCHASE STATE
 // -------------------------------------------------
 
@@ -395,7 +493,7 @@ const mobilePerTapRow =
     Because every upgrade tree can now reach 1,000
     levels, players should not have to press BUY one
     thousand separate times. This selector applies to
-    all six gameplay upgrade cards.
+    all seven gameplay upgrade cards.
 */
 const VALID_UPGRADE_BUY_MODES = [
     "1",
@@ -433,16 +531,6 @@ let mobileEquippedSkinIndex = null;
 // SCORE COLOR STATE
 // -------------------------------------------------
 
-const SCORE_COLOR_NAMES = [
-    "ELECTRIC BLUE",
-    "PURPLE PUNCH",
-    "GOLD RUSH",
-    "TOXIC GREEN",
-    "HOT PINK",
-    "ROSE GOLD",
-    "ROYAL PURPLE"
-];
-
 /*
     false = the color has not been purchased
     true = the player owns the color
@@ -478,11 +566,11 @@ const MINIMUM_OFFLINE_SECONDS = 10;
 
 /*
     Players earn 50% of normal passive production
-    for a maximum of six hours while away. Permanent
+    for a maximum of seven days while away. Permanent
     offline perks can improve that efficiency.
 */
 const MAXIMUM_OFFLINE_SECONDS =
-    6 * 60 * 60;
+    7 * 24 * 60 * 60;
 
 const offlineRewardOverlay =
     document.getElementById(
@@ -497,6 +585,11 @@ const offlineTimeAwayDisplay =
 const offlineEnergyEarnedDisplay =
     document.getElementById(
         "offlineEnergyEarned"
+    );
+
+const offlineRewardMessage =
+    document.getElementById(
+        "offlineRewardMessage"
     );
 
 const offlineContinueButton =
@@ -1499,7 +1592,7 @@ function getPerkEffectLines(perk, rankAmount = 1) {
         }
 
         if (effect.type === "startingAllLevels") {
-            return `START ALL 6 UPGRADES AT LEVEL ${Math.floor(total)}`;
+            return `START ALL 7 UPGRADES AT LEVEL ${Math.floor(total)}`;
         }
 
         return "PERMANENT BONUS";
@@ -1814,6 +1907,13 @@ function getRebirthStartingLevels() {
                 allLevels +
                 specialLevels
             )
+        ),
+
+        supplyDrop: Math.min(
+            SUPPLY_DROP_MAX_LEVEL,
+            Math.floor(
+                allLevels
+            )
         )
     };
 }
@@ -1840,6 +1940,9 @@ function applyRebirthStartingBonuses() {
 
     mobileKineticUpgradeIndex =
         startingLevels.kinetic;
+
+    mobileSupplyDropUpgradeIndex =
+        startingLevels.supplyDrop;
 
     const fixedStartingEnergy =
         getPermanentPerkEffectTotal(
@@ -2204,6 +2307,40 @@ function getBulkUpgradeConfig(upgradeKey) {
 
             tierClass:
                 "scalableTierUnlocked"
+        },
+
+        supplyDrop: {
+            getLevel: () =>
+                mobileSupplyDropUpgradeIndex,
+
+            setLevel: (level) => {
+                const wasLocked =
+                    mobileSupplyDropUpgradeIndex <= 0;
+
+                mobileSupplyDropUpgradeIndex = level;
+
+                refreshSupplyDropScheduleAfterUpgrade(
+                    wasLocked
+                );
+            },
+
+            maxLevel:
+                SUPPLY_DROP_MAX_LEVEL,
+
+            getUpgradeData:
+                getSupplyDropUpgradeData,
+
+            getElements:
+                getSupplyDropUpgradeElements,
+
+            getTier: (level) =>
+                getCurrentUpgradeMilestone(
+                    level,
+                    SUPPLY_DROP_TIER_MILESTONES
+                ).tier,
+
+            tierClass:
+                "scalableTierUnlocked"
         }
     };
 
@@ -2488,7 +2625,10 @@ function updateBulkPurchaseCardControls(
             );
 
         elements.buyButton.textContent =
-            "BUY";
+            upgradeKey === "supplyDrop" &&
+            currentLevel === 0
+                ? "UNLOCK"
+                : "BUY";
 
         return;
     }
@@ -2513,7 +2653,8 @@ function updateAllBulkPurchaseCardControls() {
         "delivery",
         "preWorkout",
         "luckyShot",
-        "kinetic"
+        "kinetic",
+        "supplyDrop"
     ].forEach(
         updateBulkPurchaseCardControls
     );
@@ -2891,6 +3032,7 @@ function updateShopBalance() {
     updatePreWorkoutCard();
     updateLuckyShotCard();
     updateKineticOverflowCard();
+    updateSupplyDropUpgradeCard();
 
     updateAllBulkPurchaseCardControls();
     updateCosmeticAffordabilityStates();
@@ -4169,6 +4311,21 @@ function getLuckyShotElements() {
                 "luckyShotUpgradeDescription"
             ),
 
+        currentChance:
+            document.getElementById(
+                "luckyShotCurrentChance"
+            ),
+
+        currentReward:
+            document.getElementById(
+                "luckyShotCurrentReward"
+            ),
+
+        nextSummary:
+            document.getElementById(
+                "luckyShotNextLevelSummary"
+            ),
+
         progressText:
             document.getElementById(
                 "luckyShotTierProgressText"
@@ -4317,16 +4474,41 @@ function updateLuckyShotCard() {
     elements.level.textContent =
         `LEVEL ${mobileLuckyShotUpgradeIndex} • LUCK TIER ${currentMilestone.tier}`;
 
+    elements.description.textContent =
+        "Chance to trigger bonus Energy when you tap. The payout scales with your current Energy.";
+
+    const currentChance =
+        getCurrentLuckyShotChance();
+
+    const currentReward =
+        getCurrentLuckyShotBonusMultiplier();
+
+    if (elements.currentChance) {
+        elements.currentChance.textContent =
+            formatSpecialUpgradePercent(
+                currentChance
+            );
+    }
+
+    if (elements.currentReward) {
+        elements.currentReward.textContent =
+            formatSpecialUpgradePercent(
+                currentReward
+            );
+    }
+
     if (
         mobileLuckyShotUpgradeIndex >=
         LUCKY_SHOT_MAX_LEVEL
     ) {
-        elements.description.textContent =
-            `Maximum current level. ${formatChancePercent(
-                mobileLuckyShotChance
-            )} chance with a ${formatChancePercent(
-                mobileLuckyShotBonusMultiplier
-            )} reward.`;
+        if (elements.nextSummary) {
+            elements.nextSummary.textContent =
+                `MAXED • ${formatSpecialUpgradePercent(
+                    currentChance
+                )} chance • ${formatSpecialUpgradePercent(
+                    currentReward
+                )} reward`;
+        }
 
         elements.progressText.textContent =
             "HIGHEST CURRENT LUCK TIER";
@@ -4350,22 +4532,24 @@ function updateLuckyShotCard() {
         return;
     }
 
-    const chanceText =
-        mobileLuckyShotChance >=
-        LUCKY_SHOT_MAX_CHANCE
-            ? "chance capped"
-            : `+${formatChancePercent(
-                nextUpgrade.chanceIncrease
-            )} chance`;
+    const nextValues =
+        calculateLuckyShotValuesFromLevel(
+            mobileLuckyShotUpgradeIndex + 1
+        );
 
-    elements.description.textContent =
-        `Current chance: ${formatChancePercent(
-            getCurrentLuckyShotChance()
-        )}. Next level: ${chanceText}, +${formatChancePercent(
-            nextUpgrade.bonusIncrease
-        )} reward. Current reward: ${formatChancePercent(
-            getCurrentLuckyShotBonusMultiplier()
-        )}.`;
+    if (elements.nextSummary) {
+        const prefix =
+            mobileLuckyShotUpgradeIndex === 0
+                ? "FIRST LEVEL"
+                : "NEXT LEVEL";
+
+        elements.nextSummary.textContent =
+            `${prefix} → ${formatSpecialUpgradePercent(
+                nextValues.chance
+            )} chance • ${formatSpecialUpgradePercent(
+                nextValues.bonusMultiplier
+            )} reward`;
+    }
 
     elements.progressText.textContent =
         nextMilestone
@@ -4505,6 +4689,26 @@ function getKineticOverflowElements() {
         description:
             document.getElementById(
                 "kineticUpgradeDescription"
+            ),
+
+        currentChance:
+            document.getElementById(
+                "kineticCurrentChance"
+            ),
+
+        currentPower:
+            document.getElementById(
+                "kineticCurrentPower"
+            ),
+
+        currentDuration:
+            document.getElementById(
+                "kineticCurrentDuration"
+            ),
+
+        nextSummary:
+            document.getElementById(
+                "kineticNextLevelSummary"
             ),
 
         progressText:
@@ -4663,14 +4867,57 @@ function updateKineticOverflowCard() {
     elements.level.textContent =
         `LEVEL ${mobileKineticUpgradeIndex} • OVERFLOW TIER ${currentMilestone.tier}`;
 
+    elements.description.textContent =
+        "Chance to trigger a short boost that multiplies every tap for a few seconds.";
+
+    const currentChance =
+        getCurrentKineticChance();
+
+    const currentPower =
+        getCurrentKineticMultiplier();
+
+    const currentDuration =
+        mobileKineticDuration;
+
+    if (elements.currentChance) {
+        elements.currentChance.textContent =
+            formatSpecialUpgradePercent(
+                currentChance
+            );
+    }
+
+    if (elements.currentPower) {
+        elements.currentPower.textContent =
+            `×${formatSpecialUpgradeNumber(
+                currentPower,
+                2
+            )}`;
+    }
+
+    if (elements.currentDuration) {
+        elements.currentDuration.textContent =
+            `${formatSpecialUpgradeNumber(
+                currentDuration,
+                2
+            )}s`;
+    }
+
     if (
         mobileKineticUpgradeIndex >=
         KINETIC_MAX_LEVEL
     ) {
-        elements.description.textContent =
-            `Maximum current level: ${formatChancePercent(
-                mobileKineticChance
-            )} chance, ×${mobileKineticMultiplier}, ${mobileKineticDuration}s.`;
+        if (elements.nextSummary) {
+            elements.nextSummary.textContent =
+                `MAXED • ${formatSpecialUpgradePercent(
+                    currentChance
+                )} chance • ×${formatSpecialUpgradeNumber(
+                    currentPower,
+                    2
+                )} power • ${formatSpecialUpgradeNumber(
+                    currentDuration,
+                    2
+                )}s`;
+        }
 
         elements.progressText.textContent =
             "HIGHEST CURRENT OVERFLOW TIER";
@@ -4694,10 +4941,23 @@ function updateKineticOverflowCard() {
         return;
     }
 
-    elements.description.textContent =
-        `Next level: ${formatChancePercent(
-            nextUpgrade.chance
-        )} chance, ×${nextUpgrade.multiplier} tap power for ${nextUpgrade.duration}s.`;
+    if (elements.nextSummary) {
+        const prefix =
+            mobileKineticUpgradeIndex === 0
+                ? "FIRST LEVEL"
+                : "NEXT LEVEL";
+
+        elements.nextSummary.textContent =
+            `${prefix} → ${formatSpecialUpgradePercent(
+                nextUpgrade.chance
+            )} chance • ×${formatSpecialUpgradeNumber(
+                nextUpgrade.multiplier,
+                2
+            )} power • ${formatSpecialUpgradeNumber(
+                nextUpgrade.duration,
+                2
+            )}s`;
+    }
 
     elements.progressText.textContent =
         nextMilestone
@@ -4729,6 +4989,280 @@ function buyKineticOverflowUpgrade() {
         "kinetic"
     );
 }
+
+// -------------------------------------------------
+// SUPPLY DROP UPGRADE CARD
+// -------------------------------------------------
+
+function getSupplyDropUpgradeElements() {
+    return {
+        card:
+            document.getElementById(
+                "supplyDropUpgradeCard"
+            ),
+
+        image:
+            document.getElementById(
+                "supplyDropUpgradeImage"
+            ),
+
+        name:
+            document.getElementById(
+                "supplyDropUpgradeName"
+            ),
+
+        level:
+            document.getElementById(
+                "supplyDropUpgradeLevel"
+            ),
+
+        description:
+            document.getElementById(
+                "supplyDropUpgradeDescription"
+            ),
+
+        frequency:
+            document.getElementById(
+                "supplyDropCurrentFrequency"
+            ),
+
+        reward:
+            document.getElementById(
+                "supplyDropCurrentReward"
+            ),
+
+        progressText:
+            document.getElementById(
+                "supplyDropTierProgressText"
+            ),
+
+        progressFill:
+            document.getElementById(
+                "supplyDropTierProgressFill"
+            ),
+
+        cost:
+            document.getElementById(
+                "supplyDropUpgradeCost"
+            ),
+
+        buyButton:
+            document.getElementById(
+                "supplyDropUpgradeBuyButton"
+            )
+    };
+}
+
+
+function getSupplyDropUpgradeData(currentLevel) {
+    if (
+        !Number.isInteger(currentLevel) ||
+        currentLevel < 0 ||
+        currentLevel >= SUPPLY_DROP_MAX_LEVEL
+    ) {
+        return null;
+    }
+
+    return {
+        level: currentLevel + 1,
+        cost: Math.max(
+            1,
+            Math.floor(
+                calculateBandedProgressionValue(
+                    SUPPLY_DROP_BASE_COST,
+                    currentLevel,
+                    SPECIAL_COST_GROWTH_BANDS
+                )
+            )
+        )
+    };
+}
+
+
+function calculateSupplyDropValuesFromLevel(level) {
+    const safeLevel = Math.min(
+        Math.max(
+            Math.floor(level),
+            0
+        ),
+        SUPPLY_DROP_MAX_LEVEL
+    );
+
+    if (safeLevel <= 0) {
+        return {
+            unlocked: false,
+            minimumDelaySeconds: 0,
+            maximumDelaySeconds: 0,
+            rewardMultiplier: 0
+        };
+    }
+
+    const progressionLevel =
+        safeLevel - 1;
+
+    /*
+        Frequency improves gradually, but has a floor
+        so Supply Drops never turn into nonstop spam.
+    */
+    const minimumDelaySeconds = Math.max(
+        30,
+        78 * Math.pow(0.985, progressionLevel)
+    );
+
+    const maximumDelaySeconds = Math.max(
+        48,
+        118 * Math.pow(0.985, progressionLevel)
+    );
+
+    /*
+        Rewards grow slowly and cap at 3×. The base
+        reward itself is tied to production power, not
+        the player's bank balance.
+    */
+    const rewardMultiplier = Math.min(
+        3,
+        1 + progressionLevel * 0.015
+    );
+
+    return {
+        unlocked: true,
+        minimumDelaySeconds,
+        maximumDelaySeconds,
+        rewardMultiplier
+    };
+}
+
+
+function formatSupplyDropFrequency(values) {
+    if (!values?.unlocked) {
+        return "LOCKED";
+    }
+
+    return `${Math.round(
+        values.minimumDelaySeconds
+    )}–${Math.round(
+        values.maximumDelaySeconds
+    )}s`;
+}
+
+
+function updateSupplyDropUpgradeCard() {
+    const elements =
+        getSupplyDropUpgradeElements();
+
+    if (!elements.card) {
+        return;
+    }
+
+    const currentMilestone =
+        getCurrentUpgradeMilestone(
+            mobileSupplyDropUpgradeIndex,
+            SUPPLY_DROP_TIER_MILESTONES
+        );
+
+    const nextMilestone =
+        getNextUpgradeMilestone(
+            mobileSupplyDropUpgradeIndex,
+            SUPPLY_DROP_TIER_MILESTONES
+        );
+
+    const currentValues =
+        calculateSupplyDropValuesFromLevel(
+            mobileSupplyDropUpgradeIndex
+        );
+
+    elements.image.src =
+        getUpgradeMilestoneImage(
+            currentMilestone,
+            "assets/upgrades/supply-drop/tier-1.png"
+        );
+
+    elements.name.textContent =
+        "SUPPLY DROP";
+
+    elements.level.textContent =
+        `LEVEL ${mobileSupplyDropUpgradeIndex} • DROP TIER ${currentMilestone.tier}`;
+
+    if (!currentValues.unlocked) {
+        elements.description.textContent =
+            "Buy Level 1 to unlock falling Supply Drops. Tap them before they leave the screen for bonus Energy.";
+
+        elements.frequency.textContent =
+            "UNLOCK L1";
+
+        elements.reward.textContent =
+            "UNLOCK L1";
+    } else {
+        elements.description.textContent =
+            "Supply Drops fall during active play. Higher levels make them appear more often and increase the reward.";
+
+        elements.frequency.textContent =
+            formatSupplyDropFrequency(
+                currentValues
+            );
+
+        elements.reward.textContent =
+            `×${formatSpecialUpgradeNumber(
+                currentValues.rewardMultiplier,
+                2
+            )}`;
+    }
+
+    if (elements.progressText) {
+        elements.progressText.textContent =
+            nextMilestone
+                ? `NEXT DROP TIER AT LEVEL ${nextMilestone.level}`
+                : "HIGHEST CURRENT DROP TIER";
+    }
+
+    if (elements.progressFill) {
+        elements.progressFill.style.width =
+            `${getUpgradeMilestoneProgress(
+                mobileSupplyDropUpgradeIndex,
+                SUPPLY_DROP_TIER_MILESTONES
+            )}%`;
+    }
+
+    if (
+        mobileSupplyDropUpgradeIndex >=
+        SUPPLY_DROP_MAX_LEVEL
+    ) {
+        elements.cost.textContent = "MAX";
+        elements.buyButton.textContent = "MAXED";
+        elements.buyButton.disabled = true;
+        return;
+    }
+
+    const nextUpgrade =
+        getSupplyDropUpgradeData(
+            mobileSupplyDropUpgradeIndex
+        );
+
+    if (!nextUpgrade) {
+        elements.buyButton.disabled = true;
+        return;
+    }
+
+    elements.cost.textContent =
+        formatGameNumber(
+            nextUpgrade.cost
+        );
+
+    elements.buyButton.textContent =
+        mobileSupplyDropUpgradeIndex === 0
+            ? "UNLOCK"
+            : "BUY";
+
+    elements.buyButton.disabled = false;
+}
+
+
+function buySupplyDropUpgrade() {
+    performBulkUpgradePurchase(
+        "supplyDrop"
+    );
+}
+
 
 // -------------------------------------------------
 // GET CURRENT TAP POWER
@@ -5231,8 +5765,9 @@ function createColorsShopContent() {
                     mobileEquippedColorIndex === index;
 
                 const colorName =
-                    SCORE_COLOR_NAMES[index] ||
-                    `COLOR ${index + 1}`;
+                    color.name
+                        ? color.name.toUpperCase()
+                        : `COLOR ${index + 1}`;
 
                 let buttonText = "BUY";
 
@@ -5258,7 +5793,7 @@ function createColorsShopContent() {
 
                         <div class="colorShopInformation">
                             <h3>${colorName}</h3>
-                            <p>Changes your main Energy score effect.</p>
+                            <p>${color.description || "Changes your main Energy score effect."}</p>
                         </div>
 
                         <div class="colorShopAction">
@@ -5427,6 +5962,32 @@ function formatChancePercent(chance) {
     return `${Number(
         percentage.toFixed(2)
     )}%`;
+}
+
+
+/*
+    Special-upgrade cards sometimes change by less than
+    0.01%. Keep enough precision to show real progress
+    without filling the card with trailing zeroes.
+*/
+function formatSpecialUpgradePercent(decimalValue) {
+    const percentage = decimalValue * 100;
+
+    const decimalPlaces =
+        Math.abs(percentage) < 0.1
+            ? 3
+            : 2;
+
+    return `${Number(
+        percentage.toFixed(decimalPlaces)
+    )}%`;
+}
+
+
+function formatSpecialUpgradeNumber(value, decimals = 3) {
+    return Number(
+        Number(value).toFixed(decimals)
+    );
 }
 
 
@@ -6415,6 +6976,8 @@ function attachSaveSlotButtons() {
 // -------------------------------------------------
 
 function resetRuntimeStateToNewGame() {
+    cancelSupplyDrop();
+
     mobileEnergy = 0;
     mobileEnergyPerTap = 1;
     mobileEnergyPerSecond = 0;
@@ -6425,6 +6988,7 @@ function resetRuntimeStateToNewGame() {
     mobilePreWorkoutUpgradeIndex = 0;
     mobileLuckyShotUpgradeIndex = 0;
     mobileKineticUpgradeIndex = 0;
+    mobileSupplyDropUpgradeIndex = 0;
 
     mobileLuckyShotChance = 0;
     mobileLuckyShotBonusMultiplier = LUCKY_SHOT_BASE_BONUS;
@@ -6590,6 +7154,13 @@ function selectSaveSlot(slotNumber) {
     updateShopBalance();
 
     saveGame();
+
+    if (
+        mobilePendingRebirthChoices.length === 0 &&
+        mobileSupplyDropUpgradeIndex > 0
+    ) {
+        scheduleNextSupplyDrop(true);
+    }
 
     /*
         If the player closed the app after Rebirth
@@ -7936,6 +8507,12 @@ function renderLastLifeSummaryMenu() {
                 )}
 
                 ${createLastLifeSummaryStat(
+                    "📦",
+                    "SUPPLY DROP",
+                    `LV ${summary.supplyDropLevel}`
+                )}
+
+                ${createLastLifeSummaryStat(
                     "🎯",
                     "LUCKY ACTIVATIONS",
                     formatGameNumber(
@@ -8322,7 +8899,7 @@ function renderRebirthConfirmation() {
             </h3>
 
             <p>
-                Your current energy and all six gameplay
+                Your current energy and all seven gameplay
                 upgrade trees will reset.
             </p>
 
@@ -8417,6 +8994,9 @@ function captureLastLifeSummary() {
 
         kineticLevel:
             mobileKineticUpgradeIndex,
+
+        supplyDropLevel:
+            mobileSupplyDropUpgradeIndex,
 
         luckyActivations:
             mobileCurrentLifeLuckyActivations,
@@ -8524,6 +9104,13 @@ function getValidLastLifeSummary(savedSummary) {
                 )
             ),
 
+        supplyDropLevel:
+            Math.floor(
+                safeNumber(
+                    savedSummary.supplyDropLevel
+                )
+            ),
+
         luckyActivations:
             Math.floor(
                 safeNumber(
@@ -8546,6 +9133,8 @@ function getValidLastLifeSummary(savedSummary) {
 // -------------------------------------------------
 
 function resetProgressForRebirth() {
+    cancelSupplyDrop();
+
     mobileEnergy = 0;
 
     resetCurrentLifeChallengeState();
@@ -8556,6 +9145,7 @@ function resetProgressForRebirth() {
     mobilePreWorkoutUpgradeIndex = 0;
     mobileLuckyShotUpgradeIndex = 0;
     mobileKineticUpgradeIndex = 0;
+    mobileSupplyDropUpgradeIndex = 0;
 
     if (luckyShotMessageTimer) {
         clearTimeout(luckyShotMessageTimer);
@@ -8811,6 +9401,10 @@ function selectRebirthPermanentPerk(perkId) {
 
     setRebirthChoiceMenuLock(false);
     saveGame();
+
+    if (mobileSupplyDropUpgradeIndex > 0) {
+        scheduleNextSupplyDrop(true);
+    }
 
     renderRebirthPerkAwarded(perk);
 }
@@ -10237,6 +10831,25 @@ function playUISound(soundType = "menu") {
         return;
     }
 
+    if (soundType === "supplyDrop") {
+        [
+            [659.25, 0],
+            [783.99, 0.055],
+            [1046.5, 0.12]
+        ].forEach(([frequency, startOffset]) => {
+            playTone({
+                frequency,
+                endFrequency: frequency * 1.04,
+                startOffset,
+                duration: 0.12,
+                volume: 0.032,
+                type: "triangle"
+            });
+        });
+
+        return;
+    }
+
     if (soundType === "challenge") {
         playTone({
             frequency: 392,
@@ -10823,6 +11436,333 @@ function animateCanTap() {
 }
 
 // -------------------------------------------------
+// SUPPLY DROP HELPERS
+// -------------------------------------------------
+
+function getRandomSupplyDropDelay(
+    minimumDelay,
+    maximumDelay
+) {
+    return Math.floor(
+        minimumDelay +
+        Math.random() *
+        (maximumDelay - minimumDelay)
+    );
+}
+
+
+function getSupplyDropReward() {
+    /*
+        Reward earning power, not bank size. Even at high
+        Supply Drop levels this stays a bonus to active
+        play rather than replacing normal tapping.
+    */
+    const supplyValues =
+        calculateSupplyDropValuesFromLevel(
+            mobileSupplyDropUpgradeIndex
+        );
+
+    if (!supplyValues.unlocked) {
+        return 0;
+    }
+
+    const tapContribution =
+        getCurrentTapPower() *
+        SUPPLY_DROP_TAP_EQUIVALENT;
+
+    const passiveContribution =
+        getCurrentEnergyPerSecond() *
+        SUPPLY_DROP_PASSIVE_SECONDS;
+
+    const baseReward =
+        tapContribution +
+        passiveContribution;
+
+    return Math.max(
+        SUPPLY_DROP_MIN_REWARD,
+        Math.floor(
+            baseReward *
+            supplyValues.rewardMultiplier
+        )
+    );
+}
+
+
+function clearSupplyDropTimers() {
+    if (supplyDropSpawnTimer) {
+        clearTimeout(supplyDropSpawnTimer);
+        supplyDropSpawnTimer = null;
+    }
+
+    if (supplyDropExpireTimer) {
+        clearTimeout(supplyDropExpireTimer);
+        supplyDropExpireTimer = null;
+    }
+}
+
+
+function hideSupplyDrop() {
+    supplyDropActive = false;
+
+    if (!supplyDropButton) {
+        return;
+    }
+
+    supplyDropButton.classList.remove(
+        "active",
+        "collected"
+    );
+
+    supplyDropButton.disabled = true;
+}
+
+
+function cancelSupplyDrop() {
+    clearSupplyDropTimers();
+    hideSupplyDrop();
+}
+
+
+function canSupplyDropAppear() {
+    return (
+        hasSelectedSaveSlot &&
+        Number.isInteger(activeSaveSlot) &&
+        mobileSupplyDropUpgradeIndex > 0 &&
+        mobilePendingRebirthChoices.length === 0 &&
+        !document.hidden &&
+        !menuOverlay.classList.contains("open") &&
+        !saveSlotOverlay.classList.contains("open") &&
+        !offlineRewardOverlay.classList.contains("open") &&
+        !supplyDropActive
+    );
+}
+
+
+function scheduleNextSupplyDrop(isFirstDrop = false) {
+    if (supplyDropSpawnTimer) {
+        clearTimeout(supplyDropSpawnTimer);
+        supplyDropSpawnTimer = null;
+    }
+
+    if (
+        !hasSelectedSaveSlot ||
+        !Number.isInteger(activeSaveSlot) ||
+        mobileSupplyDropUpgradeIndex <= 0
+    ) {
+        return;
+    }
+
+    const supplyValues =
+        calculateSupplyDropValuesFromLevel(
+            mobileSupplyDropUpgradeIndex
+        );
+
+    if (!supplyValues.unlocked) {
+        return;
+    }
+
+    const minimumDelay = isFirstDrop
+        ? SUPPLY_DROP_FIRST_MIN_DELAY_MS
+        : Math.round(
+            supplyValues.minimumDelaySeconds *
+            1000
+        );
+
+    const maximumDelay = isFirstDrop
+        ? SUPPLY_DROP_FIRST_MAX_DELAY_MS
+        : Math.round(
+            supplyValues.maximumDelaySeconds *
+            1000
+        );
+
+    supplyDropSpawnTimer = setTimeout(
+        trySpawnSupplyDrop,
+        getRandomSupplyDropDelay(
+            minimumDelay,
+            maximumDelay
+        )
+    );
+}
+
+
+function refreshSupplyDropScheduleAfterUpgrade(
+    wasLocked = false
+) {
+    if (
+        mobileSupplyDropUpgradeIndex <= 0 ||
+        supplyDropActive
+    ) {
+        return;
+    }
+
+    if (supplyDropSpawnTimer) {
+        clearTimeout(supplyDropSpawnTimer);
+        supplyDropSpawnTimer = null;
+    }
+
+    scheduleNextSupplyDrop(
+        wasLocked
+    );
+}
+
+
+function trySpawnSupplyDrop() {
+    supplyDropSpawnTimer = null;
+
+    if (!canSupplyDropAppear()) {
+        if (
+            hasSelectedSaveSlot &&
+            Number.isInteger(activeSaveSlot)
+        ) {
+            supplyDropSpawnTimer = setTimeout(
+                trySpawnSupplyDrop,
+                SUPPLY_DROP_RETRY_DELAY_MS
+            );
+        }
+
+        return;
+    }
+
+    spawnSupplyDrop();
+}
+
+
+function spawnSupplyDrop() {
+    if (!supplyDropButton) {
+        return;
+    }
+
+    const currentMilestone =
+        getCurrentUpgradeMilestone(
+            mobileSupplyDropUpgradeIndex,
+            SUPPLY_DROP_TIER_MILESTONES
+        );
+
+    if (supplyDropEventImage) {
+        supplyDropEventImage.src =
+            getUpgradeMilestoneImage(
+                currentMilestone,
+                "assets/upgrades/supply-drop/tier-1.png"
+            );
+    }
+
+    supplyDropActive = true;
+
+    const horizontalPosition =
+        16 + Math.random() * 68;
+
+    supplyDropButton.style.setProperty(
+        "--supply-drop-left",
+        `${horizontalPosition}%`
+    );
+
+    supplyDropButton.style.setProperty(
+        "--supply-drop-fall-duration",
+        `${SUPPLY_DROP_FALL_DURATION_MS}ms`
+    );
+
+    supplyDropButton.classList.remove(
+        "active",
+        "collected"
+    );
+
+    void supplyDropButton.offsetWidth;
+
+    supplyDropButton.disabled = false;
+    supplyDropButton.classList.add("active");
+
+    supplyDropExpireTimer = setTimeout(
+        () => {
+            supplyDropExpireTimer = null;
+            hideSupplyDrop();
+            scheduleNextSupplyDrop();
+        },
+        SUPPLY_DROP_FALL_DURATION_MS
+    );
+}
+
+
+function showSupplyDropReward(rewardAmount) {
+    if (!supplyDropRewardPopup) {
+        return;
+    }
+
+    supplyDropRewardPopup.textContent =
+        `SUPPLY DROP! +${formatGameNumber(
+            rewardAmount
+        )}`;
+
+    supplyDropRewardPopup.classList.remove(
+        "visible"
+    );
+
+    void supplyDropRewardPopup.offsetWidth;
+
+    supplyDropRewardPopup.classList.add(
+        "visible"
+    );
+
+    setTimeout(() => {
+        supplyDropRewardPopup.classList.remove(
+            "visible"
+        );
+    }, 1100);
+}
+
+
+function collectSupplyDrop(event) {
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+
+    if (!supplyDropActive) {
+        return;
+    }
+
+    if (supplyDropExpireTimer) {
+        clearTimeout(supplyDropExpireTimer);
+        supplyDropExpireTimer = null;
+    }
+
+    const rewardAmount =
+        getSupplyDropReward();
+
+    mobileEnergy += rewardAmount;
+    mobileLifetimeEnergy += rewardAmount;
+    mobileCurrentLifeEnergyProduced += rewardAmount;
+
+    supplyDropActive = false;
+
+    supplyDropButton.classList.add(
+        "collected"
+    );
+
+    supplyDropButton.disabled = true;
+
+    playUISound("supplyDrop");
+    triggerTapHaptic();
+    showSupplyDropReward(rewardAmount);
+
+    updateShopBalance();
+    saveGame();
+
+    setTimeout(() => {
+        hideSupplyDrop();
+        scheduleNextSupplyDrop();
+    }, 220);
+}
+
+
+if (supplyDropButton) {
+    supplyDropButton.addEventListener(
+        "click",
+        collectSupplyDrop
+    );
+}
+
+
+// -------------------------------------------------
 // MAIN TAPPING EVENT
 // -------------------------------------------------
 
@@ -11004,6 +11944,11 @@ function attachTestBuyButtons() {
             "kineticUpgradeBuyButton"
         );
 
+    const supplyDropUpgradeBuyButton =
+        document.getElementById(
+            "supplyDropUpgradeBuyButton"
+        );
+
     if (drinkUpgradeBuyButton) {
         drinkUpgradeBuyButton.addEventListener(
             "click",
@@ -11046,13 +11991,20 @@ function attachTestBuyButtons() {
         );
     }
 
+    if (supplyDropUpgradeBuyButton) {
+        supplyDropUpgradeBuyButton.addEventListener(
+            "click",
+            buySupplyDropUpgrade
+        );
+    }
+
     /*
         Any cards not connected yet will continue
         using the temporary red failure effect.
     */
     const temporaryBuyButtons =
         shopList.querySelectorAll(
-            ".buyButton:not(#drinkUpgradeBuyButton):not(#factoryUpgradeBuyButton):not(#deliveryUpgradeBuyButton):not(#preWorkoutUpgradeBuyButton):not(#luckyShotUpgradeBuyButton):not(#kineticUpgradeBuyButton)"
+            ".buyButton:not(#drinkUpgradeBuyButton):not(#factoryUpgradeBuyButton):not(#deliveryUpgradeBuyButton):not(#preWorkoutUpgradeBuyButton):not(#luckyShotUpgradeBuyButton):not(#kineticUpgradeBuyButton):not(#supplyDropUpgradeBuyButton)"
         );
 
     temporaryBuyButtons.forEach((button) => {
@@ -11078,14 +12030,16 @@ function calculateOfflineProduction(savedAt) {
     if (currentEnergyPerSecond <= 0) {
         return {
             secondsAway: 0,
-            energyEarned: 0
+            energyEarned: 0,
+            wasCapped: false
         };
     }
 
     if (!Number.isFinite(savedAt)) {
         return {
             secondsAway: 0,
-            energyEarned: 0
+            energyEarned: 0,
+            wasCapped: false
         };
     }
 
@@ -11109,7 +12063,8 @@ function calculateOfflineProduction(savedAt) {
     ) {
         return {
             secondsAway: 0,
-            energyEarned: 0
+            energyEarned: 0,
+            wasCapped: false
         };
     }
 
@@ -11124,7 +12079,11 @@ function calculateOfflineProduction(savedAt) {
             countedSecondsAway,
 
         energyEarned:
-            energyEarned
+            energyEarned,
+
+        wasCapped:
+            rawSecondsAway >
+            MAXIMUM_OFFLINE_SECONDS
     };
 }
 
@@ -11161,7 +12120,8 @@ function applyOfflineProduction(savedAt) {
 
     showOfflineReward(
         offlineResult.secondsAway,
-        offlineResult.energyEarned
+        offlineResult.energyEarned,
+        offlineResult.wasCapped
     );
 }
 
@@ -11172,13 +12132,21 @@ function applyOfflineProduction(savedAt) {
 
 function showOfflineReward(
     secondsAway,
-    energyEarned
+    energyEarned,
+    wasCapped = false
 ) {
     offlineTimeAwayDisplay.textContent =
         formatGameTime(secondsAway);
 
     offlineEnergyEarnedDisplay.textContent =
         `+${formatGameNumber(energyEarned)}`;
+
+    if (offlineRewardMessage) {
+        offlineRewardMessage.textContent =
+            wasCapped
+                ? "Offline production is capped at 7 days. You earned the maximum offline reward."
+                : "Your production kept running while you were away.";
+    }
 
     offlineRewardOverlay.classList.add(
         "open"
@@ -11264,7 +12232,7 @@ const devEnergyButton =
 
 
 function addDeveloperEnergy() {
-    mobileEnergy += 1_000_000_000_000_000;
+    mobileEnergy += 1_000_000_000_000_000_000;
 
     /*
         Immediately updates both the home score
@@ -11283,7 +12251,7 @@ devEnergyButton.addEventListener(
 // SAVE SYSTEM
 // -------------------------------------------------
 
-const SAVE_VERSION = 8;
+const SAVE_VERSION = 9;
 
 /*
     No slot is active until the player selects one
@@ -11353,6 +12321,9 @@ function saveGame() {
 
         kineticUpgradeIndex:
             mobileKineticUpgradeIndex,
+
+        supplyDropUpgradeIndex:
+            mobileSupplyDropUpgradeIndex,
 
         ownedSkins: [
             ...mobileOwnedSkins
@@ -11721,6 +12692,12 @@ function loadGame() {
                 KINETIC_MAX_LEVEL
             );
 
+        mobileSupplyDropUpgradeIndex =
+            getSafeUpgradeIndex(
+                savedData.supplyDropUpgradeIndex,
+                SUPPLY_DROP_MAX_LEVEL
+            );
+
         restoreOwnedItems(
             mobileOwnedSkins,
             savedData.ownedSkins
@@ -11943,6 +12920,17 @@ document.addEventListener(
     () => {
         if (document.hidden) {
             saveGame();
+            cancelSupplyDrop();
+            return;
+        }
+
+        if (
+            hasSelectedSaveSlot &&
+            mobileSupplyDropUpgradeIndex > 0 &&
+            !supplyDropActive &&
+            !supplyDropSpawnTimer
+        ) {
+            scheduleNextSupplyDrop(true);
         }
     }
 );
