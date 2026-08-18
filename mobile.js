@@ -13,6 +13,44 @@ const shopPanel = document.querySelector(".shopPanel");
 const shopTitle = document.getElementById("shopTitle");
 const shopList = document.getElementById("shopList");
 
+/*
+    Long single-word menu titles (especially ACHIEVEMENTS)
+    need a slightly smaller display size on iPhone-width panels.
+    A MutationObserver keeps this automatic whenever a screen
+    changes the shared shop title.
+*/
+function updateSharedShopTitleSizing() {
+    if (!shopTitle) {
+        return;
+    }
+
+    const words = shopTitle.textContent
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+    const longestWordLength = words.reduce(
+        (longest, word) => Math.max(longest, word.length),
+        0
+    );
+
+    shopTitle.classList.toggle(
+        "compactSingleWordTitle",
+        longestWordLength >= 11
+    );
+}
+
+if (shopTitle) {
+    new MutationObserver(
+        updateSharedShopTitleSizing
+    ).observe(
+        shopTitle,
+        { childList: true, subtree: true, characterData: true }
+    );
+
+    updateSharedShopTitleSizing();
+}
+
 const closeShopButton = document.getElementById("closeShopButton");
 
 
@@ -2625,10 +2663,7 @@ function updateBulkPurchaseCardControls(
             );
 
         elements.buyButton.textContent =
-            upgradeKey === "supplyDrop" &&
-            currentLevel === 0
-                ? "UNLOCK"
-                : "BUY";
+            "BUY";
 
         return;
     }
@@ -4471,11 +4506,18 @@ function updateLuckyShotCard() {
     elements.name.textContent =
         "LUCKY SHOT";
 
+    const luckyShotLocked =
+        mobileLuckyShotUpgradeIndex <= 0;
+
     elements.level.textContent =
-        `LEVEL ${mobileLuckyShotUpgradeIndex} • LUCK TIER ${currentMilestone.tier}`;
+        luckyShotLocked
+            ? "LEVEL 0 • LOCKED"
+            : `LEVEL ${mobileLuckyShotUpgradeIndex} • LUCK TIER ${currentMilestone.tier}`;
 
     elements.description.textContent =
-        "Chance to trigger bonus Energy when you tap. The payout scales with your current Energy.";
+        luckyShotLocked
+            ? "Buy Level 1 to unlock a chance for taps to trigger bonus Energy."
+            : "Chance to trigger bonus Energy when you tap. The payout scales with your current Energy.";
 
     const currentChance =
         getCurrentLuckyShotChance();
@@ -4485,16 +4527,20 @@ function updateLuckyShotCard() {
 
     if (elements.currentChance) {
         elements.currentChance.textContent =
-            formatSpecialUpgradePercent(
-                currentChance
-            );
+            luckyShotLocked
+                ? "LOCKED"
+                : formatSpecialUpgradePercent(
+                    currentChance
+                );
     }
 
     if (elements.currentReward) {
         elements.currentReward.textContent =
-            formatSpecialUpgradePercent(
-                currentReward
-            );
+            luckyShotLocked
+                ? "LOCKED"
+                : formatSpecialUpgradePercent(
+                    currentReward
+                );
     }
 
     if (
@@ -4567,7 +4613,8 @@ function updateLuckyShotCard() {
             nextUpgrade.cost
         );
 
-    elements.buyButton.textContent = "BUY";
+    elements.buyButton.textContent =
+        "BUY";
     elements.buyButton.disabled = false;
 }
 
@@ -4864,11 +4911,18 @@ function updateKineticOverflowCard() {
     elements.name.textContent =
         "KINETIC OVERFLOW";
 
+    const kineticLocked =
+        mobileKineticUpgradeIndex <= 0;
+
     elements.level.textContent =
-        `LEVEL ${mobileKineticUpgradeIndex} • OVERFLOW TIER ${currentMilestone.tier}`;
+        kineticLocked
+            ? "LEVEL 0 • LOCKED"
+            : `LEVEL ${mobileKineticUpgradeIndex} • OVERFLOW TIER ${currentMilestone.tier}`;
 
     elements.description.textContent =
-        "Chance to trigger a short boost that multiplies every tap for a few seconds.";
+        kineticLocked
+            ? "Buy Level 1 to unlock a chance for taps to trigger a temporary power boost."
+            : "Chance to trigger a short boost that multiplies every tap for a few seconds.";
 
     const currentChance =
         getCurrentKineticChance();
@@ -4881,25 +4935,31 @@ function updateKineticOverflowCard() {
 
     if (elements.currentChance) {
         elements.currentChance.textContent =
-            formatSpecialUpgradePercent(
-                currentChance
-            );
+            kineticLocked
+                ? "LOCKED"
+                : formatSpecialUpgradePercent(
+                    currentChance
+                );
     }
 
     if (elements.currentPower) {
         elements.currentPower.textContent =
-            `×${formatSpecialUpgradeNumber(
-                currentPower,
-                2
-            )}`;
+            kineticLocked
+                ? "LOCKED"
+                : `×${formatSpecialUpgradeNumber(
+                    currentPower,
+                    2
+                )}`;
     }
 
     if (elements.currentDuration) {
         elements.currentDuration.textContent =
-            `${formatSpecialUpgradeNumber(
-                currentDuration,
-                2
-            )}s`;
+            kineticLocked
+                ? "LOCKED"
+                : `${formatSpecialUpgradeNumber(
+                    currentDuration,
+                    2
+                )}s`;
     }
 
     if (
@@ -4975,7 +5035,8 @@ function updateKineticOverflowCard() {
             nextUpgrade.cost
         );
 
-    elements.buyButton.textContent = "BUY";
+    elements.buyButton.textContent =
+        "BUY";
     elements.buyButton.disabled = false;
 }
 
@@ -5181,17 +5242,19 @@ function updateSupplyDropUpgradeCard() {
         "SUPPLY DROP";
 
     elements.level.textContent =
-        `LEVEL ${mobileSupplyDropUpgradeIndex} • DROP TIER ${currentMilestone.tier}`;
+        currentValues.unlocked
+            ? `LEVEL ${mobileSupplyDropUpgradeIndex} • DROP TIER ${currentMilestone.tier}`
+            : "LEVEL 0 • LOCKED";
 
     if (!currentValues.unlocked) {
         elements.description.textContent =
             "Buy Level 1 to unlock falling Supply Drops. Tap them before they leave the screen for bonus Energy.";
 
         elements.frequency.textContent =
-            "UNLOCK L1";
+            "LOCKED";
 
         elements.reward.textContent =
-            "UNLOCK L1";
+            "LOCKED";
     } else {
         elements.description.textContent =
             "Supply Drops fall during active play. Higher levels make them appear more often and increase the reward.";
@@ -5249,9 +5312,7 @@ function updateSupplyDropUpgradeCard() {
         );
 
     elements.buyButton.textContent =
-        mobileSupplyDropUpgradeIndex === 0
-            ? "UNLOCK"
-            : "BUY";
+        "BUY";
 
     elements.buyButton.disabled = false;
 }
@@ -12223,29 +12284,6 @@ setInterval(
     1000
 );
 
-// -------------------------------------------------
-// TEMPORARY DEVELOPER ENERGY BUTTON
-// -------------------------------------------------
-
-const devEnergyButton =
-    document.getElementById("devEnergyButton");
-
-
-function addDeveloperEnergy() {
-    mobileEnergy += 1_000_000_000_000_000_000;
-
-    /*
-        Immediately updates both the home score
-        and the shop balance if the shop is open.
-    */
-    updateShopBalance();
-}
-
-
-devEnergyButton.addEventListener(
-    "click",
-    addDeveloperEnergy
-);
 
 // -------------------------------------------------
 // SAVE SYSTEM
@@ -12959,3 +12997,523 @@ loadGameSettings();
     The player must then select a save slot.
 */
 renderSaveSlotScreen();
+
+// =================================================
+// ENERGY CLICKER UI ARTWORK INTEGRATION — BETA
+// =================================================
+//
+// The More menu and all of its detail screens originally used emoji.
+// The finished Figma artwork now lives in:
+//   assets/ui/more/
+//   assets/ui/mini-icons/
+//
+// This observer upgrades those legacy icon slots whenever one of the
+// dynamically-rendered More screens is inserted into the shared shop.
+// Keeping the conversion here means the gameplay/rendering logic above
+// stays untouched and existing saves remain fully compatible.
+
+function getMoreArtworkPath(fileName) {
+    return `assets/ui/more/${fileName}.png`;
+}
+
+function getMiniArtworkPath(fileName) {
+    return `assets/ui/mini-icons/${fileName}.png`;
+}
+
+function replaceUiArtwork(
+    element,
+    imagePath,
+    variant = "mini"
+) {
+    if (!element || !imagePath) {
+        return;
+    }
+
+    const existingImage =
+        element.querySelector("img.gameUiArtwork");
+
+    if (
+        existingImage &&
+        existingImage.getAttribute("src") === imagePath
+    ) {
+        return;
+    }
+
+    const image = document.createElement("img");
+
+    image.className =
+        `gameUiArtwork gameUiArtwork--${variant}`;
+
+    image.src = imagePath;
+    image.alt = "";
+    image.setAttribute("aria-hidden", "true");
+    image.draggable = false;
+
+    element.replaceChildren(image);
+    element.classList.add("hasUiArtwork");
+}
+
+function getMiniArtworkKeyFromLegacyIcon(iconText) {
+    const iconMap = {
+        "⚡": "energy-bolt",
+        "💥": "energy-bolt",
+        "✨": "energy-bolt",
+
+        "👆": "tapping-finger",
+        "👊": "tapping-finger",
+        "🥊": "tapping-finger",
+        "📳": "tapping-finger",
+
+        "🥤": "battery-bolt",
+        "🔋": "battery-bolt",
+
+        "🏭": "factory",
+        "🏗️": "factory",
+        "⚙️": "factory",
+        "🏙️": "factory",
+
+        "🚚": "delivery-truck",
+        "💪": "preworkout-tub",
+
+        "🍀": "clover",
+        "🎯": "clover",
+        "🎰": "clover",
+        "🎲": "clover",
+
+        "🌩️": "overflow-orb",
+        "🔥": "overflow-orb",
+        "💫": "overflow-orb",
+
+        "📦": "supply-crate",
+
+        "♻️": "rebirth-arrows",
+        "💎": "gem-perk",
+        "🧬": "gem-perk",
+        "🧪": "gem-perk",
+
+        "👑": "crown-icon",
+        "🏆": "trophy-cup",
+        "🏁": "checkered-flag",
+
+        "🎭": "skin-mask",
+        "🎨": "color-drop",
+        "🌈": "color-drop",
+
+        "⏱️": "clock-timer",
+        "🌙": "clock-timer",
+        "🌌": "clock-timer",
+        "🧘": "clock-timer",
+
+        "💰": "price-tag",
+        "💾": "save-card",
+        "🔊": "energy-bolt"
+    };
+
+    return iconMap[String(iconText).trim()] || null;
+}
+
+function getPermanentPerkMiniArtworkKey(perkId) {
+    const perkIcons = {
+        energyKick: "energy-bolt",
+        strongGrip: "tapping-finger",
+        assemblyLine: "factory",
+        nightShift: "clock-timer",
+        luckySip: "clover",
+
+        headStart: "battery-bolt",
+        factoryConnections: "factory",
+        expressRoute: "delivery-truck",
+        preLoaded: "preworkout-tub",
+        luckyGenes: "clover",
+        kineticSpark: "overflow-orb",
+
+        fullShelf: "price-tag",
+        overclocked: "overflow-orb",
+        productionLegacy: "factory",
+        chargedStart: "battery-bolt",
+        luckyBreak: "clover",
+
+        secretFormula: "gem-perk",
+        goldenHands: "tapping-finger",
+        industrialEmpire: "factory",
+        bornReady: "crown-icon",
+        loadedDice: "clover",
+        eternalNight: "clock-timer"
+    };
+
+    return perkIcons[perkId] || "gem-perk";
+}
+
+function getAchievementMiniArtworkKey(card) {
+    const category =
+        card
+            ?.closest(".achievementCategorySection")
+            ?.querySelector(".achievementCategoryHeader h3")
+            ?.textContent
+            ?.trim()
+            ?.toUpperCase() || "";
+
+    const title =
+        card
+            ?.querySelector(".achievementHeader h3")
+            ?.textContent
+            ?.trim()
+            ?.toUpperCase() || "";
+
+    if (category === "TAPPING") {
+        return "tapping-finger";
+    }
+
+    if (category === "LIFETIME ENERGY") {
+        return "energy-bolt";
+    }
+
+    if (category === "DRINK POWER") {
+        return "battery-bolt";
+    }
+
+    if (category === "FACTORY") {
+        return "factory";
+    }
+
+    if (category === "DELIVERY") {
+        return "delivery-truck";
+    }
+
+    if (category === "PRE-WORKOUT") {
+        return "preworkout-tub";
+    }
+
+    if (category === "LUCKY SHOT") {
+        return "clover";
+    }
+
+    if (category === "KINETIC OVERFLOW") {
+        return "overflow-orb";
+    }
+
+    if (category === "REBIRTH") {
+        return "rebirth-arrows";
+    }
+
+    if (category === "PERMANENT PERKS") {
+        return "gem-perk";
+    }
+
+    if (category === "COLLECTION") {
+        return title.includes("COLOR") ||
+            title.includes("SPECTRUM")
+            ? "color-drop"
+            : "skin-mask";
+    }
+
+    return "trophy-cup";
+}
+
+function getLifeChallengeMiniArtworkKey(card) {
+    const challengeText =
+        card?.textContent?.toUpperCase() || "";
+
+    if (
+        challengeText.includes("KINETIC") ||
+        challengeText.includes("OVERFLOW")
+    ) {
+        return "overflow-orb";
+    }
+
+    if (challengeText.includes("LUCK")) {
+        return "clover";
+    }
+
+    if (challengeText.includes("DELIVERY")) {
+        return "delivery-truck";
+    }
+
+    if (challengeText.includes("PRE-WORKOUT")) {
+        return "preworkout-tub";
+    }
+
+    if (
+        challengeText.includes("FACTORY") ||
+        challengeText.includes("PASSIVE") ||
+        challengeText.includes("PRODUCTION")
+    ) {
+        return "factory";
+    }
+
+    if (
+        challengeText.includes("DRINK") ||
+        challengeText.includes("CAN LEVEL")
+    ) {
+        return "battery-bolt";
+    }
+
+    if (
+        challengeText.includes("TAP") ||
+        challengeText.includes("CLICK") ||
+        challengeText.includes("PUNCH")
+    ) {
+        return "tapping-finger";
+    }
+
+    if (
+        challengeText.includes("REBIRTH") ||
+        challengeText.includes("LIFE ")
+    ) {
+        return "rebirth-arrows";
+    }
+
+    if (challengeText.includes("ENERGY")) {
+        return "energy-bolt";
+    }
+
+    return "trophy-cup";
+}
+
+function applyMoreLandingArtwork() {
+    const moreButtonArtwork = {
+        moreRebirthButton: "rebirth",
+        morePermanentPerksButton: "permanent-perks",
+        moreLifeChallengesButton: "life-challenges",
+        moreAchievementsButton: "achievements",
+        moreStatisticsButton: "statistics",
+        moreLastLifeButton: "last-life",
+        moreSettingsButton: "settings",
+        moreSaveManagementButton: "save-management"
+    };
+
+    Object.entries(moreButtonArtwork)
+        .forEach(([buttonId, fileName]) => {
+            const button =
+                document.getElementById(buttonId);
+
+            const iconSlot =
+                button?.querySelector(".moreMenuIcon");
+
+            replaceUiArtwork(
+                iconSlot,
+                getMoreArtworkPath(fileName),
+                "more"
+            );
+        });
+}
+
+function applyMoreHeroArtwork() {
+    const heroArtwork = [
+        [".rebirthAccessIcon", "rebirth"],
+        [".rebirthHeroIcon", "rebirth"],
+
+        [".permanentPerksAccessIcon", "permanent-perks"],
+        [".permanentPerksSummary > span", "permanent-perks"],
+
+        [".lifeChallengesAccessIcon", "life-challenges"],
+        [".lifeChallengesSummaryIcon", "life-challenges"],
+
+        [".achievementsAccessIcon", "achievements"],
+        [".achievementsSummaryIcon", "achievements"],
+
+        [".lastLifeAccessIcon", "last-life"],
+        [".lastLifeHeroCard > span", "last-life"],
+        [".moreEmptyScreen > span", "last-life"],
+
+        [".settingsAccessIcon", "settings"],
+        [".settingsIntroduction > span", "settings"]
+    ];
+
+    heroArtwork.forEach(([selector, fileName]) => {
+        shopList
+            .querySelectorAll(selector)
+            .forEach((element) => {
+                replaceUiArtwork(
+                    element,
+                    getMoreArtworkPath(fileName),
+                    "section"
+                );
+            });
+    });
+}
+
+function applyLegacyMiniArtwork() {
+    const selectors = [
+        ".statIcon",
+        ".lastLifeSummaryStatIcon",
+        ".rebirthPerkChoiceIcon",
+        ".settingIcon",
+        ".futureSettingsIcon"
+    ];
+
+    selectors.forEach((selector) => {
+        shopList
+            .querySelectorAll(selector)
+            .forEach((element) => {
+                if (
+                    element.querySelector(
+                        "img.gameUiArtwork"
+                    )
+                ) {
+                    return;
+                }
+
+                const artworkKey =
+                    getMiniArtworkKeyFromLegacyIcon(
+                        element.textContent
+                    );
+
+                if (!artworkKey) {
+                    return;
+                }
+
+                replaceUiArtwork(
+                    element,
+                    getMiniArtworkPath(artworkKey),
+                    "mini"
+                );
+            });
+    });
+}
+
+function applyAchievementArtwork() {
+    shopList
+        .querySelectorAll(".achievementCard")
+        .forEach((card) => {
+            const iconSlot =
+                card.querySelector(
+                    ".achievementIcon"
+                );
+
+            replaceUiArtwork(
+                iconSlot,
+                getMiniArtworkPath(
+                    getAchievementMiniArtworkKey(card)
+                ),
+                "card"
+            );
+        });
+}
+
+function applyPermanentPerkArtwork() {
+    shopList
+        .querySelectorAll(
+            ".permanentPerkCollectionCard"
+        )
+        .forEach((card, index) => {
+            const perk =
+                PERMANENT_PERK_DEFINITIONS[index];
+
+            if (!perk) {
+                return;
+            }
+
+            const iconSlot =
+                card.querySelector(
+                    ".permanentPerkCollectionIcon"
+                );
+
+            replaceUiArtwork(
+                iconSlot,
+                getMiniArtworkPath(
+                    getPermanentPerkMiniArtworkKey(
+                        perk.id
+                    )
+                ),
+                "card"
+            );
+        });
+
+    shopList
+        .querySelectorAll(
+            ".rebirthPerkChoiceCard"
+        )
+        .forEach((card) => {
+            const perkName =
+                card
+                    .querySelector(
+                        ".rebirthPerkChoiceTop h3"
+                    )
+                    ?.textContent
+                    ?.trim();
+
+            const perk =
+                PERMANENT_PERK_DEFINITIONS.find(
+                    (definition) =>
+                        definition.name === perkName
+                );
+
+            if (!perk) {
+                return;
+            }
+
+            replaceUiArtwork(
+                card.querySelector(
+                    ".rebirthPerkChoiceIcon"
+                ),
+                getMiniArtworkPath(
+                    getPermanentPerkMiniArtworkKey(
+                        perk.id
+                    )
+                ),
+                "card"
+            );
+        });
+}
+
+function applyLifeChallengeArtwork() {
+    shopList
+        .querySelectorAll(".lifeChallengeCard")
+        .forEach((card) => {
+            replaceUiArtwork(
+                card.querySelector(
+                    ".lifeChallengeIcon"
+                ),
+                getMiniArtworkPath(
+                    getLifeChallengeMiniArtworkKey(
+                        card
+                    )
+                ),
+                "card"
+            );
+        });
+}
+
+function applyAllMoreSectionArtwork() {
+    applyMoreLandingArtwork();
+    applyMoreHeroArtwork();
+    applyLegacyMiniArtwork();
+    applyAchievementArtwork();
+    applyPermanentPerkArtwork();
+    applyLifeChallengeArtwork();
+}
+
+function initializeMoreSectionArtworkObserver() {
+    if (!shopList) {
+        return;
+    }
+
+    let artworkRefreshQueued = false;
+
+    const artworkObserver =
+        new MutationObserver(() => {
+            if (artworkRefreshQueued) {
+                return;
+            }
+
+            artworkRefreshQueued = true;
+
+            requestAnimationFrame(() => {
+                artworkRefreshQueued = false;
+                applyAllMoreSectionArtwork();
+            });
+        });
+
+    artworkObserver.observe(
+        shopList,
+        {
+            childList: true,
+            subtree: true
+        }
+    );
+
+    applyAllMoreSectionArtwork();
+}
+
+initializeMoreSectionArtworkObserver();

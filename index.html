@@ -13,6 +13,7 @@
     <title>Energy Clicker Mobile</title>
 
     <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="../../../../Downloads/mobile.css">
 </head>
 
 <body>
@@ -835,7 +836,12 @@
         aria-atomic="true"
 >
     <div class="achievementToastIcon">
-        🏆
+        <img
+                class="gameUiArtwork gameUiArtwork--toast"
+                src="assets/ui/mini-icons/trophy-cup.png"
+                alt=""
+                aria-hidden="true"
+        >
     </div>
 
     <div class="achievementToastInformation">
@@ -870,7 +876,12 @@
         aria-atomic="true"
 >
     <div class="lifeChallengeToastIcon">
-        🎯
+        <img
+                class="gameUiArtwork gameUiArtwork--toast"
+                src="assets/ui/more/life-challenges.png"
+                alt=""
+                aria-hidden="true"
+        >
     </div>
 
     <div class="lifeChallengeToastInformation">
@@ -942,11 +953,15 @@
             aria-labelledby="offlineRewardTitle"
     >
         <h2 id="offlineRewardTitle">
-            WELCOME BACK! <span aria-hidden="true">🎉</span>
+            WELCOME BACK!
         </h2>
 
         <div class="offlineRewardIcon" aria-hidden="true">
-            ⚡
+            <img
+                    class="gameUiArtwork gameUiArtwork--offline"
+                    src="assets/ui/mini-icons/energy-bolt.png"
+                    alt=""
+            >
         </div>
 
         <div class="offlineTimeSummary">
@@ -972,15 +987,6 @@
         </button>
     </section>
 </div>
-
-<!-- TEMPORARY DEVELOPER TEST BUTTON -->
-<button
-        class="devEnergyButton"
-        id="devEnergyButton"
-        type="button"
->
-    DEV +1B
-</button>
 <script src="js/upgrades.js"></script>
 <script src="js/mobile.js"></script>
 </body>

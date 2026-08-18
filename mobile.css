@@ -9436,16 +9436,12 @@ body,
 
 .specialUpgradeStat strong {
     max-width: 100%;
-
     overflow: hidden;
-
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 900;
     line-height: 1.1;
-
     white-space: nowrap;
     text-overflow: ellipsis;
-
     color: var(--home-navy);
 }
 
@@ -9960,4 +9956,456 @@ body.reducedMotion .supplyDropCrateImage {
 
 .gameScreen .scoreNumber.scoreColor13 {
     --home-score-gradient: linear-gradient(90deg, #5c0009, #ff0f35, #ff6075, #fff0f2, #ff0f35, #5c0009);
+}
+
+
+/* =================================================
+   CONTENT POLISH PATCH — LONG TITLES / USA SWATCH
+================================================= */
+
+/* ACHIEVEMENTS is a long single word, so it gets a
+   slightly smaller title without shrinking normal shop names. */
+.shopHeader h2.compactSingleWordTitle {
+    padding-inline: 11px;
+    font-size: clamp(17px, 4.7vw, 22px);
+    letter-spacing: 0;
+    white-space: nowrap;
+}
+
+/* USA color swatch */
+.colorShopSwatch8 {
+    position: relative;
+    overflow: hidden;
+    background:
+            repeating-linear-gradient(
+                    to bottom,
+                    #b22234 0px,
+                    #b22234 8px,
+                    #ffffff 8px,
+                    #ffffff 16px
+            );
+}
+
+.colorShopSwatch8::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 44%;
+    height: 46%;
+    background: #3c3b6e;
+    border-bottom-right-radius: 8px;
+}
+
+.colorShopSwatch8::after {
+    content: "★★★★\A★★★★";
+    white-space: pre;
+    position: absolute;
+    top: 3px;
+    left: -2px;
+    color: #ffffff;
+    font-size: 6px;
+    line-height: 1;
+    letter-spacing: 0.5px;
+    font-weight: 900;
+    pointer-events: none;
+}
+
+/* =================================================
+   FIGMA UI ARTWORK — MORE + MINI ICON INTEGRATION
+================================================= */
+
+.gameUiArtwork {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.moreMenuIcon.hasUiArtwork {
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.moreMenuIcon .gameUiArtwork--more {
+    width: 50px;
+    height: 50px;
+}
+
+.rebirthAccessIcon.hasUiArtwork,
+.permanentPerksAccessIcon.hasUiArtwork,
+.lifeChallengesAccessIcon.hasUiArtwork,
+.achievementsAccessIcon.hasUiArtwork,
+.lastLifeAccessIcon.hasUiArtwork,
+.settingsAccessIcon.hasUiArtwork {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0;
+}
+
+.rebirthHeroIcon.hasUiArtwork,
+.permanentPerksSummary > span.hasUiArtwork,
+.lifeChallengesSummaryIcon.hasUiArtwork,
+.achievementsSummaryIcon.hasUiArtwork,
+.lastLifeHeroCard > span.hasUiArtwork,
+.settingsIntroduction > span.hasUiArtwork,
+.moreEmptyScreen > span.hasUiArtwork {
+    width: 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0;
+}
+
+.statIcon.hasUiArtwork,
+.lastLifeSummaryStatIcon.hasUiArtwork,
+.settingIcon.hasUiArtwork,
+.futureSettingsIcon.hasUiArtwork {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0;
+}
+
+.achievementIcon.hasUiArtwork,
+.lifeChallengeIcon.hasUiArtwork,
+.permanentPerkCollectionIcon.hasUiArtwork,
+.rebirthPerkChoiceIcon.hasUiArtwork {
+    overflow: hidden;
+    font-size: 0;
+}
+
+.achievementIcon .gameUiArtwork,
+.lifeChallengeIcon .gameUiArtwork,
+.permanentPerkCollectionIcon .gameUiArtwork,
+.rebirthPerkChoiceIcon .gameUiArtwork {
+    width: 84%;
+    height: 84%;
+}
+
+.achievementToastIcon,
+.lifeChallengeToastIcon,
+.offlineRewardIcon {
+    overflow: hidden;
+}
+
+.achievementToastIcon .gameUiArtwork,
+.lifeChallengeToastIcon .gameUiArtwork {
+    width: 88%;
+    height: 88%;
+}
+
+.offlineRewardIcon .gameUiArtwork {
+    width: 100%;
+    height: 100%;
+}
+
+/* =================================================
+   RESPONSIVE DEVICE FOUNDATION — FRIEND BETA
+   Keeps the 393px iPhone design as the visual baseline,
+   compresses gracefully on small/short phones, and centers
+   a slightly roomier portrait game canvas on iPad-sized screens.
+================================================= */
+
+html,
+body,
+.appShell {
+    min-width: 0;
+    min-height: 100%;
+}
+
+.gameScreen,
+.shopPanel,
+.saveSlotPanel,
+.offlineRewardPanel {
+    max-inline-size: 100%;
+}
+
+/* Very narrow phones. */
+@media (max-width: 350px) {
+    .gameScreen .scoreSection.homeScoreSection {
+        min-height: 310px;
+        padding: 54px 12px 10px;
+    }
+
+    .lifeBadge {
+        left: 12px;
+        min-height: 29px;
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+
+    .gameLogo {
+        width: min(76vw, 235px);
+        min-height: 72px;
+        padding-inline: 14px;
+    }
+
+    .gameLogoEnergy {
+        font-size: 25px;
+    }
+
+    .gameLogoClicker {
+        font-size: 19px;
+    }
+
+    .homeScoreBlock {
+        margin-top: 19px;
+    }
+
+    .gameScreen .scoreNumber {
+        font-size: clamp(46px, 14vw, 58px);
+    }
+
+    .productionPills {
+        gap: 6px;
+        margin-top: 14px;
+    }
+
+    .gameScreen .productionText.productionPill {
+        min-height: 37px;
+        padding-inline: 6px;
+        font-size: 11px;
+    }
+
+    .gameScreen .canButton {
+        width: min(52vw, 180px);
+        height: min(59vw, 205px);
+    }
+
+    .gameScreen .bottomNavigation {
+        min-height: calc(76px + env(safe-area-inset-bottom));
+    }
+
+    .gameScreen .navigationText {
+        font-size: 8px;
+    }
+
+    .menuOverlay {
+        padding-inline: 6px;
+    }
+
+    .shopPanel {
+        width: calc(100% - 4px);
+        border-radius: 24px;
+    }
+
+    .shopHeader {
+        grid-template-columns: 38px minmax(0, 1fr) 38px;
+        column-gap: 5px;
+        padding-inline: 10px;
+    }
+
+    .closeShopButton {
+        width: 38px;
+        height: 38px;
+        font-size: 29px;
+    }
+
+    .moreMenuButton {
+        grid-template-columns: 42px minmax(0, 1fr) 16px;
+        gap: 7px;
+        padding-inline: 9px;
+    }
+
+    .moreMenuIcon.hasUiArtwork,
+    .moreMenuIcon .gameUiArtwork--more {
+        width: 42px;
+        height: 42px;
+    }
+}
+
+/* Short devices such as older SE-sized iPhones. */
+@media (max-height: 680px) {
+    .gameScreen .scoreSection.homeScoreSection {
+        min-height: 286px;
+        padding-top: 50px;
+        padding-bottom: 8px;
+    }
+
+    .gameLogo {
+        width: min(59vw, 220px);
+        min-height: 66px;
+        border-width: 4px;
+    }
+
+    .gameLogoEnergy {
+        font-size: 25px;
+    }
+
+    .gameLogoClicker {
+        margin-top: 4px;
+        font-size: 19px;
+    }
+
+    .homeScoreBlock {
+        margin-top: 17px;
+    }
+
+    .gameScreen .scoreNumber {
+        font-size: clamp(45px, 13vw, 58px);
+    }
+
+    .currentEnergyLabel {
+        margin-top: 4px;
+        font-size: 11px;
+    }
+
+    .productionPills {
+        margin-top: 11px;
+    }
+
+    .gameScreen .canButton {
+        width: min(45vw, 170px);
+        height: min(51vw, 195px);
+    }
+
+    .gameScreen .tapSection {
+        padding-bottom: 10px;
+    }
+
+    .tapHint {
+        margin-top: 3px;
+    }
+
+    .gameScreen .bottomNavigation {
+        min-height: calc(74px + env(safe-area-inset-bottom));
+        padding-top: 3px;
+    }
+
+    .shopPanel {
+        height: min(88dvh, 690px);
+    }
+}
+
+/* iPad / large portrait devices.
+   Keep the game phone-like, but DO NOT let the phone canvas stretch to
+   the full height of a tall iPad. That was creating the giant empty gap
+   between the score area and the can / bottom navigation. */
+@media (min-width: 600px) {
+    .appShell {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        padding: clamp(12px, 2.6vh, 28px) 0;
+
+        background:
+            radial-gradient(
+                circle at 50% 38%,
+                rgba(159, 200, 255, 0.32),
+                transparent 38%
+            ),
+            #252b51;
+    }
+
+    .gameScreen {
+        width: min(500px, calc(100vw - 56px));
+        max-width: 500px;
+
+        /* The important iPad fix: cap the game height instead of
+           stretching the tap zone across 1100–1366px screens. */
+        height: min(100%, 1000px);
+        max-height: 1000px;
+
+        margin: auto;
+        overflow: hidden;
+
+        border: 4px solid var(--home-navy);
+        border-radius: 28px;
+
+        box-shadow: 0 0 60px rgba(8, 11, 31, 0.44);
+    }
+
+    /* Give the tablet version a little more visual weight so it does not
+       feel like a tiny phone screenshot pasted into the middle of an iPad. */
+    .gameScreen .scoreSection.homeScoreSection {
+        min-height: 405px;
+        padding-top: 64px;
+        padding-inline: 26px;
+    }
+
+    .gameLogo {
+        width: 300px;
+        min-height: 98px;
+    }
+
+    .gameLogoEnergy {
+        font-size: 38px;
+    }
+
+    .gameLogoClicker {
+        font-size: 29px;
+    }
+
+    .gameScreen .scoreNumber {
+        font-size: 76px;
+    }
+
+    .currentEnergyLabel {
+        font-size: 14px;
+    }
+
+    .productionPills {
+        gap: 14px;
+        margin-top: 22px;
+    }
+
+    .gameScreen .productionText.productionPill {
+        min-height: 46px;
+        font-size: 15px;
+    }
+
+    .gameScreen .tapSection {
+        padding-bottom: 18px;
+    }
+
+    .gameScreen .canButton {
+        width: 265px;
+        height: 305px;
+    }
+
+    .homeStatusSlot {
+        margin-top: 5px;
+    }
+
+    .gameScreen .bottomNavigation {
+        min-height: 92px;
+    }
+
+    .shopPanel {
+        width: min(500px, calc(100vw - 56px));
+        max-width: 500px;
+        height: min(88dvh, 900px);
+    }
+
+    .saveSlotPanel,
+    .offlineRewardPanel {
+        width: min(500px, calc(100vw - 64px));
+    }
+
+}
+
+/* Large iPad Pro sizes can use a slightly wider modal, while the actual
+   home screen remains capped so its proportions stay intentional. */
+@media (min-width: 900px) {
+    .shopPanel {
+        width: min(540px, calc(100vw - 96px));
+        max-width: 540px;
+    }
 }
